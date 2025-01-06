@@ -7,9 +7,6 @@ namespace TodoAPI.Dtos
         [Required]
         public string Title { get; set; }
 
-        
-        public bool IsCompleted { get; set; }
-
         [Required]
         public string Description { get; set; }
 
