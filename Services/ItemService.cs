@@ -104,6 +104,22 @@ namespace TodoAPI.Services
             }
         }
 
+        //Get all completed items   
+        public async Task<List<Item>> GetCompletedItems()
+        {
+            var items = await _context.Items.Where(x => x.IsCompleted == true).ToListAsync();
+
+            return items;
+        }
+
+        //Get all uncompleted items
+        public async Task<List<Item>> GetUncompletedItems()
+        {
+            var items = await _context.Items.Where(x => x.IsCompleted == false).ToListAsync();
+
+            return items;
+        }
+
 
 
     }
