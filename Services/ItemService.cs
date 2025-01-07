@@ -24,7 +24,6 @@ namespace TodoAPI.Services
                 {
                     Title = itemDto.Title,
                     Description = itemDto.Description,
-                    IsCompleted = itemDto.IsCompleted,
                     DueDate = itemDto.DueDate
                 };
                 // Add a new item to the database
