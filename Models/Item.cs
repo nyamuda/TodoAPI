@@ -8,6 +8,8 @@
         public bool IsCompleted { get; set; } = false;
 
         public DateTime DueDate { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 
 }

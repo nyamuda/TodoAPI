@@ -22,12 +22,50 @@ namespace TodoAPI.Controllers
 
         // GET: api/<ItemsController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
-            List<Item> items = await _itemService.GetItems();
-            return Ok(items);
+            
+            var (items, pageInfo) = await _itemService.GetItems(page, pageSize);
+
+            var response = new
+            {
+                items,
+                pageInfo
+            };
+            return Ok(response);
 
         }
+
+
+        // GET: api/<ItemsController>/completed
+        [HttpGet("completed")]
+        public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
+        {
+            var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize);
+
+            var response = new
+            {
+                items,
+                pageInfo
+            };
+            return Ok(response);
+
+        }
+
+        // GET: api/<ItemsController>/uncompleted
+        [HttpGet("uncompleted")]
+        public async Task<IActionResult> GetUncompleted(int page = 1, int pageSize = 10)
+        {
+            var (items, pageInfo) = await _itemService.GetUncompletedItems(page, pageSize);
+            var response = new
+            {
+                items,
+                pageInfo
+            };
+            return Ok(response);
+
+        }
+
 
         // GET api/<ItemsController>/5
         [HttpGet("{id}")]
@@ -65,15 +103,22 @@ namespace TodoAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, UpdateItemDto itemDto)
         {
-            bool isSuccess = await _itemService.UpdateItem(id, itemDto);
-
-            if (isSuccess)
+           if(ModelState.IsValid)
             {
-                return NoContent();
+                bool isSuccess = await _itemService.UpdateItem(id, itemDto);
+
+                if (isSuccess)
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
             else
             {
-                return NotFound();
+                return BadRequest();
             }
         }
 

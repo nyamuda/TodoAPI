@@ -41,6 +41,8 @@ namespace TodoAPI.Services
 
         //Update an item
 
+        //Update an item
+        //so far there is only one field that needs to be updated --- isCompleted
         public async Task<bool> UpdateItem(int id, UpdateItemDto itemDto)
         {
             try
@@ -51,10 +53,9 @@ namespace TodoAPI.Services
                     return false;
                 }
 
-                item.Title = itemDto.Title;
-                item.Description = itemDto.Description;
+          
                 item.IsCompleted = itemDto.IsCompleted;
-                item.DueDate = itemDto.DueDate;
+                
 
                 await _context.SaveChangesAsync();
                 return true;
@@ -67,12 +68,75 @@ namespace TodoAPI.Services
         }
 
         //Get all items
-        public async Task<List<Item>> GetItems()
+        //return a list of items and a PageInfo object
+        public async Task<(List<Item>, PageInfo)>  GetItems(int page, int pageSize)
         {
-            var items= await _context.Items.ToListAsync();
+            var items= await _context.Items
+                .OrderByDescending(x =>  x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
-            return items;
+            var totalItems = await _context.Items.CountAsync();
+            bool hasMore = totalItems > page * pageSize;
+
+            var pageInfo = new PageInfo()
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+
+            }; 
+
+            return (items, pageInfo);
+
         }
+        //Get all completed items   
+        public async Task<(List<Item>, PageInfo)> GetCompletedItems(int page, int pageSize)
+        {
+            var items = await _context.Items.Where(x => x.IsCompleted == true)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalItems = await _context.Items.Where(x => x.IsCompleted == true).CountAsync();
+            bool hasMore = totalItems > page * pageSize;
+
+            var pageInfo = new PageInfo()
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+
+            };
+
+            return (items, pageInfo);
+        }
+
+        //Get all uncompleted items
+        public async Task<(List<Item>, PageInfo)> GetUncompletedItems(int page, int pageSize)
+        {
+            var items = await _context.Items.Where(x => x.IsCompleted == false)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalItems = await _context.Items.Where(x => x.IsCompleted == false).CountAsync();
+            bool hasMore = totalItems > page * pageSize;
+
+            var pageInfo = new PageInfo()
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+
+            };
+
+            return (items, pageInfo);
+        }
+
 
         //Get an item by id
         public async Task<Item?> GetItem(int id)
@@ -104,22 +168,7 @@ namespace TodoAPI.Services
             }
         }
 
-        //Get all completed items   
-        public async Task<List<Item>> GetCompletedItems()
-        {
-            var items = await _context.Items.Where(x => x.IsCompleted == true).ToListAsync();
-
-            return items;
-        }
-
-        //Get all uncompleted items
-        public async Task<List<Item>> GetUncompletedItems()
-        {
-            var items = await _context.Items.Where(x => x.IsCompleted == false).ToListAsync();
-
-            return items;
-        }
-
+      
 
 
     }

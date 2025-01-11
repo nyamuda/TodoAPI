@@ -14,21 +14,12 @@ namespace TodoAPI.Dtos
         public DateTime DueDate { get; set; }
     }
 
-    public class GetItemDto
-    {
-    }
-
+    
     public class UpdateItemDto
     {
-        public string Title { get; set; }
-
-
+        [Required]  
         public bool IsCompleted { get; set; }
 
-        
-        public string Description { get; set; }
-
        
-        public DateTime DueDate { get; set; }
     }
 }
