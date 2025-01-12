@@ -2,6 +2,7 @@
 using TodoAPI.Data;
 using TodoAPI.Dtos;
 using TodoAPI.Models;
+using RestSharp;
 
 namespace TodoAPI.Services
 {
@@ -9,11 +10,14 @@ namespace TodoAPI.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly JwtService _jwtService;
+        private readonly IConfiguration _config;
 
-        public AccountService(ApplicationDbContext context, JwtService jwtService)
+        public AccountService(ApplicationDbContext context, JwtService jwtService, IConfiguration config)
         {
             _context = context;
             _jwtService = jwtService;
+            _config = config;
+
         }
 
         public async Task Register(UserRegisterDto userRegisterDto)
@@ -70,8 +74,37 @@ namespace TodoAPI.Services
             var token = _jwtService.GenerateJwtToken(user);
 
             return token;
-
-
         }
+
+        //Exchange code for access token
+       public async Task<string?> GetGoogleToken(string code)
+        {
+            var googleSettings = _config.GetSection("Authentication:Google");
+
+            var cliendId = googleSettings["ClientId"];
+            var secret = googleSettings["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"];
+            var redirectUrl = googleSettings["RedirectUrl"];
+
+            var restClient = new RestClient("https://oauth2.googleapis.com/token");
+
+            var request = new RestRequest().AddHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            // Add URL-encoded parameters
+            request.AddParameter("client_id", cliendId);
+            request.AddParameter("client_secret", secret);
+            request.AddParameter("code", code);
+            request.AddParameter("redirect_url", redirectUrl);
+            request.AddParameter("grant_type", "authorization_code");
+
+            //execute the request
+            var response = await restClient.ExecuteAsync(request);
+
+            if(!response.IsSuccessful)
+                throw new Exception($"Error getting Google token: {response.ErrorMessage}");
+
+            return response.Content;
+        }
+
+
     }
 }
