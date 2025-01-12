@@ -33,4 +33,16 @@ namespace TodoAPI.Dtos
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$")]
         public string Password { get; set; }
     }
+    public class UserUpdateDto {
+
+        [Required]
+        [MinLength(3)]
+        public string Name { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        
+    }
 }

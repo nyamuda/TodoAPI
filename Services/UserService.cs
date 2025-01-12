@@ -17,73 +17,112 @@ namespace TodoAPI.Services
         }
 
 
-        public async Task<(bool isSuccess, string message)> RegisterUser(UserRegisterDto userRegisterDto)
+        public async Task RegisterUser(UserRegisterDto userRegisterDto)
         {
-           try
+            //check if user with the provided email already exists
+            bool userExists = _context.Users.Any(u => u.Email.Equals(userRegisterDto.Email));
+            if (userExists)
             {
-                //check if user with the provided email already exists
-                bool userExists = _context.Users.Any(u => u.Email.Equals(userRegisterDto.Email));
-                if (userExists) {
-                    var message = "User with that email already exists.";
-                    return (false, message);
-                }
-
-                //hash the password
-                var hashedPassword= BCrypt.Net.BCrypt.HashPassword(userRegisterDto.Password);
-
-                var user = new User
-                {
-                    Name = userRegisterDto.Name,
-                    Email = userRegisterDto.Email,
-                    Password = hashedPassword,
-                    IsVerified=false,
-                    Role="User"
-                };
-
-                //add the user
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                return (true, "User has been registered.");
+                var message = "User with that email already exists.";
+                throw new KeyNotFoundException(message);
             }
-            catch(Exception ex)
+
+            //hash the password
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userRegisterDto.Password);
+
+            var user = new User
             {
-                return (false, ex.Message);
-            }
+                Name = userRegisterDto.Name,
+                Email = userRegisterDto.Email,
+                Password = hashedPassword,
+                IsVerified = false,
+                Role = "User"
+            };
+
+            //add the user
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+
+
         }
 
-        public async Task<(bool isSuccess, string message)> LoginUser(UserLoginDto loginDto) { 
+        public async Task<string> LoginUser(UserLoginDto loginDto)
+        {
 
-           try
+
+            //check if user exists
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+
+            if (user == null)
             {
-                //check if user exists
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-
-                if (user == null)
-                {
-                    var message = "User with the provided email does not exist.";
-                    return (false, message);
-                }
-
-                // Compare the provided password with the stored hashed password
-                string hashedPassword = user.Password;
-                var isCorrectPassword = BCrypt.Net.BCrypt.Verify(loginDto.Password, hashedPassword);
-
-                if (!isCorrectPassword) {
-                    var message = "The provided password is incorrect.";
-                    return (false, message);
-                }
-
-                //create token since the provided password is correct
-                var token = _jwtService.GenerateJwtToken(user);
-
-                return (true, token);
-
+                var message = "User with the provided email does not exist.";
+                throw new KeyNotFoundException(message);
             }
-            catch (Exception ex)
+
+            // Compare the provided password with the stored hashed password
+            string hashedPassword = user.Password;
+            var isCorrectPassword = BCrypt.Net.BCrypt.Verify(loginDto.Password, hashedPassword);
+
+            if (!isCorrectPassword)
             {
-                return (false, ex.Message);
+                var message = "The provided password is incorrect.";
+                throw new UnauthorizedAccessException(message);
             }
+
+            //create token since the provided password is correct
+            var token = _jwtService.GenerateJwtToken(user);
+
+            return token;
+
+
+        }
+
+        //get user information
+        public async Task<User?> GetUser(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            return user;
+        }
+
+        //update user
+        public async Task UpdateUser(int id, UserUpdateDto userUpdateDto)
+        {
+
+            var user = await GetUser(id);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with ID {id} was not found.");
+            }
+
+            //check if user's new email doesn't already exist
+            var emailExist = await _context.Users.AnyAsync(u => u.Email == user.Email && user.Id != id);
+
+            if (emailExist)
+                throw new InvalidOperationException("A user with this email already exists.");
+
+
+            user.Name = userUpdateDto.Name;
+            user.Email = userUpdateDto.Email;
+
+            await _context.SaveChangesAsync();
+
+
+
+        }
+
+
+
+        public async Task DeleteUser(int id)
+        {
+            var user = await GetUser(id);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {id} was not found.");
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
 
         }
     }
