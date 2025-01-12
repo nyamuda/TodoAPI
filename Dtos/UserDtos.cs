@@ -42,7 +42,7 @@ namespace TodoAPI.Dtos
         [Required]
         [EmailAddress]
         public string Email { get; set; }
-
-        
+    
     }
-}
+
+  
