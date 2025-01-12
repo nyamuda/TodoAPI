@@ -39,7 +39,7 @@ namespace TodoAPI.Services
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                return (true, "User has been registered");
+                return (true, "User has been registered.");
             }
             catch(Exception ex)
             {

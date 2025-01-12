@@ -12,6 +12,8 @@
 
         public string Role { get; set; } = "User";
 
+        public bool IsVerified { get; set; } = false;
+
         public List<Item> Items { get; set; } = new List<Item>();
     }
 }
