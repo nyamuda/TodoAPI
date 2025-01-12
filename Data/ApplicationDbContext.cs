@@ -28,7 +28,6 @@ namespace TodoAPI.Data
                 .WithMany(i => i.Items)
                 .HasForeignKey(i => i.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
         }
     }
 }
