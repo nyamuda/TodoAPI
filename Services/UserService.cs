@@ -2,15 +2,18 @@
 using TodoAPI.Dtos;
 using TodoAPI.Models;
 using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 namespace TodoAPI.Services
 {
     public class UserService
     {
         private readonly ApplicationDbContext _context;
+        private readonly JwtService _jwtService;
 
-        public UserService(ApplicationDbContext context)
+        public UserService(ApplicationDbContext context, JwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
 
@@ -32,7 +35,9 @@ namespace TodoAPI.Services
                 {
                     Name = userRegisterDto.Name,
                     Email = userRegisterDto.Email,
-                    Password = hashedPassword
+                    Password = hashedPassword,
+                    IsVerified=false,
+                    Role="User"
                 };
 
                 //add the user
@@ -45,6 +50,41 @@ namespace TodoAPI.Services
             {
                 return (false, ex.Message);
             }
+        }
+
+        public async Task<(bool isSuccess, string message)> LoginUser(UserLoginDto loginDto) { 
+
+           try
+            {
+                //check if user exists
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+
+                if (user == null)
+                {
+                    var message = "User with the provided email does not exist.";
+                    return (false, message);
+                }
+
+                // Compare the provided password with the stored hashed password
+                string hashedPassword = user.Password;
+                var isCorrectPassword = BCrypt.Net.BCrypt.Verify(loginDto.Password, hashedPassword);
+
+                if (!isCorrectPassword) {
+                    var message = "The provided password is incorrect.";
+                    return (false, message);
+                }
+
+                //create token since the provided password is correct
+                var token = _jwtService.GenerateJwtToken(user);
+
+                return (true, token);
+
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+
         }
     }
 }

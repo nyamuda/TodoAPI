@@ -12,9 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-//register the ItemService
+//register services
 builder.Services.AddScoped<ItemService>();
-
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<JwtService>();
 
 // Add services to the container.
 builder.Services.AddControllers();
