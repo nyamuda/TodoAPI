@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TodoAPI.Dtos;
 using TodoAPI.Services;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,10 +11,12 @@ namespace TodoAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AccountService _accountService;
+        private readonly JwtService _jwtService;
 
-        public AccountController(AccountService accountService)
+        public AccountController(AccountService accountService, JwtService jwtService)
         {
             _accountService = accountService;
+            _jwtService = jwtService;
         }
         // GET: api/<AccountController>
         [HttpGet]
@@ -121,6 +124,112 @@ namespace TodoAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
             
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("password/forgot")]
+        public async Task<IActionResult> PasswordForgot([FromBody] string email)
+        {
+            try
+            {
+                await _accountService.SendPasswordResetEmail(email);
+
+                return Ok();
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+        [HttpPost("password/reset")]
+        public async Task<IActionResult> PasswordReset([FromBody] string token, [FromBody] string password)
+        {
+            try
+            {
+                //validate the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                // If we got here then the token is valid
+                // since there is no exception
+                //get user email
+                string email=claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field not found.");
+
+                //reset the password of the user
+                await _accountService.ResetPassword(email: email, newPassword: password);
+
+                return Ok();
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+        //Send email verification email
+        [HttpPost("/verify/email")]
+        public async Task<IActionResult> EmailVerification([FromBody] string email)
+        {
+            try
+            {
+                await _accountService.SendEmailVerification(email);
+
+                return Ok();
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        //verify email by validating token
+        [HttpPost("/verify")]
+        public async Task<IActionResult> VerifyAccount([FromBody] string token)
+        {
+            try
+            {
+                //validate the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                // If we got here then the token is valid
+                // since there is no exception
+                //get user email
+                string email = claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field not found.");
+
+                //reset the password of the user
+                await _accountService.VerifyAccount(email: email);
+
+                return Ok();
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });

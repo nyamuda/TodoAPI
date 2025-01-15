@@ -183,6 +183,8 @@
         <div class=""email-body"">
             <p>Hi {name},</p>
             <p>Please click the link below to confirm your email.</p>  
+            <p>Thank you,</p>
+            <p>Prioritia</p>
         </div>
         <div class=""email-footer"">
             <a href=""{url}"" class=""reset-button"">Confirm Email</a>
