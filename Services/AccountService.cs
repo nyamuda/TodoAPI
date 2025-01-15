@@ -11,13 +11,19 @@ namespace TodoAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly JwtService _jwtService;
         private readonly IConfiguration _config;
+        private readonly AppService _appService;
+        private readonly TemplateService _templateService;
+        private readonly EmailSender _emailSender;
 
-        public AccountService(ApplicationDbContext context, JwtService jwtService, IConfiguration config)
+        public AccountService(ApplicationDbContext context, JwtService jwtService, 
+            IConfiguration config, AppService appService, TemplateService templateService, EmailSender emailSender)
         {
             _context = context;
             _jwtService = jwtService;
             _config = config;
-
+            _appService = appService;
+            _templateService = templateService;
+            _emailSender = emailSender;
         }
 
         public async Task Register(UserRegisterDto userRegisterDto)
@@ -150,6 +156,7 @@ namespace TodoAPI.Services
                 
         }
 
+        //Register user via Google
         public async Task<string> GoogleRegister(GoogleUser googleUser)
         {
             //check if the user with that email already exists
@@ -180,6 +187,86 @@ namespace TodoAPI.Services
 
             return token;
 
+        }
+
+
+        public async Task SendPasswordResetEmail(string email)
+        {
+            //check to see if user with the given email exists
+            var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+
+            if (userExists == null)
+                throw new KeyNotFoundException("User with the provided email does not exist.");
+
+            //generate reset token
+            var token = _jwtService.GenerateJwtToken(user:userExists,duration:"short");
+
+            string resetUrl = $"{_appService.AppDomainName}/account/password/reset?token={token}";
+
+
+            string htmlTemplate = _templateService.ResetPassword(resetUrl,userExists.Name);
+
+
+            //send email to reset password
+            var emailSubject = "Password Reset";
+            await _emailSender.SendEmail(userExists.Name, email, emailSubject, htmlTemplate);
+
+        }
+
+        //Reset password by validating token
+        public async Task ResetPassword(string email, string newPassword)
+        {
+            //check if user with the provided email already exists
+           var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+            if (userExists==null)
+            {
+                var message = "User with the provided email does not exists.";
+                throw new InvalidOperationException(message);
+            }
+
+            //hash the password
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            //update the password
+            userExists.Password = hashedPassword;
+            await _context.SaveChangesAsync();
+
+        }
+
+        public async Task SendEmailVerification(string email)
+        {
+            //check to see if user with the given email exists
+            var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+
+            if (userExists == null)
+                throw new KeyNotFoundException("User with the provided email does not exist.");
+
+            //generate reset token
+            var token = _jwtService.GenerateJwtToken(user: userExists, duration: "short");
+
+            string confirmUrl = $"{_appService.AppDomainName}/account/verify?token={token}";
+
+
+            string htmlTemplate = _templateService.ConfirmEmail(confirmUrl, userExists.Name);
+
+
+            //send email to reset password
+            var emailSubject = "Email Confirmation";
+            await _emailSender.SendEmail(userExists.Name, email, emailSubject, htmlTemplate);
+
+        }
+
+
+        public async Task VerifyAccount(string email)
+        {
+            //check to see if user with the given email exists
+            var userExists = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+
+            if (userExists == null)
+                throw new KeyNotFoundException("User with the provided email does not exist.");
+
+            userExists.IsVerified = true;
+            await _context.SaveChangesAsync();
         }
     }
 }

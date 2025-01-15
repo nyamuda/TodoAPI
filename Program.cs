@@ -17,6 +17,11 @@ builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<EmailSender>();
+builder.Services.AddScoped<TemplateService>();
+builder.Services.AddScoped<AppService>();
+
+
 
 
 // Add services to the container.
