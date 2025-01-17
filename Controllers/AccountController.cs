@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TodoAPI.Dtos;
+using TodoAPI.Dtos.Account;
 using TodoAPI.Services;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,20 +19,7 @@ namespace TodoAPI.Controllers
             _accountService = accountService;
             _jwtService = jwtService;
         }
-        // GET: api/<AccountController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<AccountController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
+       
         // POST api/<AccountController>/register
         [HttpPost("register")]
         public async Task<IActionResult> Post(UserRegisterDto registerDto)
@@ -39,7 +27,7 @@ namespace TodoAPI.Controllers
             try
             {
                 await _accountService.Register(registerDto);
-                return Ok(new {message= "User registered successfully." });
+                return StatusCode(201,new { message = "User registered successfully." });
             }
             catch (InvalidOperationException ex)
             {
@@ -57,8 +45,8 @@ namespace TodoAPI.Controllers
         {
             try
             {
-               var token= await _accountService.Login(loginDto);
-                return Ok(new { message = "User logged in successfully.", token=token });
+                var token = await _accountService.Login(loginDto);
+                return Ok(new { message = "User logged in successfully.", token = token });
             }
             catch (KeyNotFoundException ex)
             {
@@ -76,7 +64,7 @@ namespace TodoAPI.Controllers
 
         // POST api/<UsersController>/google-login
         [HttpPost("google-login")]
-        public async Task<IActionResult> GoogleLogin([FromBody] string code)
+        public async Task<IActionResult> GoogleLogin([FromQuery] string code)
         {
             try
             {
@@ -90,7 +78,7 @@ namespace TodoAPI.Controllers
                 return Ok(new { message = "User logged in successfully.", token = token });
 
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -100,12 +88,12 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500,new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
         [HttpPost("google-register")]
-        public async Task<IActionResult> GoogleRegister([FromBody] string code)
+        public async Task<IActionResult> GoogleRegister([FromQuery] string code)
         {
             try
             {
@@ -123,40 +111,20 @@ namespace TodoAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
-
-        [HttpPost("password/forgot")]
-        public async Task<IActionResult> PasswordForgot([FromBody] string email)
-        {
-            try
-            {
-                await _accountService.SendPasswordResetEmail(email);
-
-                return Ok();
-
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
 
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        [HttpPost("password/reset")]
-        public async Task<IActionResult> PasswordReset([FromBody] string token, [FromBody] string password)
+
+        [HttpPost("password-reset")]
+        public async Task<IActionResult> PasswordReset(PasswordResetDto resetDto)
         {
             try
             {
                 //validate the token
-                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+                ClaimsPrincipal claims = _jwtService.ValidateToken(resetDto.Token);
 
                 // If we got here then the token is valid
                 // since there is no exception
@@ -164,7 +132,7 @@ namespace TodoAPI.Controllers
                 string email=claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field not found.");
 
                 //reset the password of the user
-                await _accountService.ResetPassword(email: email, newPassword: password);
+                await _accountService.ResetPassword(email: email, newPassword: resetDto.Password);
 
                 return Ok();
 
@@ -183,36 +151,16 @@ namespace TodoAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        //Send email verification email
-        [HttpPost("/verify/email")]
-        public async Task<IActionResult> EmailVerification([FromBody] string email)
-        {
-            try
-            {
-                await _accountService.SendEmailVerification(email);
-
-                return Ok();
-
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
+       
 
         //verify email by validating token
-        [HttpPost("/verify")]
-        public async Task<IActionResult> VerifyAccount([FromBody] string token)
+        [HttpPut("verify")]
+        public async Task<IActionResult> VerifyAccount(TokenDto tokenDto)
         {
             try
             {
                 //validate the token
-                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+                ClaimsPrincipal claims = _jwtService.ValidateToken(tokenDto.Token);
 
                 // If we got here then the token is valid
                 // since there is no exception
@@ -222,7 +170,7 @@ namespace TodoAPI.Controllers
                 //reset the password of the user
                 await _accountService.VerifyAccount(email: email);
 
-                return Ok();
+                return NoContent();
 
             }
             catch (KeyNotFoundException ex)
@@ -234,18 +182,6 @@ namespace TodoAPI.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
-        }
-
-        // PUT api/<AccountController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<AccountController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

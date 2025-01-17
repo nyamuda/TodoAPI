@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoAPI.Services;
 using TodoAPI.Dtos;
+using TodoAPI.Dtos.Account;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,16 +17,28 @@ namespace TodoAPI.Controllers
         public UsersController(UserService userService) {
             _userService = userService;
         }
-        // GET: api/<UsersController>
+
+
+        // GET: api/<ItemsController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+           try
+            {
+                var users = await _userService.GetUsers();
+
+                return Ok(users);
+            }
+
+            catch (Exception ex) { 
+                return StatusCode(500, new {message=ex.Message});
+            }
+
         }
+
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<IActionResult> Get(int id)
         {
             var user = await _userService.GetUser(id);
@@ -37,12 +50,7 @@ namespace TodoAPI.Controllers
             return Ok(user);
         }
 
-        // POST api/<UsersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
+    
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, UserUpdateDto userUpdateDto)

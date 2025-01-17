@@ -195,5 +195,83 @@
 </html>
 ";
         }
+        //Template for contact us
+        public string ContactUs(string email, string name, string message)
+        {
+            return $@"
+<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>New Contact Us Message</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }}
+
+        .email-container {{
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 2rem;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+        }}
+
+        .email-header {{
+            text-align: center;
+            margin-bottom: 1rem; 
+        }}
+
+        .email-header h1 {{
+            margin: 0;
+            font-size: 24px;
+            color: #333333;
+        }}
+
+        .email-body p {{
+            font-size: 16px;
+            color: #555555;
+            line-height: 1.5;
+        }}
+
+        .email-footer {{
+            text-align: center;
+            margin-top: 20px;
+        }}
+
+        .footer-text {{
+            font-size: 14px;
+            color: #999999;
+        }}
+    </style>
+</head>
+<body>
+    <div class=""email-container"">
+        <div class=""email-header"">
+            <h1>New Contact Us Message</h1>
+        </div>
+        <div class=""email-body"">
+            <p><strong>Name:</strong> {name}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Message:</strong></p>
+            <p>{message}</p>  
+        </div>
+        <div class=""email-footer"">
+            <p class=""footer-text"">You received this message from the contact us page.</p>    
+        </div>
+    </div>
+</body>
+</html>
+";
+        }
+
+
     }
+    
+
 }

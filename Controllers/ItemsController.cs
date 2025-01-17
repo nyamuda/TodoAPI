@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TodoAPI.Data;
 using TodoAPI.Dtos;
+using TodoAPI.Dtos.Item;
 using TodoAPI.Models;
 using TodoAPI.Services;
 
@@ -14,18 +17,30 @@ namespace TodoAPI.Controllers
     public class ItemsController : ControllerBase
     {
         private ItemService _itemService;
+        private readonly JwtService _jwtService;
 
-        public ItemsController(ItemService itemService)
+        public ItemsController(ItemService itemService, JwtService jwtService)
         {
             _itemService = itemService;
+            _jwtService = jwtService;
         }
 
         // GET: api/<ItemsController>
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
-            
-            var (items, pageInfo) = await _itemService.GetItems(page, pageSize);
+            //First, get the access token for the authorized user
+            // Get the token from the Authorization header
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            ///validate and decode the token
+            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+            //get the email
+            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+            var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
 
             var response = new
             {
@@ -39,9 +54,21 @@ namespace TodoAPI.Controllers
 
         // GET: api/<ItemsController>/completed
         [HttpGet("completed")]
+        [Authorize]
         public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
         {
-            var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize);
+            //First, get the access token for the authorized user
+            // Get the token from the Authorization header
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            ///validate and decode the token
+            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+            //get the email
+            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+            //get the items of a user with that email
+            var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,email);
 
             var response = new
             {
@@ -54,9 +81,21 @@ namespace TodoAPI.Controllers
 
         // GET: api/<ItemsController>/uncompleted
         [HttpGet("uncompleted")]
+        [Authorize]
         public async Task<IActionResult> GetUncompleted(int page = 1, int pageSize = 10)
         {
-            var (items, pageInfo) = await _itemService.GetUncompletedItems(page, pageSize);
+            //First, get the access token for the authorized user
+            // Get the token from the Authorization header
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            ///validate and decode the token
+            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+            //get the email
+            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+            //get the items of a user with that email
+            var (items, pageInfo) = await _itemService.GetUncompletedItems(page, pageSize,email);
             var response = new
             {
                 items,
@@ -65,10 +104,53 @@ namespace TodoAPI.Controllers
             return Ok(response);
 
         }
+        //User statistics such as the number of completed items
+        [HttpGet("statistics")]
+        [Authorize]
+        public async Task<IActionResult> GetItemUserStatistics()
+        {
+           try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email == null)
+                    throw new InvalidOperationException("Email field not found from the provided token");
+
+                //user statistics
+                var statistics = await _itemService.GetItemUserStatistics(email);
+                
+                return Ok(statistics);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+
+
+        }
 
 
         // GET api/<ItemsController>/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> Get(int id)
         {
             var item = await _itemService.GetItem(id);
@@ -81,26 +163,61 @@ namespace TodoAPI.Controllers
 
         // POST api/<ItemsController>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post(AddItemDto itemDto)
         {
-            if (ModelState.IsValid)
+           try
             {
-                bool isSuccess = await _itemService.AddItem(itemDto);
-                if (isSuccess)
+                if (ModelState.IsValid)
                 {
-                    return Created("Get", itemDto);
+                    //First, get the access token for the authorized user
+                    // Get the token from the Authorization header
+                    var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                    ///validate and decode the token
+                    ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                    //get the email
+                    var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                    if(string.IsNullOrWhiteSpace(email))
+                    {
+                        throw new InvalidOperationException("Provided access token does not have an email address.");
+                    }
+
+                    bool isSuccess = await _itemService.AddItem(itemDto,email);
+                    if (isSuccess)
+                    {
+                        return Created("Get", itemDto);
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+
                 }
-                else
-                {
-                    return BadRequest();
-                }
+                return BadRequest();
 
             }
-            return BadRequest();
-        }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }     
+            
+            
+            }
 
         // PUT api/<ItemsController>/5
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Put(int id, UpdateItemDto itemDto)
         {
            if(ModelState.IsValid)
@@ -124,6 +241,7 @@ namespace TodoAPI.Controllers
 
         // DELETE api/<ItemsController>/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             bool isSuccess = await _itemService.DeleteItem(id);

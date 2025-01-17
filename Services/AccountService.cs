@@ -3,6 +3,7 @@ using TodoAPI.Data;
 using TodoAPI.Dtos;
 using TodoAPI.Models;
 using RestSharp;
+using TodoAPI.Dtos.Account;
 
 namespace TodoAPI.Services
 {
@@ -201,7 +202,7 @@ namespace TodoAPI.Services
             //generate reset token
             var token = _jwtService.GenerateJwtToken(user:userExists,duration:"short");
 
-            string resetUrl = $"{_appService.AppDomainName}/account/password/reset?token={token}";
+            string resetUrl = $"{_appService.AppDomainName}/account/password-reset?token={token}";
 
 
             string htmlTemplate = _templateService.ResetPassword(resetUrl,userExists.Name);
@@ -268,5 +269,7 @@ namespace TodoAPI.Services
             userExists.IsVerified = true;
             await _context.SaveChangesAsync();
         }
+
+        
     }
 }

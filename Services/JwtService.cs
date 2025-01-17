@@ -22,7 +22,7 @@ namespace TodoAPI.Services
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             //short tokens are for email verifications and password resets  = 15 minutes
-            var timeInMinutes = duration.Equals("long") ? Convert.ToDouble(jwtSettings["ExpiryInMinutes"]): 15;
+            var timeInMinutes = duration.Equals("long") ? Convert.ToDouble(jwtSettings["ExpiryInMinutes"]): 30;
 
 
             var token = new JwtSecurityToken(

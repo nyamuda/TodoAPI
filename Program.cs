@@ -63,8 +63,8 @@ builder.Services.AddCors(options =>
                 builder =>
                 {
                     builder.AllowAnyOrigin() // Allow requests from any origin
-                           .AllowAnyHeader()
-                           .AllowAnyMethod();
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
                 });
         });
 
@@ -78,12 +78,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-// Use CORS middleware
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
-app.UseAuthentication();
+// Use CORS middleware
+
+
+
 
 app.MapControllers();
 

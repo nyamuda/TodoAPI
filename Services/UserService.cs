@@ -3,6 +3,7 @@ using TodoAPI.Dtos;
 using TodoAPI.Models;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using TodoAPI.Dtos.Account;
 namespace TodoAPI.Services
 {
     public class UserService
@@ -14,6 +15,15 @@ namespace TodoAPI.Services
         {
             _context = context;
             _jwtService = jwtService;
+        }
+
+
+        //get all users
+        public async Task<List<User>> GetUsers()
+        {
+            var users = await _context.Users.ToListAsync();
+
+            return users;
         }
 
         //get user information

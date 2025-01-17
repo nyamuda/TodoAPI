@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TodoAPI.Dtos
+namespace TodoAPI.Dtos.Item
 {
     public class AddItemDto
     {
@@ -12,14 +12,5 @@ namespace TodoAPI.Dtos
 
         [Required]
         public DateTime DueDate { get; set; }
-    }
-
-    
-    public class UpdateItemDto
-    {
-        [Required]  
-        public bool IsCompleted { get; set; }
-
-       
     }
 }
