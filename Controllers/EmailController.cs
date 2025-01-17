@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TodoAPI.Dtos.Account;
+using TodoAPI.Dtos.Contact;
 using TodoAPI.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,10 +12,12 @@ namespace TodoAPI.Controllers
     public class EmailController : ControllerBase
     {
         private readonly AccountService _accountService;
+        private readonly ContactService _contactService;
 
-        public EmailController(AccountService accountService)
+        public EmailController(AccountService accountService, ContactService contactService)
         {
             _accountService = accountService;
+            _contactService = contactService;
         }
 
         // POST api/<EmailController>/password
@@ -26,7 +29,7 @@ namespace TodoAPI.Controllers
             {
                 await _accountService.SendPasswordResetEmail(emailDto.Email);
 
-                return Ok();
+                return Ok(new { message = "Password reset link sent successfully." });
 
             }
             catch (KeyNotFoundException ex)
@@ -48,7 +51,7 @@ namespace TodoAPI.Controllers
             {
                 await _accountService.SendEmailVerification(emailDto.Email);
 
-                return Ok(new {message="Email sent successfully."});
+                return Ok(new {message="Email verification link sent successfully."});
 
             }
             catch (KeyNotFoundException ex)
@@ -59,6 +62,30 @@ namespace TodoAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // POST api/<EmailController>/contact
+        //Send contact us email
+        [HttpPost("contact")]
+        public async Task<IActionResult> Post(ContactUsDto contactUsDto)
+        {
+            try
+            {
+                await _contactService.SendContactUsEmail(contactUsDto);
+
+                return StatusCode(201, new { message = "The message has been received." });
+
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
         }
 

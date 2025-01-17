@@ -64,11 +64,11 @@ namespace TodoAPI.Controllers
 
         // POST api/<UsersController>/google-login
         [HttpPost("google-login")]
-        public async Task<IActionResult> GoogleLogin([FromQuery] string code)
+        public async Task<IActionResult> GoogleLogin(CodeDto codeDto)
         {
             try
             {
-                var googleAccessToken = await _accountService.GetGoogleToken(code);
+                var googleAccessToken = await _accountService.GetGoogleToken(codeDto.Code);
 
                 var googleUserDetails = await _accountService.GetGoogleUserInfo(googleAccessToken);
 
@@ -92,31 +92,7 @@ namespace TodoAPI.Controllers
             }
         }
 
-        [HttpPost("google-register")]
-        public async Task<IActionResult> GoogleRegister([FromQuery] string code)
-        {
-            try
-            {
-                var googleAccessToken = await _accountService.GetGoogleToken(code);
-
-                var googleUserDetails = await _accountService.GetGoogleUserInfo(googleAccessToken);
-
-                //get JWT access token
-                var token = _accountService.GoogleRegister(googleUserDetails);
-
-                return Ok(new { message = "User registered successfully.", token = token });
-
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
+        
 
         [HttpPost("password-reset")]
         public async Task<IActionResult> PasswordReset(PasswordResetDto resetDto)

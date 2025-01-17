@@ -88,23 +88,30 @@ namespace TodoAPI.Services
         {
             var googleSettings = _config.GetSection("Authentication:Google");
 
-            var cliendId = googleSettings["ClientId"];
-            var secret = googleSettings["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"];
-            var redirectUrl = googleSettings["RedirectUrl"];
+            var clientId = googleSettings["ClientId"];
+            var secret = googleSettings["ClientSecret"];
+            var redirectUri = googleSettings["RedirectUrl"];
+
+          
 
             var restClient = new RestClient("https://oauth2.googleapis.com/token");
 
-            var request = new RestRequest().AddHeader("Content-Type", "application/x-www-form-urlencoded");
+            // Create a new request and set the method to POST as a string
+            var request = new RestRequest()
+                .AddHeader("Content-Type", "application/x-www-form-urlencoded")
+                .AddParameter("client_id", clientId)
+                .AddParameter("client_secret", secret)
+                .AddParameter("code", code)
+                .AddParameter("redirect_uri", redirectUri) 
+                .AddParameter("grant_type", "authorization_code");
 
-            // Add URL-encoded parameters
-            request.AddParameter("client_id", cliendId);
-            request.AddParameter("client_secret", secret);
-            request.AddParameter("code", code);
-            request.AddParameter("redirect_url", redirectUrl);
-            request.AddParameter("grant_type", "authorization_code");
+            // Set the method as POST
+            request.Method = Method.Post; 
 
             //execute the request
-            var response = await restClient.ExecuteAsync(request);
+            var response = await restClient.ExecuteAsync<GoogleTokenResponseDto>(request);
+
+           
 
             if(!response.IsSuccessful)
                 throw new Exception($"Error getting Google token: {response.ErrorMessage}");
@@ -113,7 +120,19 @@ namespace TodoAPI.Services
             if (response.Content == null)
                 throw new InvalidOperationException("The response content was null.");
 
-            return response.Content;
+
+            if (response.Data != null)
+            {
+               var accessToken = response.Data.Access_Token;
+
+                return accessToken;
+            }
+            else
+                throw new InvalidOperationException("The response content was null.");
+
+
+
+
         }
 
         public async Task<GoogleUser> GetGoogleUserInfo(string token)
@@ -126,6 +145,7 @@ namespace TodoAPI.Services
 
 
             var response = await client.ExecuteAsync<GoogleUser>(request);
+
 
             if(!response.IsSuccessful)
             {
@@ -140,20 +160,27 @@ namespace TodoAPI.Services
 
         public async Task<string> GoogleLogin(GoogleUser googleUser)
         {
+            string token = "";
             //check if the user with that email exists
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(googleUser.Email));
 
+           
+            //if user with the provided email does not exits
+            //register the user instead
             if (user == null)
             {
-                var message = "User with the provided email does not exist.";
-                throw new KeyNotFoundException(message);
+                token = await GoogleRegister(googleUser);
+                return token;
             }
 
-            //create JWT token
+            else
+            {
+                //create JWT token
 
-            var token = _jwtService.GenerateJwtToken(user);
+                token = _jwtService.GenerateJwtToken(user);
 
-            return token;
+                return token;
+            }
                 
         }
 
@@ -166,7 +193,7 @@ namespace TodoAPI.Services
             //if they exist, then you can't register
             if (userExists != null)
             {
-                var message = "User with the provided email already exists.";
+                var message = "An account with the provided email already exists. Please log in using your existing credentials.";
                 throw new InvalidOperationException(message);
             }
 

@@ -29,8 +29,8 @@ namespace TodoAPI.Services
 
 
             //send email to detail
-            string sendToEmail = _emailSender.SenderEmail;
-            string sendToName=_emailSender.SenderName;
+            string sendToEmail = "prioritia@gmail.com";
+            string sendToName= "Prioritia";
             await _emailSender.SendEmail(name: sendToName, email: sendToEmail, subject: emailSubject, message: htmlTemplate);
 
 
