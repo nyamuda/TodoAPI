@@ -21,6 +21,9 @@ builder.Services.AddScoped<EmailSender>();
 builder.Services.AddScoped<TemplateService>();
 builder.Services.AddScoped<AppService>();
 builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<FacebookService>();
+builder.Services.AddScoped<GoogleService>();
+
 
 
 
