@@ -54,11 +54,11 @@ namespace TodoAPI.Services
                 throw new Exception($"Error getting Google token: {response.ErrorMessage}");
 
 
-            if (response.Content == null)
+            if (response.Content is null)
                 throw new InvalidOperationException("The response content was null.");
 
 
-            if (response.Data != null)
+            if (response.Data is not null)
             {
                 var accessToken = response.Data.Access_Token;
 

@@ -40,6 +40,9 @@ namespace TodoAPI.Controllers
             //get the email
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
+            if (email is null)
+                return BadRequest(new { message = "Email field not found from the provided token." });
+
             var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
 
             var response = new
@@ -67,6 +70,9 @@ namespace TodoAPI.Controllers
             //get the email
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
+            if (email is null)
+                return BadRequest(new { message = "Email field not found from the provided token." });
+
             //get the items of a user with that email
             var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,email);
 
@@ -80,7 +86,7 @@ namespace TodoAPI.Controllers
         }
 
         // GET: api/<ItemsController>/uncompleted
-        [HttpGet("uncompleted")]
+        [HttpGet("pending")]
         [Authorize]
         public async Task<IActionResult> GetUncompleted(int page = 1, int pageSize = 10)
         {
@@ -94,8 +100,11 @@ namespace TodoAPI.Controllers
             //get the email
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
+            if (email is null)
+                return BadRequest(new { message = "Email field not found from the provided token." });
+
             //get the items of a user with that email
-            var (items, pageInfo) = await _itemService.GetUncompletedItems(page, pageSize,email);
+            var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize,email);
             var response = new
             {
                 items,
@@ -121,8 +130,9 @@ namespace TodoAPI.Controllers
                 //get the email
                 var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
-                if (email == null)
-                    throw new InvalidOperationException("Email field not found from the provided token");
+                if (email is null)
+                    return BadRequest(new { message = "Email field not found from the provided token." });
+
 
                 //user statistics
                 var statistics = await _itemService.GetItemUserStatistics(email);
@@ -156,7 +166,7 @@ namespace TodoAPI.Controllers
             var item = await _itemService.GetItem(id);
             if (item == null)
             {
-                return NotFound();
+                return NotFound(new {message="The item with the provided item ID was not found"});
             }
             return Ok(item);
         }
@@ -214,6 +224,40 @@ namespace TodoAPI.Controllers
             
             
             }
+
+        // POST api/<ItemsController>/guest
+        [HttpPost("guest")]
+        public async Task<IActionResult> PostGuestItem(AddGuestItemDto itemDto)
+        {
+            try
+            {
+                bool isSuccess = await _itemService.AddGuestItem(itemDto);
+                if (isSuccess)
+                {
+                    return Created("Get", itemDto);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+
+        }
+
 
         // PUT api/<ItemsController>/5
         [HttpPut("{id}")]

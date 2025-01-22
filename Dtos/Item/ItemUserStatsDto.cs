@@ -6,6 +6,8 @@
 
         public int TotalCompletedItems { get; set; } = 0;
 
-        public int TotalUncompletedItems { get; set; } = 0; 
+        public int TotalPendingItems { get; set; } = 0;
+
+        public int TotalCancelledItems { get; set } = 0; 
     }
 }

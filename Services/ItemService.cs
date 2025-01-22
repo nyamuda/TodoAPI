@@ -28,10 +28,39 @@ namespace TodoAPI.Services
 
                 var item = new Item
                 {
-                    Title = itemDto.Title,
-                    Description = itemDto.Description,
-                    DueDate = itemDto.DueDate,
+                    VehicleType=itemDto.VehicleType,
+                    ServiceType=itemDto.ServiceType,
+                    ScheduledAt=itemDto.ScheduledAt,
+                    AdditionalNotes=itemDto.AdditionalNotes,  
                     User=user,
+                };
+                // Add a new item to the database
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+        // Add guest item when user is not logged in and wants to create a booking
+        public async Task<bool> AddGuestItem(AddGuestItemDto itemDto)
+        {
+            try
+            {
+
+                var item = new Item
+                {
+                    GuestName=itemDto.GuestName,
+                    GuestEmail=itemDto.GuestEmail,
+                    GuestPhone=itemDto.GuestPhone,
+                    VehicleType = itemDto.VehicleType,
+                    ServiceType = itemDto.ServiceType,
+                    ScheduledAt = itemDto.ScheduledAt,
+                    AdditionalNotes = itemDto.AdditionalNotes
                 };
                 // Add a new item to the database
                 _context.Items.Add(item);
@@ -61,7 +90,7 @@ namespace TodoAPI.Services
                 }
 
           
-                item.IsCompleted = itemDto.IsCompleted;
+                item.Status = itemDto.Status;
                 
 
                 await _context.SaveChangesAsync();
@@ -102,14 +131,14 @@ namespace TodoAPI.Services
         //Get all completed items   
         public async Task<(List<Item>, PageInfo)> GetCompletedItems(int page, int pageSize,string email)
         {
-            var items = await _context.Items.Where(x => x.IsCompleted == true)
+            var items = await _context.Items.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase))
                 .Where(x => x.User.Email.Equals(email))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalItems = await _context.Items.Where(x => x.IsCompleted == true).CountAsync();
+            var totalItems = await _context.Items.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase)).CountAsync();
             bool hasMore = totalItems > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -123,17 +152,17 @@ namespace TodoAPI.Services
             return (items, pageInfo);
         }
 
-        //Get all uncompleted items
-        public async Task<(List<Item>, PageInfo)> GetUncompletedItems(int page, int pageSize, string email)
+        //Get all items that have not been completed
+        public async Task<(List<Item>, PageInfo)> GetPendingItems(int page, int pageSize, string email)
         {
-            var items = await _context.Items.Where(x => x.IsCompleted == false)
+            var items = await _context.Items.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase))
                 .Where(x => x.User.Email.Equals(email))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalItems = await _context.Items.Where(x => x.IsCompleted == false).CountAsync();
+            var totalItems = await _context.Items.Where(x => x.Status.Equals("pending", StringComparison.OrdinalIgnoreCase)).CountAsync();
             bool hasMore = totalItems > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -184,18 +213,20 @@ namespace TodoAPI.Services
             //get the user info first
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
             if (user == null)
-                throw new KeyNotFoundException("User with the provided email not found");
+                throw new KeyNotFoundException("User with the provided email does not exist.");
 
             //then get statistics about that user
             int totalItems = await _context.Items.Where(x => x.UserId == user.Id).CountAsync();
-            int totalCompletedItems = await _context.Items.Where(x => x.IsCompleted == true && x.UserId==user.Id).CountAsync();
-            int totalUncompletedItems = await _context.Items.Where(x => x.IsCompleted == false && x.UserId == user.Id).CountAsync();
+            int totalCompletedItems = await _context.Items.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase) && x.UserId==user.Id).CountAsync();
+            int totalPendingItems = await _context.Items.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase) && x.UserId == user.Id).CountAsync();
+            int totalCancelledItems = await _context.Items.Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase) && x.UserId == user.Id).CountAsync();
 
             var userStats = new ItemUserStatsDto
             {
                 TotalItems = totalItems,
                 TotalCompletedItems = totalCompletedItems,
-                TotalUncompletedItems = totalUncompletedItems
+                TotalPendingItems = totalPendingItems,
+                TotalCancelledItems=totalCancelledItems
             };
             return userStats;
         }

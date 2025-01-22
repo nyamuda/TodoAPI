@@ -2,8 +2,15 @@
 
 namespace TodoAPI.Dtos.Item
 {
-    public class AddItemDto
+    public class AddGuestItemDto
     {
+        [Required]
+        public string GuestName{ get; set; }
+        [Required]
+        [EmailAddress]
+        public string GuestEmail { get; set; }
+        [Required]
+        public string GuestPhone { get; set; }
         [Required]
         public string VehicleType { get; set; }
         [Required]
@@ -12,5 +19,7 @@ namespace TodoAPI.Dtos.Item
         public DateTime ScheduledAt { get; set; }
 
         public string AdditionalNotes { get; set; }
+
+       
     }
 }
