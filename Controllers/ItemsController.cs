@@ -41,7 +41,7 @@ namespace TodoAPI.Controllers
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
             if (email is null)
-                return BadRequest(new { message = "Email field not found from the provided token." });
+                return NotFound(new { message = "Email field not found from the provided token." });
 
             var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
 
@@ -71,7 +71,7 @@ namespace TodoAPI.Controllers
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
             if (email is null)
-                return BadRequest(new { message = "Email field not found from the provided token." });
+                return NotFound(new { message = "Email field not found from the provided token." });
 
             //get the items of a user with that email
             var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,email);
@@ -101,7 +101,7 @@ namespace TodoAPI.Controllers
             var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
             if (email is null)
-                return BadRequest(new { message = "Email field not found from the provided token." });
+                return NotFound(new { message = "Email field not found from the provided token." });
 
             //get the items of a user with that email
             var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize,email);
@@ -131,7 +131,7 @@ namespace TodoAPI.Controllers
                 var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
                 if (email is null)
-                    return BadRequest(new { message = "Email field not found from the provided token." });
+                    throw new KeyNotFoundException("Email field not found from the provided token.");
 
 
                 //user statistics
@@ -141,7 +141,7 @@ namespace TodoAPI.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
@@ -178,35 +178,25 @@ namespace TodoAPI.Controllers
         {
            try
             {
-                if (ModelState.IsValid)
+
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrWhiteSpace(email))
                 {
-                    //First, get the access token for the authorized user
-                    // Get the token from the Authorization header
-                    var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-                    ///validate and decode the token
-                    ClaimsPrincipal claims = _jwtService.ValidateToken(token);
-
-                    //get the email
-                    var email = claims.FindFirst(ClaimTypes.Email)?.Value;
-
-                    if(string.IsNullOrWhiteSpace(email))
-                    {
-                        throw new InvalidOperationException("Provided access token does not have an email address.");
-                    }
-
-                    bool isSuccess = await _itemService.AddItem(itemDto,email);
-                    if (isSuccess)
-                    {
-                        return Created("Get", itemDto);
-                    }
-                    else
-                    {
-                        return BadRequest();
-                    }
-
+                    throw new InvalidOperationException("Provided access token does not have an email address.");
                 }
-                return BadRequest();
+
+                await _itemService.AddItem(itemDto, email);
+
+                return Created("Get", itemDto);
 
             }
             catch(KeyNotFoundException ex)
@@ -231,15 +221,8 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                bool isSuccess = await _itemService.AddGuestItem(itemDto);
-                if (isSuccess)
-                {
-                    return Created("Get", itemDto);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                await _itemService.AddGuestItem(itemDto);
+                return Created("Get", itemDto);
 
             }
             catch (KeyNotFoundException ex)
@@ -264,22 +247,22 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Put(int id, UpdateItemDto itemDto)
         {
-           if(ModelState.IsValid)
+           try
             {
-                bool isSuccess = await _itemService.UpdateItem(id, itemDto);
-
-                if (isSuccess)
-                {
-                    return NoContent();
-                }
-                else
-                {
-                    return NotFound();
-                }
+                await _itemService.UpdateItem(id, itemDto);
+                return NoContent();
             }
-            else
+            catch(KeyNotFoundException ex)
             {
-                return BadRequest();
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -288,15 +271,24 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            bool isSuccess = await _itemService.DeleteItem(id);
-            if (isSuccess)
+            try
             {
+                await _itemService.DeleteItem(id);
                 return NoContent();
             }
-            else
+            catch (KeyNotFoundException ex)
             {
-               return NotFound();
+                return NotFound(new { message = ex.Message });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
         }
     }
 }

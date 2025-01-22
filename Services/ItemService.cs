@@ -17,90 +17,55 @@ namespace TodoAPI.Services
         }
 
         // Add a new item
-        public async Task<bool> AddItem(AddItemDto itemDto, string email)
+        public async Task AddItem(AddItemDto itemDto, string email)
         {
-            try
-            {
-                //get the user with the given email
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
-                if (user == null)
-                    throw new KeyNotFoundException("User with the provided email not found.");
+            //get the user with the given email
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
+            if (user == null)
+                throw new KeyNotFoundException("User with the provided email was not found.");
 
-                var item = new Item
-                {
-                    VehicleType=itemDto.VehicleType,
-                    ServiceType=itemDto.ServiceType,
-                    ScheduledAt=itemDto.ScheduledAt,
-                    AdditionalNotes=itemDto.AdditionalNotes,  
-                    User=user,
-                };
-                // Add a new item to the database
-                _context.Items.Add(item);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-
-            catch (Exception e)
+            var item = new Item
             {
-                Console.WriteLine(e);
-                return false;
-            }
+                VehicleType = itemDto.VehicleType,
+                ServiceType = itemDto.ServiceType,
+                ScheduledAt = itemDto.ScheduledAt,
+                AdditionalNotes = itemDto.AdditionalNotes,
+                User = user,
+            };
+            // Add a new item to the database
+            _context.Items.Add(item);
+            await _context.SaveChangesAsync();
+           
         }
         // Add guest item when user is not logged in and wants to create a booking
-        public async Task<bool> AddGuestItem(AddGuestItemDto itemDto)
+        public async Task AddGuestItem(AddGuestItemDto itemDto)
         {
-            try
+            var item = new Item
             {
-
-                var item = new Item
-                {
-                    GuestName=itemDto.GuestName,
-                    GuestEmail=itemDto.GuestEmail,
-                    GuestPhone=itemDto.GuestPhone,
-                    VehicleType = itemDto.VehicleType,
-                    ServiceType = itemDto.ServiceType,
-                    ScheduledAt = itemDto.ScheduledAt,
-                    AdditionalNotes = itemDto.AdditionalNotes
-                };
-                // Add a new item to the database
-                _context.Items.Add(item);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
+                GuestName = itemDto.GuestName,
+                GuestEmail = itemDto.GuestEmail,
+                GuestPhone = itemDto.GuestPhone,
+                VehicleType = itemDto.VehicleType,
+                ServiceType = itemDto.ServiceType,
+                ScheduledAt = itemDto.ScheduledAt,
+                AdditionalNotes = itemDto.AdditionalNotes
+            };
+            // Add a new item to the database
+            _context.Items.Add(item);
+            await _context.SaveChangesAsync();
         }
-
-        //Update an item
 
         //Update an item
         //so far there is only one field that needs to be updated --- isCompleted
-        public async Task<bool> UpdateItem(int id, UpdateItemDto itemDto)
+        public async Task UpdateItem(int id, UpdateItemDto itemDto)
         {
-            try
-            {
-                var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
-                if (item == null)
-                {
-                    return false;
-                }
+            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+            if (item is null)
+                throw new KeyNotFoundException("Item with the given ID does not exist.");
 
-          
-                item.Status = itemDto.Status;
-                
+            item.Status = itemDto.Status;
 
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
+            await _context.SaveChangesAsync();
         }
 
         //Get all items
@@ -186,25 +151,15 @@ namespace TodoAPI.Services
         }
 
         //Delete an item
-        public async Task<bool> DeleteItem(int id)
+        public async Task DeleteItem(int id)
         {
-            try
-            {
-                var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
-                if (item == null)
-                {
-                    return false;
-                }
 
-                _context.Items.Remove(item);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
+            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+            if (item == null)
+                throw new KeyNotFoundException("Item with the given ID does not exist.");
+
+            _context.Items.Remove(item);
+            await _context.SaveChangesAsync();
         }
 
         //Get user statistics about items 
