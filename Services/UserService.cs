@@ -71,7 +71,18 @@ namespace TodoAPI.Services
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-
+(
         }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
+
+            if (user is null)
+                throw new KeyNotFoundException("User with the given email does not exist.");
+
+            return user;
+
+    }
     }
 }

@@ -50,7 +50,7 @@ namespace TodoAPI.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return NotFound(new { Message = ex.Message });
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -122,7 +122,7 @@ namespace TodoAPI.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound(new { message = ex.Message });
             }
 
             catch (Exception ex)

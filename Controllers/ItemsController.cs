@@ -18,11 +18,13 @@ namespace TodoAPI.Controllers
     {
         private ItemService _itemService;
         private readonly JwtService _jwtService;
+        private readonly UserService _userService;
 
-        public ItemsController(ItemService itemService, JwtService jwtService)
+        public ItemsController(ItemService itemService, JwtService jwtService, UserService userService)
         {
             _itemService = itemService;
             _jwtService = jwtService;
+            _userService = userService;
         }
 
         // GET: api/<ItemsController>
@@ -30,27 +32,41 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
-            //First, get the access token for the authorized user
-            // Get the token from the Authorization header
-            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-            ///validate and decode the token
-            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
-
-            //get the email
-            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (email is null)
-                return NotFound(new { message = "Email field not found from the provided token." });
-
-            var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
-
-            var response = new
+            try
             {
-                items,
-                pageInfo
-            };
-            return Ok(response);
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email is null)
+                    return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
+
+                //get user with the email
+                var user = _userService.GetUserByEmail(email);
+
+                if (user is null)
+                    return NotFound(new { message = "User with the given email does not exist." });
+
+
+                var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
+
+                var response = new
+                {
+                    items,
+                    pageInfo
+                };
+                return Ok(response);
+            } 
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
 
         }
 
@@ -60,57 +76,83 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
         {
-            //First, get the access token for the authorized user
-            // Get the token from the Authorization header
-            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-            ///validate and decode the token
-            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
-
-            //get the email
-            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (email is null)
-                return NotFound(new { message = "Email field not found from the provided token." });
-
-            //get the items of a user with that email
-            var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,email);
-
-            var response = new
+            try
             {
-                items,
-                pageInfo
-            };
-            return Ok(response);
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email is null)
+                    return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
+
+                //get user with the email
+                var user = _userService.GetUserByEmail(email);
+
+                if (user is null)
+                    return NotFound(new { message = "User with the given email does not exist." });
+
+                //get the items of a user with that email
+                var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize, email);
+
+                var response = new
+                {
+                    items,
+                    pageInfo
+                };
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
 
         }
 
         // GET: api/<ItemsController>/uncompleted
         [HttpGet("pending")]
         [Authorize]
-        public async Task<IActionResult> GetUncompleted(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetPending(int page = 1, int pageSize = 10)
         {
-            //First, get the access token for the authorized user
-            // Get the token from the Authorization header
-            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-            ///validate and decode the token
-            ClaimsPrincipal claims = _jwtService.ValidateToken(token);
-
-            //get the email
-            var email = claims.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (email is null)
-                return NotFound(new { message = "Email field not found from the provided token." });
-
-            //get the items of a user with that email
-            var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize,email);
-            var response = new
+            try
             {
-                items,
-                pageInfo
-            };
-            return Ok(response);
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email is null)
+                    return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
+
+                //get user with the email
+                var user = _userService.GetUserByEmail(email);
+
+                if (user is null)
+                    return NotFound(new { message = "User with the given email does not exist." });
+
+                //get the items of a user with that email
+                var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize, email);
+                var response = new
+                {
+                    items,
+                    pageInfo
+                };
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
 
         }
         //User statistics such as the number of completed items
@@ -131,7 +173,7 @@ namespace TodoAPI.Controllers
                 var email = claims.FindFirst(ClaimTypes.Email)?.Value;
 
                 if (email is null)
-                    throw new KeyNotFoundException("Email field not found from the provided token.");
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
 
 
                 //user statistics
@@ -146,6 +188,10 @@ namespace TodoAPI.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
 
             catch (Exception ex)
@@ -163,12 +209,59 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Get(int id)
         {
-            var item = await _itemService.GetItem(id);
-            if (item == null)
+            try
             {
-                return NotFound(new {message="The item with the provided item ID was not found"});
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email and role
+                var tokenEmail = claims.FindFirst(ClaimTypes.Email)?.Value;
+                var role = claims.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (tokenEmail == null || role == null)
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
+
+
+                //get user with the given email
+                var user = _userService.GetUserByEmail(tokenEmail);
+                //item they're trying to access
+                var item = await _itemService.GetItem(id);
+
+                //for a user to perform this request, their ID 
+                //must match the ID of the user of the item they're trying to access
+                //OR they should be the admin
+                if (!item.UserId.Equals(user.Id) && !role.Equals("Admin"))
+                {
+                    return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
+                }
+
+                
+
+                return Ok(item);
             }
-            return Ok(item);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+
         }
 
         // POST api/<ItemsController>
@@ -191,7 +284,7 @@ namespace TodoAPI.Controllers
 
                 if (string.IsNullOrWhiteSpace(email))
                 {
-                    throw new InvalidOperationException("Provided access token does not have an email address.");
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
                 await _itemService.AddItem(itemDto, email);
@@ -206,6 +299,10 @@ namespace TodoAPI.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -249,6 +346,34 @@ namespace TodoAPI.Controllers
         {
            try
             {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email and role
+                var tokenEmail = claims.FindFirst(ClaimTypes.Email)?.Value;
+                var role = claims.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (tokenEmail == null || role == null)
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
+
+
+                //get user with the given email
+                var user = _userService.GetUserByEmail(tokenEmail);
+                //item they're trying to access
+                var item = await _itemService.GetItem(id);
+
+                //for a user to perform this request, their ID 
+                //must match the ID of the user of the item they're trying to access
+                //OR they should be the admin
+                if (!item.UserId.Equals(user.Id) && !role.Equals("Admin"))
+                {
+                    return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
+                }
+
                 await _itemService.UpdateItem(id, itemDto);
                 return NoContent();
             }
@@ -256,6 +381,7 @@ namespace TodoAPI.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+           
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
@@ -268,11 +394,12 @@ namespace TodoAPI.Controllers
 
         // DELETE api/<ItemsController>/5
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
+
                 await _itemService.DeleteItem(id);
                 return NoContent();
             }

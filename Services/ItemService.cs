@@ -143,9 +143,12 @@ namespace TodoAPI.Services
 
 
         //Get an item by id
-        public async Task<Item?> GetItem(int id)
+        public async Task<Item> GetItem(int id)
         {
             var item= await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (item is null)
+                throw new KeyNotFoundException("Item with the given ID does not exist.");
 
             return item;
         }

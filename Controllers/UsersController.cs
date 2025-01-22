@@ -59,7 +59,7 @@ namespace TodoAPI.Controllers
             var role = claims.FindFirst(ClaimTypes.Role)?.Value;
 
             if (tokenEmail == null || role == null)
-                return BadRequest(new { Message = "Access denied. The token lacks necessary claims for verification." });
+                return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
 
             var user = await _userService.GetUser(id);
 
@@ -100,7 +100,7 @@ namespace TodoAPI.Controllers
                 var role = claims.FindFirst(ClaimTypes.Role)?.Value;
 
                 if (tokenEmail == null || role == null)
-                    return BadRequest(new { Message = "Access denied. The token lacks necessary claims for verification." });
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
 
                 var user = await _userService.GetUser(id);
 
@@ -154,7 +154,7 @@ namespace TodoAPI.Controllers
                 var role =claims.FindFirst(ClaimTypes.Role)?.Value;
 
                 if (tokenEmail == null || role ==null)
-                    return BadRequest(new { Message = "Access denied. The token lacks necessary claims for verification." });
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
 
                 var user = await _userService.GetUser(id);
 
