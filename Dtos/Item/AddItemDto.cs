@@ -8,6 +8,9 @@ namespace TodoAPI.Dtos.Item
         public string VehicleType { get; set; }
         [Required]
         public string ServiceType { get; set; }
+
+        [Required]
+        public string Location { get; set; }
         [Required]
         public DateTime ScheduledAt { get; set; }
 

@@ -8,6 +8,7 @@ namespace TodoAPI.Services
     {
 
         private readonly IConfiguration _config;
+        public string AdminEmail { get; } = "ptnrlab@gmail.com";
         public EmailSender(IConfiguration config)
         {
             _config = config;

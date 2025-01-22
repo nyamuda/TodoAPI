@@ -48,13 +48,13 @@ namespace TodoAPI.Controllers
                     return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
 
                 //get user with the email
-                var user = _userService.GetUserByEmail(email);
+                var user = await _userService.GetUserByEmail(email);
 
                 if (user is null)
                     return NotFound(new { message = "User with the given email does not exist." });
 
 
-                var (items, pageInfo) = await _itemService.GetItems(page, pageSize, email);
+                var (items, pageInfo) = await _itemService.GetItems(page, pageSize, user);
 
                 var response = new
                 {
@@ -92,13 +92,13 @@ namespace TodoAPI.Controllers
                     return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
 
                 //get user with the email
-                var user = _userService.GetUserByEmail(email);
+                var user = await _userService.GetUserByEmail(email);
 
                 if (user is null)
                     return NotFound(new { message = "User with the given email does not exist." });
 
                 //get the items of a user with that email
-                var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize, email);
+                var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,user);
 
                 var response = new
                 {
@@ -135,13 +135,13 @@ namespace TodoAPI.Controllers
                     return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
 
                 //get user with the email
-                var user = _userService.GetUserByEmail(email);
+                var user = await _userService.GetUserByEmail(email);
 
                 if (user is null)
                     return NotFound(new { message = "User with the given email does not exist." });
 
                 //get the items of a user with that email
-                var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize, email);
+                var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize, user);
                 var response = new
                 {
                     items,

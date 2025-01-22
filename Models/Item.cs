@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public string VehicleType { get; set; }
         public string ServiceType { get; set; }
+        public string Location { get; set; }
         public string Status { get; set; } = "Pending";
 
         public DateTime ScheduledAt { get; set; }
@@ -21,6 +22,7 @@
         public string GuestName { get; set; } = default!; 
         public string GuestEmail { get; set; } = default!;
         public string GuestPhone { get; set; } = default!;
+        public string GuestLocation { get; set; } = default!;
     }
     
 

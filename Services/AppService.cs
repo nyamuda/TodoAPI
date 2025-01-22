@@ -6,5 +6,7 @@ namespace TodoAPI.Services
     {
 
         public string AppDomainName { get; } = "https://prioritia.netlify.app";
+
+        
     }
 }

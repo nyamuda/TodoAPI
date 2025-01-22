@@ -12,6 +12,8 @@ namespace TodoAPI.Dtos.Item
         [Required]
         public string GuestPhone { get; set; }
         [Required]
+        public string GuestLocation { get; set; }
+        [Required]
         public string VehicleType { get; set; }
         [Required]
         public string ServiceType { get; set; }

@@ -9,11 +9,15 @@ namespace TodoAPI.Services
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly TemplateService _templateService;
+        private readonly EmailSender _emailSender;
 
 
-        public ItemService(ApplicationDbContext context)
+        public ItemService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender)
         {
             _context = context;
+            _templateService = templateService;
+            _emailSender = emailSender;
         }
 
         // Add a new item
@@ -22,12 +26,13 @@ namespace TodoAPI.Services
             //get the user with the given email
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
             if (user == null)
-                throw new KeyNotFoundException("User with the provided email was not found.");
+                throw new KeyNotFoundException("User with the provided email does not exist.");
 
             var item = new Item
             {
                 VehicleType = itemDto.VehicleType,
                 ServiceType = itemDto.ServiceType,
+                Location=itemDto.Location,
                 ScheduledAt = itemDto.ScheduledAt,
                 AdditionalNotes = itemDto.AdditionalNotes,
                 User = user,
@@ -35,7 +40,24 @@ namespace TodoAPI.Services
             // Add a new item to the database
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
-           
+
+            //send an email to notify the user of the new booking
+            var name = user.Name;
+            var phone = user.Phone;
+            var location = itemDto.Location;
+            var vehicleType = itemDto.VehicleType;
+            var serviceType = itemDto.ServiceType;
+            var scheduleAt = itemDto.ScheduledAt;
+            var additionalNotes = itemDto.AdditionalNotes;
+
+            var emailBody = _templateService.BookingCreated(name, email, phone, serviceType, vehicleType, location, scheduleAt, additionalNotes);
+            var emailSubject = "New Booking Created";
+            await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+
+            //send an email to notify the admin of the new booking
+            var adminEmail = _emailSender.AdminEmail;
+            await _emailSender.SendEmail(name:"Admin", email:adminEmail, subject:emailSubject, message:emailBody);
+
         }
         // Add guest item when user is not logged in and wants to create a booking
         public async Task AddGuestItem(AddGuestItemDto itemDto)
@@ -53,6 +75,24 @@ namespace TodoAPI.Services
             // Add a new item to the database
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
+
+            //send an email to notify the user of the new booking
+            var name = item.GuestName;
+            var phone = item.GuestPhone;
+            var email = item.GuestEmail;
+            var location = item.GuestLocation;
+            var vehicleType = item.VehicleType;
+            var serviceType = item.ServiceType;
+            var scheduleAt = item.ScheduledAt;
+            var additionalNotes = item.AdditionalNotes;
+
+            var emailBody = _templateService.BookingCreated(name, email, phone, serviceType, vehicleType, location, scheduleAt, additionalNotes);
+            var emailSubject = "New Booking Created";
+            await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+
+            //send an email to notify the admin of the new booking
+            var adminEmail = _emailSender.AdminEmail;
+            await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
         }
 
         //Update an item
@@ -70,10 +110,10 @@ namespace TodoAPI.Services
 
         //Get all items
         //return a list of items and a PageInfo object
-        public async Task<(List<Item>, PageInfo)>  GetItems(int page, int pageSize,string email)
+        public async Task<(List<Item>, PageInfo)>  GetItems(int page, int pageSize,User user)
         {
             var items= await _context.Items
-                .Where(x => x.User.Email.Equals(email))
+                .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x =>  x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -94,10 +134,11 @@ namespace TodoAPI.Services
 
         }
         //Get all completed items   
-        public async Task<(List<Item>, PageInfo)> GetCompletedItems(int page, int pageSize,string email)
+        public async Task<(List<Item>, PageInfo)> GetCompletedItems(int page, int pageSize,User user)
         {
+           
             var items = await _context.Items.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase))
-                .Where(x => x.User.Email.Equals(email))
+                .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -118,10 +159,10 @@ namespace TodoAPI.Services
         }
 
         //Get all items that have not been completed
-        public async Task<(List<Item>, PageInfo)> GetPendingItems(int page, int pageSize, string email)
+        public async Task<(List<Item>, PageInfo)> GetPendingItems(int page, int pageSize, User user)
         {
             var items = await _context.Items.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase))
-                .Where(x => x.User.Email.Equals(email))
+                .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
