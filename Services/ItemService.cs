@@ -72,7 +72,7 @@ namespace TodoAPI.Services
                 ScheduledAt = itemDto.ScheduledAt,
                 AdditionalNotes = itemDto.AdditionalNotes
             };
-            // Add a new item to the database
+            // Add the new item to the database
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
 
@@ -108,7 +108,7 @@ namespace TodoAPI.Services
             await _context.SaveChangesAsync();
         }
 
-        //Get all items
+        //Get all items for a user
         //return a list of items and a PageInfo object
         public async Task<(List<Item>, PageInfo)>  GetItems(int page, int pageSize,User user)
         {
@@ -119,7 +119,8 @@ namespace TodoAPI.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalItems = await _context.Items.CountAsync();
+            //total items
+            var totalItems = await _context.Items.Where(x => x.UserId.Equals(user.Id)).CountAsync();
             bool hasMore = totalItems > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -133,7 +134,7 @@ namespace TodoAPI.Services
             return (items, pageInfo);
 
         }
-        //Get all completed items   
+        //Get all completed items for a user  
         public async Task<(List<Item>, PageInfo)> GetCompletedItems(int page, int pageSize,User user)
         {
            
@@ -144,7 +145,8 @@ namespace TodoAPI.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalItems = await _context.Items.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase)).CountAsync();
+            //total items that have been completed
+            var totalItems = await _context.Items.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase)).CountAsync();
             bool hasMore = totalItems > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -158,7 +160,7 @@ namespace TodoAPI.Services
             return (items, pageInfo);
         }
 
-        //Get all items that have not been completed
+        //Get all pending items for a user
         public async Task<(List<Item>, PageInfo)> GetPendingItems(int page, int pageSize, User user)
         {
             var items = await _context.Items.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase))
@@ -168,7 +170,8 @@ namespace TodoAPI.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalItems = await _context.Items.Where(x => x.Status.Equals("pending", StringComparison.OrdinalIgnoreCase)).CountAsync();
+            //total items that are pending
+            var totalItems = await _context.Items.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("pending", StringComparison.OrdinalIgnoreCase)).CountAsync();
             bool hasMore = totalItems > page * pageSize;
 
             var pageInfo = new PageInfo()

@@ -6,5 +6,17 @@ namespace TodoAPI.Dtos.Item
     {
         [Required]
         public string Status { get; set; }
+
+        [Required]
+        public string VehicleType { get; set; }
+        [Required]
+        public string ServiceType { get; set; }
+
+        [Required]
+        public string Location { get; set; }
+        [Required]
+        public DateTime ScheduledAt { get; set; }
+
+        public string AdditionalNotes { get; set; }
     }
 }

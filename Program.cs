@@ -23,6 +23,8 @@ builder.Services.AddScoped<AppService>();
 builder.Services.AddScoped<ContactService>();
 builder.Services.AddScoped<FacebookService>();
 builder.Services.AddScoped<GoogleService>();
+builder.Services.AddScoped<AdminService>();
+
 
 
 

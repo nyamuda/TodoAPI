@@ -1,6 +1,6 @@
 ﻿namespace TodoAPI.Dtos.Item
 {
-    public class ItemUserStatsDto
+    public class ItemAdminStatsDto
     {
         public int TotalItems { get; set; } = 0;
 
@@ -8,6 +8,8 @@
 
         public int TotalPendingItems { get; set; } = 0;
 
-        public int TotalCancelledItems { get; set; } = 0; 
+        public int TotalCancelledItems { get; set; } = 0;
+
+       
     }
 }
