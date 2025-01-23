@@ -52,8 +52,10 @@ namespace TodoAPI.Services
                 throw new InvalidOperationException("A user with this email already exists.");
 
 
+
             user.Name = userUpdateDto.Name;
             user.Email = userUpdateDto.Email;
+            user.Phone = userUpdateDto.Phone;
 
             await _context.SaveChangesAsync();
 
@@ -71,7 +73,7 @@ namespace TodoAPI.Services
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-(
+
         }
 
         public async Task<User> GetUserByEmail(string email)

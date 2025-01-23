@@ -30,12 +30,13 @@ namespace TodoAPI.Services
         public async Task Register(UserRegisterDto userRegisterDto)
         {
             //check if user with the provided email already exists
-            bool userExists = _context.Users.Any(u => u.Email.Equals(userRegisterDto.Email));
+            bool userExists = await _context.Users.AnyAsync(u => u.Email.Equals(userRegisterDto.Email,StringComparison.OrdinalIgnoreCase));
             if (userExists)
             {
-                var message = "User with that email already exists.";
+                var message = "A user with that email already exists.";
                 throw new InvalidOperationException(message);
             }
+
 
             //hash the password
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userRegisterDto.Password);
@@ -44,6 +45,7 @@ namespace TodoAPI.Services
             {
                 Name = userRegisterDto.Name,
                 Email = userRegisterDto.Email,
+                Phone=userRegisterDto.Phone,
                 Password = hashedPassword,
                 IsVerified = false,
                 Role = "User"
