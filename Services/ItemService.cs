@@ -67,6 +67,7 @@ namespace TodoAPI.Services
                 GuestName = itemDto.GuestName,
                 GuestEmail = itemDto.GuestEmail,
                 GuestPhone = itemDto.GuestPhone,
+                Location=itemDto.Location,
                 VehicleType = itemDto.VehicleType,
                 ServiceType = itemDto.ServiceType,
                 ScheduledAt = itemDto.ScheduledAt,
@@ -80,7 +81,7 @@ namespace TodoAPI.Services
             var name = item.GuestName;
             var phone = item.GuestPhone;
             var email = item.GuestEmail;
-            var location = item.GuestLocation;
+            var location = item.Location;
             var vehicleType = item.VehicleType;
             var serviceType = item.ServiceType;
             var scheduleAt = item.ScheduledAt;
@@ -106,6 +107,35 @@ namespace TodoAPI.Services
             item.Status = itemDto.Status;
 
             await _context.SaveChangesAsync();
+
+            //Send an email to notify the admin of the status change
+            //For now, a user can only update the status to cancelled
+            //Get the user info
+            //get user
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id.Equals(item.UserId));
+            if (user is null)
+                throw new KeyNotFoundException("The user of the booking was not found.");
+
+            var name = user.Name;
+            var email =user.Email;
+            var phone = user.Phone;
+            var location = itemDto.Location;
+            var vehicleType = itemDto.VehicleType;
+            var serviceType = itemDto.ServiceType;
+            var scheduledAt = itemDto.ScheduledAt;
+            var additionalNotes = itemDto.AdditionalNotes;
+
+            //if status is cancelled
+            //send an email to the admin to tell them that a user booking has cancelled their booking
+            if (itemDto.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                var emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
+                var emailSubject = "Booking Cancelled";
+                var adminEmail = _emailSender.AdminEmail;
+                await _emailSender.SendEmail(name:"Admin", email:adminEmail, subject:emailSubject, message:emailBody);
+            }
+
+
         }
 
         //Get all items for a user

@@ -114,7 +114,7 @@ namespace TodoAPI.Controllers
 
         }
 
-        // GET: api/<ItemsController>/uncompleted
+        // GET: api/<ItemsController>/pending
         [HttpGet("pending")]
         [Authorize]
         public async Task<IActionResult> GetPending(int page = 1, int pageSize = 10)
@@ -156,6 +156,7 @@ namespace TodoAPI.Controllers
 
         }
         //User statistics such as the number of completed items
+        // GET: api/<ItemsController>/statistics
         [HttpGet("statistics")]
         [Authorize]
         public async Task<IActionResult> GetItemUserStatistics()

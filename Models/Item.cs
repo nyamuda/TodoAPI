@@ -22,7 +22,6 @@
         public string GuestName { get; set; } = default!; 
         public string GuestEmail { get; set; } = default!;
         public string GuestPhone { get; set; } = default!;
-        public string GuestLocation { get; set; } = default!;
     }
     
 
