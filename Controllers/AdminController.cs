@@ -242,5 +242,26 @@ namespace TodoAPI.Controllers
             }
 
         }
+        //Add a car wash service
+        // POST api/<ItemsController>/items/service
+        [HttpPost("items/service")]
+        public async Task<IActionResult> AddServiceType(ServiceTypeDto serviceTypeDto)
+        {
+            try
+            {
+                await _adminService.AddServiceType(serviceTypeDto);
+                return StatusCode(201, new { message = "Service type added successfully" });
+            }
+           
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
     }
 }

@@ -128,7 +128,6 @@ namespace TodoAPI.Services
             //Send an email to notify the admin of the status change
             //For now, a user can only update the status to cancelled
             //Get the user info
-            //get user
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id.Equals(item.UserId));
             if (user is null)
                 throw new KeyNotFoundException("The user of the booking was not found.");
