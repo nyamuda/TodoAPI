@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TodoAPI.Dtos.Item
+namespace TodoAPI.Dtos.Booking
 {
-    public class AddGuestItemDto
+    public class AddGuestBookingDto
     {
         [Required]
         public string GuestName{ get; set; }

@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 //register services
-builder.Services.AddScoped<ItemService>();
+builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AccountService>();

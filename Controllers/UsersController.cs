@@ -23,7 +23,7 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET: api/<ItemsController>
+        // GET: api/<BookingsController>
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Get()

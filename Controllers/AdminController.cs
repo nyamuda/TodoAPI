@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TodoAPI.Dtos.Item;
+using TodoAPI.Dtos.Booking;
 using TodoAPI.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,17 +26,17 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET: api/<ItemsController>/items
-        [HttpGet("items")]
+        // GET: api/<BookingsController>/bookings
+        [HttpGet("bookings")]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
             try
             {
-                var (items, pageInfo) = await _adminService.GetItems(page, pageSize);
+                var (bookings, pageInfo) = await _adminService.GetBookings(page, pageSize);
 
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -49,18 +49,18 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET: api/<ItemsController>/items/completed
-        [HttpGet("items/completed")]
+        // GET: api/<BookingsController>/bookings/completed
+        [HttpGet("bookings/completed")]
         public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
         {
             try
             {           
              
-                var (items, pageInfo) = await _adminService.GetCompletedItems(page, pageSize);
+                var (bookings, pageInfo) = await _adminService.GetCompletedBookings(page, pageSize);
 
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -72,18 +72,18 @@ namespace TodoAPI.Controllers
 
         }
 
-        // GET: api/<ItemsController>/items/pending
-        [HttpGet("items/pending")]
+        // GET: api/<BookingsController>/bookings/pending
+        [HttpGet("bookings/pending")]
         public async Task<IActionResult> GetPending(int page = 1, int pageSize = 10)
         {
             try
             {
 
                 
-                var (items, pageInfo) = await _adminService.GetPendingItems(page, pageSize);
+                var (bookings, pageInfo) = await _adminService.GetPendingBookings(page, pageSize);
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -94,7 +94,7 @@ namespace TodoAPI.Controllers
             }
 
         }
-        // GET: api/<ItemsController>/statistics
+        // GET: api/<BookingsController>/statistics
         [HttpGet("statistics")]
         public async Task<IActionResult> GetStatistics()
         {
@@ -121,16 +121,16 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET api/<ItemsController>/items/5
-        [HttpGet("items/{id}")]
+        // GET api/<BookingsController>/bookings/5
+        [HttpGet("bookings/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             try
             {
                
-                var item = await _adminService.GetItem(id);
+                var booking = await _adminService.GetBooking(id);
          
-                return Ok(item);
+                return Ok(booking);
             }
             catch (KeyNotFoundException ex)
             {
@@ -145,9 +145,9 @@ namespace TodoAPI.Controllers
 
         }
 
-        // POST api/<ItemsController>/items
-        [HttpPost("items")]
-        public async Task<IActionResult> Post(AddItemDto itemDto)
+        // POST api/<BookingsController>/bookings
+        [HttpPost("bookings")]
+        public async Task<IActionResult> Post(AddBookingDto bookingDto)
         {
             try
             {
@@ -167,9 +167,9 @@ namespace TodoAPI.Controllers
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
-                await _adminService.AddItem(itemDto, email);
+                await _adminService.AddBooking(bookingDto, email);
 
-                return Created("Get", itemDto);
+                return Created("Get", bookingDto);
 
             }
             catch (KeyNotFoundException ex)
@@ -194,13 +194,13 @@ namespace TodoAPI.Controllers
 
        
 
-        // PUT api/<ItemsController>/items/5
-        [HttpPut("items/{id}")]
-        public async Task<IActionResult> Put(int id, UpdateItemDto itemDto)
+        // PUT api/<BookingsController>/bookings/5
+        [HttpPut("bookings/{id}")]
+        public async Task<IActionResult> Put(int id, UpdateBookingDto bookingDto)
         {
             try
             {
-                await _adminService.UpdateItem(id, itemDto);
+                await _adminService.UpdateBooking(id, bookingDto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -218,14 +218,14 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // DELETE api/<ItemsController>/items/5
-        [HttpDelete("items/{id}")]
+        // DELETE api/<BookingsController>/bookings/5
+        [HttpDelete("bookings/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
 
-                await _adminService.DeleteItem(id);
+                await _adminService.DeleteBooking(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

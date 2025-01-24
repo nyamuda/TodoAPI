@@ -16,6 +16,6 @@
 
         public bool IsVerified { get; set; } = false;
 
-        public List<Item> Items { get; set; } = new List<Item>();
+        public List<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TodoAPI.Models
 {
-    public class Item
+    public class Booking
     {
         public int Id { get; set; }
         public string VehicleType { get; set; }

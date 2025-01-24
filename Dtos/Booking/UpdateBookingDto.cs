@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TodoAPI.Dtos.Item
+namespace TodoAPI.Dtos.Booking
 {
-    public class UpdateItemDto
+    public class UpdateBookingDto
     {
         [Required]
         public string Status { get; set; }

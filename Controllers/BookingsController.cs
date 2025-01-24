@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TodoAPI.Data;
 using TodoAPI.Dtos;
-using TodoAPI.Dtos.Item;
+using TodoAPI.Dtos.Booking;
 using TodoAPI.Models;
 using TodoAPI.Services;
 
@@ -14,20 +14,20 @@ namespace TodoAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ItemsController : ControllerBase
+    public class BookingsController : ControllerBase
     {
-        private ItemService _itemService;
+        private BookingService _bookingService;
         private readonly JwtService _jwtService;
         private readonly UserService _userService;
 
-        public ItemsController(ItemService itemService, JwtService jwtService, UserService userService)
+        public BookingsController(BookingService bookingService, JwtService jwtService, UserService userService)
         {
-            _itemService = itemService;
+            _bookingService = bookingService;
             _jwtService = jwtService;
             _userService = userService;
         }
 
-        // GET: api/<ItemsController>
+        // GET: api/<BookingsController>
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
@@ -54,11 +54,11 @@ namespace TodoAPI.Controllers
                     return NotFound(new { message = "User with the given email does not exist." });
 
 
-                var (items, pageInfo) = await _itemService.GetItems(page, pageSize, user);
+                var (bookings, pageInfo) = await _bookingService.GetBookings(page, pageSize, user);
 
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -71,7 +71,7 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET: api/<ItemsController>/completed
+        // GET: api/<BookingsController>/completed
         [HttpGet("completed")]
         [Authorize]
         public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
@@ -97,12 +97,12 @@ namespace TodoAPI.Controllers
                 if (user is null)
                     return NotFound(new { message = "User with the given email does not exist." });
 
-                //get the items of a user with that email
-                var (items, pageInfo) = await _itemService.GetCompletedItems(page, pageSize,user);
+                //get the bookings of a user with that email
+                var (bookings, pageInfo) = await _bookingService.GetCompletedBookings(page, pageSize,user);
 
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -114,7 +114,7 @@ namespace TodoAPI.Controllers
 
         }
 
-        // GET: api/<ItemsController>/pending
+        // GET: api/<BookingsController>/pending
         [HttpGet("pending")]
         [Authorize]
         public async Task<IActionResult> GetPending(int page = 1, int pageSize = 10)
@@ -140,11 +140,11 @@ namespace TodoAPI.Controllers
                 if (user is null)
                     return NotFound(new { message = "User with the given email does not exist." });
 
-                //get the items of a user with that email
-                var (items, pageInfo) = await _itemService.GetPendingItems(page, pageSize, user);
+                //get the bookings of a user with that email
+                var (bookings, pageInfo) = await _bookingService.GetPendingBookings(page, pageSize, user);
                 var response = new
                 {
-                    items,
+                    bookings,
                     pageInfo
                 };
                 return Ok(response);
@@ -155,11 +155,11 @@ namespace TodoAPI.Controllers
             }
 
         }
-        //User statistics such as the number of completed items
-        // GET: api/<ItemsController>/statistics
+        //User statistics such as the number of completed bookings
+        // GET: api/<BookingsController>/statistics
         [HttpGet("statistics")]
         [Authorize]
-        public async Task<IActionResult> GetItemUserStatistics()
+        public async Task<IActionResult> GetBookingUserStatistics()
         {
            try
             {
@@ -178,7 +178,7 @@ namespace TodoAPI.Controllers
 
 
                 //user statistics
-                var statistics = await _itemService.GetItemUserStatistics(email);
+                var statistics = await _bookingService.GetBookingUserStatistics(email);
                 
                 return Ok(statistics);
             }
@@ -205,7 +205,7 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET api/<ItemsController>/5
+        // GET api/<BookingsController>/5
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> Get(int id)
@@ -229,20 +229,20 @@ namespace TodoAPI.Controllers
 
                 //get user with the given email
                 var user = _userService.GetUserByEmail(tokenEmail);
-                //item they're trying to access
-                var item = await _itemService.GetItem(id);
+                //booking they're trying to access
+                var booking = await _bookingService.GetBooking(id);
 
                 //for a user to perform this request, their ID 
-                //must match the ID of the user of the item they're trying to access
+                //must match the ID of the user of the booking they're trying to access
                 //OR they should be the admin
-                if (!item.UserId.Equals(user.Id) && !role.Equals("Admin"))
+                if (!booking.UserId.Equals(user.Id) && !role.Equals("Admin"))
                 {
                     return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
                 }
 
                 
 
-                return Ok(item);
+                return Ok(booking);
             }
             catch (KeyNotFoundException ex)
             {
@@ -265,10 +265,10 @@ namespace TodoAPI.Controllers
 
         }
 
-        // POST api/<ItemsController>
+        // POST api/<BookingsController>
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Post(AddItemDto itemDto)
+        public async Task<IActionResult> Post(AddBookingDto bookingDto)
         {
            try
             {
@@ -288,9 +288,9 @@ namespace TodoAPI.Controllers
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
-                await _itemService.AddItem(itemDto, email);
+                await _bookingService.AddBooking(bookingDto, email);
 
-                return Created("Get", itemDto);
+                return Created("Get", bookingDto);
 
             }
             catch(KeyNotFoundException ex)
@@ -313,14 +313,14 @@ namespace TodoAPI.Controllers
             
             }
 
-        // POST api/<ItemsController>/guest
+        // POST api/<BookingsController>/guest
         [HttpPost("guest")]
-        public async Task<IActionResult> PostGuestItem(AddGuestItemDto itemDto)
+        public async Task<IActionResult> PostGuestBooking(AddGuestBookingDto bookingDto)
         {
             try
             {
-                await _itemService.AddGuestItem(itemDto);
-                return Created("Get", itemDto);
+                await _bookingService.AddGuestBooking(bookingDto);
+                return Created("Get", bookingDto);
 
             }
             catch (KeyNotFoundException ex)
@@ -340,10 +340,10 @@ namespace TodoAPI.Controllers
         }
 
 
-        // PUT api/<ItemsController>/5
+        // PUT api/<BookingsController>/5
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Put(int id, UpdateItemDto itemDto)
+        public async Task<IActionResult> Put(int id, UpdateBookingDto bookingDto)
         {
            try
             {
@@ -364,18 +364,18 @@ namespace TodoAPI.Controllers
 
                 //get user with the given email
                 var user = _userService.GetUserByEmail(tokenEmail);
-                //item they're trying to access
-                var item = await _itemService.GetItem(id);
+                //booking they're trying to access
+                var booking = await _bookingService.GetBooking(id);
 
                 //for a user to perform this request, their ID 
-                //must match the ID of the user of the item they're trying to access
+                //must match the ID of the user of the booking they're trying to access
                 //OR they should be the admin
-                if (!item.UserId.Equals(user.Id) && !role.Equals("Admin"))
+                if (!booking.UserId.Equals(user.Id) && !role.Equals("Admin"))
                 {
                     return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
                 }
 
-                await _itemService.UpdateItem(id, itemDto);
+                await _bookingService.UpdateBooking(id, bookingDto);
                 return NoContent();
             }
             catch(KeyNotFoundException ex)
@@ -393,7 +393,7 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // DELETE api/<ItemsController>/5
+        // DELETE api/<BookingsController>/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
@@ -401,7 +401,7 @@ namespace TodoAPI.Controllers
             try
             {
 
-                await _itemService.DeleteItem(id);
+                await _bookingService.DeleteBooking(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -418,15 +418,15 @@ namespace TodoAPI.Controllers
             }
 
         }
-        //Add a booking item service type
-        // POST api/<ItemsController>/services
+        //Add a booking service type
+        // POST api/<BookingsController>/services
         [HttpPost("services")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddServiceType(ServiceTypeDto serviceTypeDto)
         {
             try
             {
-                await _itemService.AddServiceType(serviceTypeDto);
+                await _bookingService.AddServiceType(serviceTypeDto);
                 return StatusCode(201, new { message = "Service type added successfully" });
             }
 
@@ -441,15 +441,15 @@ namespace TodoAPI.Controllers
 
         }
 
-        //Update a booking item service type
-        // PUT api/<ItemsController>/services/5
+        //Update a booking service type
+        // PUT api/<BookingsController>/services/5
         [HttpPut("services/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateServiceType(int id,ServiceTypeDto serviceTypeDto)
         {
             try
             {
-                await _itemService.UpdateServiceType(id,serviceTypeDto);
+                await _bookingService.UpdateServiceType(id,serviceTypeDto);
                 return NoContent();
             }
 
@@ -463,15 +463,15 @@ namespace TodoAPI.Controllers
             }
 
         }
-        //Delete a booking item service type
-        // DELETE api/<ItemsController>/services/5
+        //Delete a booking service type
+        // DELETE api/<BookingsController>/services/5
         [HttpDelete("services/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteServiceType(int id)
         {
             try
             {
-                await _itemService.DeleteServiceType(id);
+                await _bookingService.DeleteServiceType(id);
                 return NoContent();
             }
 
@@ -485,14 +485,14 @@ namespace TodoAPI.Controllers
             }
 
         }
-        //Get a booking item service type
-        //GET api/<ItemsController>/services/5
+        //Get a booking service type
+        //GET api/<BookingsController>/services/5
         [HttpGet("services/{id}")]
         public async Task<IActionResult> GetServiceType(int id)
         {
             try
             {
-               var serviceType= await _itemService.GetServiceType(id);
+               var serviceType= await _bookingService.GetServiceType(id);
                 return Ok(serviceType);
             }
 
@@ -507,14 +507,14 @@ namespace TodoAPI.Controllers
 
         }
 
-        //Get all booking item service types
-        //GET api/<ItemsController>/services
+        //Get all booking service types
+        //GET api/<BookingsController>/services
         [HttpGet("services")]
         public async Task<IActionResult> GetServiceTypes()
         {
             try
             {
-                var serviceTypes = await _itemService.GetServiceTypes();
+                var serviceTypes = await _bookingService.GetServiceTypes();
                 return Ok(serviceTypes);
             }
 
