@@ -27,10 +27,16 @@ namespace TodoAPI.Services
             if (user == null)
                 throw new KeyNotFoundException("User with the provided email does not exist.");
 
+            //get the service type
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == itemDto.ServiceTypeId);
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the provided ID does not exist.");
+
             var item = new Item
             {
                 VehicleType = itemDto.VehicleType,
-                ServiceType = itemDto.ServiceType,
+                ServiceType = serviceType,
                 Location = itemDto.Location,
                 ScheduledAt = itemDto.ScheduledAt,
                 AdditionalNotes = itemDto.AdditionalNotes,
@@ -50,8 +56,14 @@ namespace TodoAPI.Services
             if (item is null)
                 throw new KeyNotFoundException("Item with the given ID does not exist.");
 
+            //get the service type
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == itemDto.ServiceTypeId);
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the provided ID does not exist.");
+
             item.Status = itemDto.Status;
-            item.ServiceType = itemDto.ServiceType;
+            item.ServiceType = serviceType;
             item.VehicleType = itemDto.VehicleType;
             item.Location = itemDto.Location;
             item.ScheduledAt = itemDto.ScheduledAt;
@@ -65,7 +77,6 @@ namespace TodoAPI.Services
             var phone = "";
             var location =itemDto.Location;
             var vehicleType = itemDto.VehicleType;
-            var serviceType = itemDto.ServiceType;
             var scheduledAt = itemDto.ScheduledAt;
             var additionalNotes = itemDto.AdditionalNotes;
 

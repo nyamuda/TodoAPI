@@ -16,7 +16,7 @@ namespace TodoAPI.Dtos.Item
         [Required]
         public string VehicleType { get; set; }
         [Required]
-        public string ServiceType { get; set; }
+        public int ServiceTypeId { get; set; }
         [Required]
         public DateTime ScheduledAt { get; set; }
 

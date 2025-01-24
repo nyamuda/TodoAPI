@@ -1,4 +1,6 @@
-﻿namespace TodoAPI.Services
+﻿using TodoAPI.Models;
+
+namespace TodoAPI.Services
 {
     public class TemplateService
     {
@@ -271,7 +273,7 @@
         }
 
         // Template for booking creation notification
-        public string BookingCreated(string name, string email, string phoneNumber,string serviceType, string vehicleType, string location, DateTime scheduledAt, string additionalNotes)
+        public string BookingCreated(string name, string email, string phoneNumber,ServiceType serviceType, string vehicleType, string location, DateTime scheduledAt, string additionalNotes)
         {
             return $@"
 <!DOCTYPE html>
@@ -342,7 +344,7 @@
             <p><span class=""highlight"">Phone Number:</span> {phoneNumber}</p>
             <p><span class=""highlight"">Location:</span> {location}</p>
              <p><span class=""highlight"">Vehicle Type:</span> {vehicleType}</p>
-             <p><span class=""highlight"">Service Type:</span> {serviceType}</p>
+             <p><span class=""highlight"">Service Type:</span> {serviceType.Name} (R{serviceType.Price})</p>
             <p><span class=""highlight"">Scheduled At:</span> {scheduledAt:dddd, MMMM dd, yyyy h:mm tt}</p>
             <p><span class=""highlight"">Additional Notes:</span> {(string.IsNullOrWhiteSpace(additionalNotes) ? "No additional notes provided." : additionalNotes)}</p>
             <p><strong>Note:</strong> This booking is not yet confirmed. You will be notified once the booking is reviewed and confirmed by the admin.</p>
@@ -359,7 +361,7 @@
 
 
         // Template for booking cancellation
-        public string BookingCancellation(string name, string email, string phoneNumber, string serviceType, string vehicleType, string location, DateTime scheduledAt, string cancellationReason)
+        public string BookingCancellation(string name, string email, string phoneNumber, ServiceType serviceType, string vehicleType, string location, DateTime scheduledAt, string cancellationReason)
         {
             return $@"
 <!DOCTYPE html>
@@ -430,7 +432,7 @@
             <p><span class=""highlight"">Phone Number:</span> {phoneNumber}</p>
             <p><span class=""highlight"">Location:</span> {location}</p>
              <p><span class=""highlight"">Vehicle Type:</span> {vehicleType}</p>
-             <p><span class=""highlight"">Service Type:</span> {serviceType}</p>
+             <p><span class=""highlight"">Service Type:</span> {serviceType.Name} (R{serviceType.Price})</p>
             <p><span class=""highlight"">Scheduled At:</span> {scheduledAt:dddd, MMMM dd, yyyy h:mm tt}</p>
             <p><span class=""highlight"">Cancellation Reason:</span></p>
             <p>{(string.IsNullOrWhiteSpace(cancellationReason) ? "No reason provided." : cancellationReason)}</p>
@@ -446,7 +448,7 @@
         }
 
         // Template for booking confirmation
-        public string BookingConfirmation(string name, string email, string phoneNumber, string serviceType, string vehicleType, string location, DateTime scheduledAt, string additionalNotes)
+        public string BookingConfirmation(string name, string email, string phoneNumber, ServiceType serviceType, string vehicleType, string location, DateTime scheduledAt, string additionalNotes)
         {
             return $@"
 <!DOCTYPE html>
@@ -518,7 +520,7 @@
             <p><span class=""highlight"">Phone Number:</span> {phoneNumber}</p>
             <p><span class=""highlight"">Location:</span> {location}</p>
              <p><span class=""highlight"">Vehicle Type:</span> {vehicleType}</p>
-             <p><span class=""highlight"">Service Type:</span> {serviceType}</p>
+             <p><span class=""highlight"">Service Type:</span> {serviceType.Name} (R{serviceType.Price})</p>
             <p><span class=""highlight"">Scheduled At:</span> {scheduledAt:dddd, MMMM dd, yyyy h:mm tt}</p>
             <p><span class=""highlight"">Additional Notes:</span> {(string.IsNullOrWhiteSpace(additionalNotes) ? "No additional notes provided." : additionalNotes)}</p>
             <p>We look forward to serving you! If you have any questions or need to make changes to your booking, please feel free to contact us.</p>

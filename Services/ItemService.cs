@@ -28,10 +28,16 @@ namespace TodoAPI.Services
             if (user == null)
                 throw new KeyNotFoundException("User with the provided email does not exist.");
 
+            //get the service type
+            var serviceType= await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == itemDto.ServiceTypeId);
+
+            if(serviceType is null)
+                throw new KeyNotFoundException("Service type with the provided ID does not exist.");
+
             var item = new Item
             {
                 VehicleType = itemDto.VehicleType,
-                ServiceType = itemDto.ServiceType,
+                ServiceType = serviceType,
                 Location=itemDto.Location,
                 ScheduledAt = itemDto.ScheduledAt,
                 AdditionalNotes = itemDto.AdditionalNotes,
@@ -46,7 +52,6 @@ namespace TodoAPI.Services
             var phone = user.Phone;
             var location = itemDto.Location;
             var vehicleType = itemDto.VehicleType;
-            var serviceType = itemDto.ServiceType;
             var scheduleAt = itemDto.ScheduledAt;
             var additionalNotes = itemDto.AdditionalNotes;
 
@@ -62,6 +67,12 @@ namespace TodoAPI.Services
         // Add guest item when user is not logged in and wants to create a booking
         public async Task AddGuestItem(AddGuestItemDto itemDto)
         {
+            //get the service type
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == itemDto.ServiceTypeId);
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the provided ID does not exist.");
+
             var item = new Item
             {
                 GuestName = itemDto.GuestName,
@@ -69,7 +80,7 @@ namespace TodoAPI.Services
                 GuestPhone = itemDto.GuestPhone,
                 Location=itemDto.Location,
                 VehicleType = itemDto.VehicleType,
-                ServiceType = itemDto.ServiceType,
+                ServiceType = serviceType,
                 ScheduledAt = itemDto.ScheduledAt,
                 AdditionalNotes = itemDto.AdditionalNotes
             };
@@ -83,7 +94,6 @@ namespace TodoAPI.Services
             var email = item.GuestEmail;
             var location = item.Location;
             var vehicleType = item.VehicleType;
-            var serviceType = item.ServiceType;
             var scheduleAt = item.ScheduledAt;
             var additionalNotes = item.AdditionalNotes;
 
@@ -97,12 +107,19 @@ namespace TodoAPI.Services
         }
 
         //Update an item
-        //so far there is only one field that needs to be updated --- isCompleted
+        //so far there is only one field that needs to be updated by user ---> status
         public async Task UpdateItem(int id, UpdateItemDto itemDto)
         {
+            //get the item with the given id
             var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
             if (item is null)
                 throw new KeyNotFoundException("Item with the given ID does not exist.");
+
+            //get the service type
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == itemDto.ServiceTypeId);
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
             item.Status = itemDto.Status;
 
@@ -121,7 +138,7 @@ namespace TodoAPI.Services
             var phone = user.Phone;
             var location = itemDto.Location;
             var vehicleType = itemDto.VehicleType;
-            var serviceType = itemDto.ServiceType;
+            
             var scheduledAt = itemDto.ScheduledAt;
             var additionalNotes = itemDto.AdditionalNotes;
 
