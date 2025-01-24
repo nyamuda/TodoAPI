@@ -418,5 +418,112 @@ namespace TodoAPI.Controllers
             }
 
         }
+        //Add a booking item service type
+        // POST api/<ItemsController>/services
+        [HttpPost("services")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddServiceType(ServiceTypeDto serviceTypeDto)
+        {
+            try
+            {
+                await _itemService.AddServiceType(serviceTypeDto);
+                return StatusCode(201, new { message = "Service type added successfully" });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+
+        //Update a booking item service type
+        // PUT api/<ItemsController>/services/5
+        [HttpPut("services/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateServiceType(int id,ServiceTypeDto serviceTypeDto)
+        {
+            try
+            {
+                await _itemService.UpdateServiceType(id,serviceTypeDto);
+                return NoContent();
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+        //Delete a booking item service type
+        // DELETE api/<ItemsController>/services/5
+        [HttpDelete("services/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteServiceType(int id)
+        {
+            try
+            {
+                await _itemService.DeleteServiceType(id);
+                return NoContent();
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+        //Get a booking item service type
+        //GET api/<ItemsController>/services/5
+        [HttpGet("services/{id}")]
+        public async Task<IActionResult> GetServiceType(int id)
+        {
+            try
+            {
+               var serviceType= await _itemService.GetServiceType(id);
+                return Ok(serviceType);
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+
+        //Get all booking item service types
+        //GET api/<ItemsController>/services
+        [HttpGet("services")]
+        public async Task<IActionResult> GetServiceTypes()
+        {
+            try
+            {
+                var serviceTypes = await _itemService.GetServiceTypes();
+                return Ok(serviceTypes);
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+
     }
 }

@@ -4,9 +4,9 @@
     {
         public int Id { get; set; }
         public string VehicleType { get; set; }
-        public int ServiceTypeId { get; set; }
+        public int? ServiceTypeId { get; set; }
 
-        public ServiceType ServiceType { get; set; }
+        public ServiceType? ServiceType { get; set; }
         public string Location { get; set; }
         public string Status { get; set; } = "Pending";
 

@@ -278,7 +278,69 @@ namespace TodoAPI.Services
             };
             return userStats;
         }
-      
+
+
+        // Add a new booking service type
+        public async Task AddServiceType(ServiceTypeDto serviceTypeDto)
+        {
+
+            var serviceType = new ServiceType()
+            {
+                Name = serviceTypeDto.Name,
+                Price = serviceTypeDto.Price
+            };
+
+            _context.Add(serviceType);
+            await _context.SaveChangesAsync();
+
+
+
+        }
+        //Update booking item service type
+        public async Task UpdateServiceType(int id, ServiceTypeDto serviceTypeDto)
+        {
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == id);
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the given ID does not exist.");
+
+            serviceType.Name = serviceTypeDto.Name;
+            serviceType.Price = serviceTypeDto.Price;
+
+            await _context.SaveChangesAsync();
+        }
+
+        //Delete booking item service type
+        public async Task DeleteServiceType(int id)
+        {
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the given ID does not exist.");
+
+            _context.Remove(serviceType);
+            await _context.SaveChangesAsync();
+
+        }
+
+        //Get all booking item service types
+        public async Task<List<ServiceType>> GetServiceTypes()
+        {
+            var serviceTypes = await _context.ServiceTypes.ToListAsync();
+            return serviceTypes;
+        }
+
+        //Get booking item service type by ID
+        public async Task<ServiceType> GetServiceType(int id)
+        {
+            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (serviceType is null)
+                throw new KeyNotFoundException("Service type with the given ID does not exist.");
+
+            return serviceType;
+           
+        }
+
 
 
     }

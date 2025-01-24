@@ -247,21 +247,5 @@ namespace TodoAPI.Services
         }
 
 
-        // Add a new booking service type
-        public async Task AddServiceType(ServiceTypeDto serviceTypeDto)
-        {
-
-            var serviceType = new ServiceType()
-            {
-                Name = serviceTypeDto.Name,
-                Price = serviceTypeDto.Price
-            };
-
-            _context.Add(serviceType);
-            await _context.SaveChangesAsync();
-
-            
-
-        }
     }
 }
