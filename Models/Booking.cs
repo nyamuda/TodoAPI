@@ -9,7 +9,8 @@
         public ServiceType ServiceType { get; set; } = default!;
         public string Location { get; set; } = default!;
         public string Status { get; set; } = "Pending";
-
+        
+        public string? CancelReason { get; set; } //reason for cancelling a booking
         public DateTime ScheduledAt { get; set; }
 
         public string? AdditionalNotes { get; set; }

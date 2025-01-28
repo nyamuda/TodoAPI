@@ -145,7 +145,16 @@ namespace TodoAPI.Services
             //send an email to the admin to tell them that a user booking has cancelled their booking
             if (bookingDto.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
             {
-                var emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
+                //first, save the reason for cancelling the booking to the database
+                if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
+                    throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
+
+                booking.CancelReason = bookingDto.CancelReason;
+                await _context.SaveChangesAsync();
+
+
+                //and then send an email to the admin
+                var emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, bookingDto.CancelReason);
                 var emailSubject = "Booking Cancelled";
                 var adminEmail = _emailSender.AdminEmail;
                 await _emailSender.SendEmail(name:"Admin", email:adminEmail, subject:emailSubject, message:emailBody);
@@ -339,6 +348,12 @@ namespace TodoAPI.Services
 
             return serviceType;
            
+        }
+
+        //Add feedback for the booking after its completed
+        public async Task AddBookingFeedback(int id,BookingFeedbackDto feedbackDto)
+        {
+
         }
 
 

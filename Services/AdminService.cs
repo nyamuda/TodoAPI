@@ -106,6 +106,7 @@ namespace TodoAPI.Services
             //send an email to the user to tell them that their booking has been confirmed
             if (bookingDto.Status.Equals("confirmed",StringComparison.OrdinalIgnoreCase))
             {
+
                 var emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
                 var emailSubject = "Booking Confirmed";
                 await _emailSender.SendEmail(name, email, emailSubject, emailBody);
@@ -114,7 +115,14 @@ namespace TodoAPI.Services
             //send an email to the user to tell them that their booking has been cancelled
             if (bookingDto.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
             {
-                var emailBody = _templateService.BookingCancellation(name,email,phone,serviceType,vehicleType,location,scheduledAt,additionalNotes);
+                //first, save the reason for cancelling the booking to the database
+                if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
+                    throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
+                booking.CancelReason = bookingDto.CancelReason;
+                await _context.SaveChangesAsync();
+
+                //then send an email to the user
+                var emailBody = _templateService.BookingCancellation(name,email,phone,serviceType,vehicleType,location,scheduledAt,bookingDto.CancelReason);
                 var emailSubject = "Booking Cancelled";
                 await _emailSender.SendEmail(name, email, emailSubject, emailBody);
             }

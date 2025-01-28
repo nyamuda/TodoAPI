@@ -17,6 +17,10 @@ namespace TodoAPI.Dtos.Booking
         [Required]
         public DateTime ScheduledAt { get; set; }
 
+        [Required]
         public string AdditionalNotes { get; set; }
+
+        [Required]
+        public string  CancelReason { get; set; }
     }
 }
