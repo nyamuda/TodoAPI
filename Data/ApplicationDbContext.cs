@@ -13,6 +13,9 @@ namespace TodoAPI.Data
 
         public DbSet<ServiceType> ServiceTypes { get; set; } = default!;
 
+
+        public DbSet<Feedback> Feedback { get; set; } = default!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -39,6 +42,17 @@ namespace TodoAPI.Data
                 .WithMany(s => s.Bookings)
                 .HasForeignKey(b => b.ServiceTypeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //there is a one-one relationship between Feedback and Booking
+            //with the Feedback entity having the potential to be the child entity('many' side entity)
+            //hence, the Feedback entity is the one with the foreign key (BookingId)
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.Booking)
+                .WithOne(b => b.Feedback)
+                .HasForeignKey<Feedback>(f => f.BookingId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete if the primary entity which 'Booking' is deleted
+
+
         }
     }
 }
