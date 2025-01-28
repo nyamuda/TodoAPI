@@ -351,12 +351,26 @@ namespace TodoAPI.Services
         }
 
         //Add feedback for the booking after its completed
-        public async Task AddBookingFeedback(int id,BookingFeedbackDto feedbackDto)
+        public async Task AddBookingFeedback(BookingFeedbackDto feedbackDto)
         {
+            //get the booking
+            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(feedbackDto.BookingId));
+
+            if (booking is null)
+                throw new KeyNotFoundException("Booking with the given ID does not exist.");
+
+            //add the feedback to the database
+            var feedback = new Feedback
+            {
+                Content = feedbackDto.Content,
+                Rating = feedbackDto.Rating,
+                BookingId=booking.Id
+            };
+
+            _context.Feedback.Add(feedback);
+            await _context.SaveChangesAsync();
 
         }
-
-
 
     }
 }

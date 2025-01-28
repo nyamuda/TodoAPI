@@ -525,5 +525,32 @@ namespace TodoAPI.Controllers
 
         }
 
+        //Add a feedback about the booking
+        // POST api/<BookingsController>/feedback/5
+        [HttpPost("feedback")]
+        [Authorize]
+        public async Task<IActionResult> AddBookingFeedback(BookingFeedbackDto feedbackDto)
+        {
+            try
+            {
+                await _bookingService.AddBookingFeedback(feedbackDto);
+                return StatusCode(201, new { message = "The feedback has been received." });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+
     }
 }

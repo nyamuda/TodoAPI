@@ -9,5 +9,8 @@ namespace TodoAPI.Dtos.Booking
 
         [Required]
         public int Rating { get; set; }
+
+        [Required]
+        public int BookingId { get; set; }
     }
 }
