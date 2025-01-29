@@ -96,4 +96,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// handler for the main route ("/api)
+var handler = () => "Welcome to the car wash API. Go to '/swagger/index.html' to see all the routes and learn more about the API. Enjoy!";
+app.MapGet("/api", handler);
+
+//Run the application
 app.Run();

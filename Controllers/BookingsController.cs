@@ -526,7 +526,7 @@ namespace TodoAPI.Controllers
         }
 
         //Add a feedback about the booking
-        // POST api/<BookingsController>/feedback/5
+        // POST api/<BookingsController>/feedback
         [HttpPost("feedback")]
         [Authorize]
         public async Task<IActionResult> AddBookingFeedback(BookingFeedbackDto feedbackDto)
