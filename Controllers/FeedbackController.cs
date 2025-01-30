@@ -1,0 +1,251 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using TodoAPI.Dtos.Booking;
+using TodoAPI.Models;
+using TodoAPI.Services;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace TodoAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class FeedbackController : ControllerBase
+    {
+        private readonly FeedbackService _feedbackService;
+        private readonly JwtService _jwtService;
+        private readonly UserService _userService;
+        private readonly BookingService _bookingService;
+
+
+        public FeedbackController(FeedbackService feedbackService, JwtService jwtService, UserService userService, BookingService bookingService)
+        {
+            _feedbackService = feedbackService;
+            _jwtService = jwtService;
+            _userService = userService;
+            _bookingService = bookingService;
+        }
+        // GET: api/<FeedbackController>
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var feedback = await _feedbackService.GetAllFeedback();
+                return Ok(feedback);
+            }
+            catch (Exception ex)
+            {
+                {
+                    return StatusCode(500, new { message = ex.Message });
+                }
+            }
+        }
+
+        // GET api/<FeedbackController>/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            try
+            {
+
+                var feedback = await _feedbackService.GetFeedbackById(id);
+                return Ok(feedback);
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { message = ex.Message });
+
+            }
+        }
+
+        // POST api/<FeedbackController>
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Post(BookingFeedbackDto feedbackDto)
+        {
+            try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
+                }
+                //get user with the given email
+                var user = await _userService.GetUserByEmail(email);
+                //booking they're trying to access
+                var booking = await _bookingService.GetBooking(feedbackDto.BookingId);
+
+                //for a user to perform this request, their ID 
+                //must match the UserId of the booking
+                //In other words, users must only give feedback to the booking they created themselves
+                if(!booking.UserId.Equals(user.Id))
+                {
+                    throw new UnauthorizedAccessException("Access denied. You're not authorized to provide feedback to this booking.");
+                }
+
+                //Add the feedback
+              var feedback=  await _feedbackService.AddFeedback(feedbackDto);
+
+                return CreatedAtAction(nameof(Get),new {id=feedback.Id},feedback);
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // PUT api/<FeedbackController>/5
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Put(int id, BookingFeedbackDto feedbackDto)
+        {
+            try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
+                }
+                //get user with the given email
+                var user = await _userService.GetUserByEmail(email);
+                //booking they're trying to access
+                var booking = await _bookingService.GetBooking(feedbackDto.BookingId);
+
+                //for a user to perform this request, their ID 
+                //must match the UserId of the booking
+                //In other words, users must only update feedback of the booking they created themselves
+                if (!booking.UserId.Equals(user.Id))
+                {
+                    throw new UnauthorizedAccessException("Access denied. You're not authorized to update this feedback.");
+                }
+
+                //update the feedback
+                await _feedbackService.UpdateFeedback(id, feedbackDto);
+
+                return NoContent();
+              
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // DELETE api/<FeedbackController>/5
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+           try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
+                }
+                //get user with the given email
+                var user = await _userService.GetUserByEmail(email);
+
+                //booking they're trying to access
+                var feedback = await _feedbackService.GetFeedbackById(id);
+                //the booking the feedback is for
+                var booking = await _bookingService.GetBooking(feedback.BookingId);
+
+                //for a user to perform this request, their ID 
+                //must match the UserId of the booking
+                //In other words, users must only delete feedback they created themselves OR
+                //if they're the admin
+                if (!booking.UserId.Equals(user.Id) && !user.Role.Equals("Admin"))
+                {
+                    throw new UnauthorizedAccessException("Access denied. You're not authorized to delete this feedback.");
+                }
+
+                //delete feedback
+                await _feedbackService.DeleteFeedback(id);
+
+                return NoContent();
+            }
+
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+    }
+}

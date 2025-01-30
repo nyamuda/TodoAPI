@@ -228,7 +228,7 @@ namespace TodoAPI.Controllers
 
 
                 //get user with the given email
-                var user = _userService.GetUserByEmail(tokenEmail);
+                var user = await _userService.GetUserByEmail(tokenEmail);
                 //booking they're trying to access
                 var booking = await _bookingService.GetBooking(id);
 
@@ -288,9 +288,9 @@ namespace TodoAPI.Controllers
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
-                await _bookingService.AddBooking(bookingDto, email);
+                var booking=await _bookingService.AddBooking(bookingDto, email);
 
-                return Created("Get", bookingDto);
+                return CreatedAtAction(nameof(Get), new { id = booking.Id }, booking);
 
             }
             catch(KeyNotFoundException ex)
@@ -319,8 +319,8 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                await _bookingService.AddGuestBooking(bookingDto);
-                return Created("Get", bookingDto);
+               Booking booking= await _bookingService.AddGuestBooking(bookingDto);
+                return CreatedAtAction(nameof(Get), new { id = booking.Id }, booking);
 
             }
             catch (KeyNotFoundException ex)
@@ -525,32 +525,7 @@ namespace TodoAPI.Controllers
 
         }
 
-        //Add a feedback about the booking
-        // POST api/<BookingsController>/feedback
-        [HttpPost("feedback")]
-        [Authorize]
-        public async Task<IActionResult> AddBookingFeedback(BookingFeedbackDto feedbackDto)
-        {
-            try
-            {
-                await _bookingService.AddBookingFeedback(feedbackDto);
-                return StatusCode(201, new { message = "The feedback has been received." });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-
-        }
+       
 
     }
 }

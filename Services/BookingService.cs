@@ -21,7 +21,7 @@ namespace TodoAPI.Services
         }
 
         // Add a new booking
-        public async Task AddBooking(AddBookingDto bookingDto, string email)
+        public async Task<Booking> AddBooking(AddBookingDto bookingDto, string email)
         {
             //get the user with the given email
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
@@ -63,9 +63,11 @@ namespace TodoAPI.Services
             var adminEmail = _emailSender.AdminEmail;
             await _emailSender.SendEmail(name:"Admin", email:adminEmail, subject:emailSubject, message:emailBody);
 
+            return booking;
+
         }
         // Add guest booking when user is not logged in and wants to create a booking
-        public async Task AddGuestBooking(AddGuestBookingDto bookingDto)
+        public async Task<Booking> AddGuestBooking(AddGuestBookingDto bookingDto)
         {
             //get the service type
             var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == bookingDto.ServiceTypeId);
@@ -104,6 +106,8 @@ namespace TodoAPI.Services
             //send an email to notify the admin of the new booking
             var adminEmail = _emailSender.AdminEmail;
             await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
+
+            return booking;
         }
 
         //Update an booking
@@ -247,7 +251,7 @@ namespace TodoAPI.Services
             var booking= await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
+                throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
 
             return booking;
         }

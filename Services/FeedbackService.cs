@@ -18,7 +18,7 @@ namespace TodoAPI.Services
 
 
         //Add feedback for the booking after its completed
-        public async Task AddFeedback(BookingFeedbackDto feedbackDto)
+        public async Task<Feedback> AddFeedback(BookingFeedbackDto feedbackDto)
         {
            // check if the booking exists
             var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(feedbackDto.BookingId));
@@ -41,6 +41,8 @@ namespace TodoAPI.Services
 
             _context.Feedback.Add(feedback);
             await _context.SaveChangesAsync();
+
+            return feedback;
 
         }
         //Update booking feedback
