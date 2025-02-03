@@ -197,7 +197,7 @@ namespace TodoAPI.Services
         public async Task<(List<Booking>, PageInfo)> GetCompletedBookings(int page, int pageSize,User user)
         {
            
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase))
+            var bookings = await _context.Bookings.Where(x => x.Status.Equals("completed"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -205,7 +205,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that have been completed
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase)).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("completed")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -222,7 +222,7 @@ namespace TodoAPI.Services
         //Get all pending bookings for a user
         public async Task<(List<Booking>, PageInfo)> GetPendingBookings(int page, int pageSize, User user)
         {
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase))
+            var bookings = await _context.Bookings.Where(x => x.Status.Equals("pending"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -230,7 +230,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that are pending
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("pending", StringComparison.OrdinalIgnoreCase)).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("pending")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -247,7 +247,7 @@ namespace TodoAPI.Services
         //Get all cancelled bookings
         public async Task<(List<Booking>,PageInfo)> GetCancelledBookings(int page, int pageSize, User user)
         {
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+            var bookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -255,7 +255,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that are cancelled
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase)).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("cancelled")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -304,9 +304,9 @@ namespace TodoAPI.Services
 
             //then get statistics about that user
             int totalBookings = await _context.Bookings.Where(x => x.UserId == user.Id).CountAsync();
-            int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed",StringComparison.OrdinalIgnoreCase) && x.UserId==user.Id).CountAsync();
-            int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending",StringComparison.OrdinalIgnoreCase) && x.UserId == user.Id).CountAsync();
-            int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase) && x.UserId == user.Id).CountAsync();
+            int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed") && x.UserId==user.Id).CountAsync();
+            int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending") && x.UserId == user.Id).CountAsync();
+            int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled") && x.UserId == user.Id).CountAsync();
 
             var userStats = new BookingUserStatsDto
             {

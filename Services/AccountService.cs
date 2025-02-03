@@ -30,7 +30,7 @@ namespace TodoAPI.Services
         public async Task Register(UserRegisterDto userRegisterDto)
         {
             //check if user with the provided email already exists
-            bool userExists = await _context.Users.AnyAsync(u => u.Email.Equals(userRegisterDto.Email,StringComparison.OrdinalIgnoreCase));
+            bool userExists = await _context.Users.AnyAsync(u => u.Email.Equals(userRegisterDto.Email));
             if (userExists)
             {
                 var message = "A user with that email already exists.";
