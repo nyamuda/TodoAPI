@@ -27,6 +27,7 @@ namespace TodoAPI.Controllers
             try
             {
                 await _accountService.Register(registerDto);
+                
                 return StatusCode(201,new { message = "User registered successfully." });
             }
             catch (InvalidOperationException ex)

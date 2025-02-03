@@ -244,6 +244,32 @@ namespace TodoAPI.Services
             return (bookings, pageInfo);
         }
 
+        //Get all cancelled bookings
+        public async Task<(List<Booking>,PageInfo)> GetCancelledBookings(int page, int pageSize, User user)
+        {
+            var bookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.UserId.Equals(user.Id))
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //total bookings that are cancelled
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase)).CountAsync();
+            bool hasMore = totalBookings > page * pageSize;
+
+            var pageInfo = new PageInfo()
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+
+            };
+
+            return (bookings, pageInfo);
+
+        }
+
 
         //Get an booking by id
         public async Task<Booking> GetBooking(int id)

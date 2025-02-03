@@ -149,7 +149,56 @@ namespace TodoAPI.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception ex)
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { messgae = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
+        // GET: api/<BookingsController>/pending
+        [HttpGet("cancelled")]
+        [Authorize]
+        public async Task<IActionResult> GetCancelled(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email is null)
+                    return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
+
+                //get user with the email
+                var user = await _userService.GetUserByEmail(email);
+
+                if (user is null)
+                    return NotFound(new { message = "User with the given email does not exist." });
+
+                //get the bookings of a user with that email
+                var (bookings, pageInfo) = await _bookingService.GetCancelledBookings(page, pageSize, user);
+                var response = new
+                {
+                    bookings,
+                    pageInfo
+                };
+                return Ok(response);
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(new { messgae = ex.Message });
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
