@@ -25,6 +25,7 @@ builder.Services.AddScoped<FacebookService>();
 builder.Services.AddScoped<GoogleService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<FeedbackService>();
+builder.Services.AddScoped<ServiceTypesService>();
 
 
 
