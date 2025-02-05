@@ -37,7 +37,7 @@ namespace TodoAPI.Services
             var booking = new Booking
             {
                 VehicleType = bookingDto.VehicleType,
-                ServiceType = serviceType,
+                ServiceTypeId = serviceType.Id,
                 Location=bookingDto.Location,
                 ScheduledAt = bookingDto.ScheduledAt,
                 AdditionalNotes = bookingDto.AdditionalNotes,
@@ -82,7 +82,7 @@ namespace TodoAPI.Services
                 GuestPhone = bookingDto.GuestPhone,
                 Location=bookingDto.Location,
                 VehicleType = bookingDto.VehicleType,
-                ServiceType = serviceType,
+                ServiceTypeId = serviceType.Id,
                 ScheduledAt = bookingDto.ScheduledAt,
                 AdditionalNotes = bookingDto.AdditionalNotes
             };

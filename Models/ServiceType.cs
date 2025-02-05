@@ -8,6 +8,7 @@
 
         public double Price { get; set; }
 
+
         public List<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
