@@ -11,12 +11,14 @@ namespace TodoAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly TemplateService _templateService;
         private readonly EmailSender _emailSender;
+        private readonly StatusService _statusService;
 
-        public AdminService(ApplicationDbContext context,TemplateService templateService,EmailSender emailSender)
+        public AdminService(ApplicationDbContext context,TemplateService templateService,EmailSender emailSender,StatusService statusService)
         {
             _context = context;
             _templateService = templateService;
             _emailSender = emailSender;
+            _statusService = statusService;
         }
 
         // Add a new booking
@@ -62,7 +64,10 @@ namespace TodoAPI.Services
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
-            booking.Status = bookingDto.Status;
+            //get the status with with the given ID and add it to the booking
+            Status status = await _statusService.GetStatus(bookingDto.StatusId);
+
+            booking.Status = status;
             booking.ServiceType = serviceType;
             booking.VehicleType = bookingDto.VehicleType;
             booking.Location = bookingDto.Location;
@@ -104,7 +109,7 @@ namespace TodoAPI.Services
            
             //if status is confirmed
             //send an email to the user to tell them that their booking has been confirmed
-            if (bookingDto.Status.Equals("confirmed",StringComparison.OrdinalIgnoreCase))
+            if (status.Name.Equals("confirmed",StringComparison.OrdinalIgnoreCase))
             {
 
                 var emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
@@ -113,7 +118,7 @@ namespace TodoAPI.Services
             }
             //if status is cancelled
             //send an email to the user to tell them that their booking has been cancelled
-            if (bookingDto.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+            if (status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
             {
                 //first, save the reason for cancelling the booking to the database
                 if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
@@ -128,7 +133,7 @@ namespace TodoAPI.Services
             }
             //if status is en route
             //send an email to the user to tell them that the team is on their way
-            if (bookingDto.Status.Equals("en route", StringComparison.OrdinalIgnoreCase))
+            if (status.Name.Equals("en route", StringComparison.OrdinalIgnoreCase))
             {
                 var emailBody = _templateService.BookingEnRoute(name,scheduledAt,location);
                 var emailSubject = "Car Wash On the Way";
@@ -144,6 +149,8 @@ namespace TodoAPI.Services
         {
             var bookings = await _context.Bookings
                 .OrderByDescending(x => x.CreatedAt)
+                .Include(x =>x.ServiceType)
+                .Include(x =>x.Status)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -168,6 +175,8 @@ namespace TodoAPI.Services
 
             var bookings = await _context.Bookings.Where(x => x.Status.Equals("completed"))
                 .OrderByDescending(x => x.CreatedAt)
+                 .Include(x => x.ServiceType)
+                .Include(x => x.Status)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -191,6 +200,8 @@ namespace TodoAPI.Services
         {
             var bookings = await _context.Bookings.Where(x => x.Status.Equals("pending"))
                 .OrderByDescending(x => x.CreatedAt)
+                 .Include(x => x.ServiceType)
+                .Include(x => x.Status)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -224,11 +235,7 @@ namespace TodoAPI.Services
         //Delete an booking
         public async Task DeleteBooking(int id)
         {
-
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            if (booking == null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
-
+            var booking = await GetBooking(id);
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }
@@ -243,6 +250,7 @@ namespace TodoAPI.Services
             int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed")).CountAsync();
             int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending")).CountAsync();
             int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled")).CountAsync();
+
 
             var adminStats = new BookingAdminStatsDto
             {

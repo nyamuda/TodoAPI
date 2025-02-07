@@ -28,7 +28,7 @@ namespace TodoAPI.Services
 
 
             //check if the booking has been completed
-            if (!booking.Status.Equals("completed", StringComparison.OrdinalIgnoreCase))
+            if (!booking.Status.Name.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Feedback cannot be added as the booking has not been completed.");
 
             //add the feedback to the database
@@ -56,7 +56,7 @@ namespace TodoAPI.Services
 
 
             //check if the booking has been completed
-            if (!booking.Status.Equals("completed", StringComparison.OrdinalIgnoreCase))
+            if (!booking.Status.Name.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Feedback cannot be added as the booking has not been completed.");
 
 

@@ -309,10 +309,7 @@ namespace TodoAPI.Services
         public async Task DeleteBooking(int id)
         {
 
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            if (booking == null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
-
+            var booking = await GetBooking(id);      
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }
