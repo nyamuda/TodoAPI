@@ -44,7 +44,7 @@ namespace TodoAPI.Services
 
             Status status = new Status
             {
-                Name = statusDto.Name
+                Name = statusDto.Name.ToLower()
             };
 
             _context.Statuses.Add(status);
