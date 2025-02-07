@@ -5,7 +5,7 @@ namespace TodoAPI.Dtos.Booking
     public class UpdateBookingDto
     {
         [Required]
-        public string Status { get; set; }
+        public int StatusId { get; set; }
 
         [Required]
         public string VehicleType { get; set; }

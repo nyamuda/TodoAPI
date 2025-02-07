@@ -11,13 +11,15 @@ namespace TodoAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly TemplateService _templateService;
         private readonly EmailSender _emailSender;
+        private readonly StatusService _statusService;
 
 
-        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender)
+        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService)
         {
             _context = context;
             _templateService = templateService;
             _emailSender = emailSender;
+            _statusService = statusService;
         }
 
         // Add a new booking
@@ -34,6 +36,12 @@ namespace TodoAPI.Services
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
+
+            //default booking status is "pending"
+            //get status with name "pending"
+            //and it to the booking
+            Status status = await _statusService.GetStatusByName("pending");
+
             var booking = new Booking
             {
                 VehicleType = bookingDto.VehicleType,
@@ -42,6 +50,7 @@ namespace TodoAPI.Services
                 ScheduledAt = bookingDto.ScheduledAt,
                 AdditionalNotes = bookingDto.AdditionalNotes,
                 User = user,
+                Status=status
             };
             // Add a new booking to the database
             _context.Bookings.Add(booking);
@@ -75,6 +84,11 @@ namespace TodoAPI.Services
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
+            //default booking status is "pending"
+            //get status with name "pending"
+            //and it to the booking
+            Status status = await _statusService.GetStatusByName("pending");
+
             var booking = new Booking
             {
                 GuestName = bookingDto.GuestName,
@@ -84,7 +98,8 @@ namespace TodoAPI.Services
                 VehicleType = bookingDto.VehicleType,
                 ServiceTypeId = serviceType.Id,
                 ScheduledAt = bookingDto.ScheduledAt,
-                AdditionalNotes = bookingDto.AdditionalNotes
+                AdditionalNotes = bookingDto.AdditionalNotes,
+                Status=status
             };
             // Add the new booking to the database
             _context.Bookings.Add(booking);
@@ -115,17 +130,19 @@ namespace TodoAPI.Services
         public async Task UpdateBooking(int id, UpdateBookingDto bookingDto, User user)
         {
             //get the booking with the given id
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            if (booking is null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
+            var booking = await GetBooking(id);
+           
             //get the service type
             var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == bookingDto.ServiceTypeId);
 
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
+            //get status 
+            Status status = await _statusService.GetStatus(bookingDto.StatusId);
+
             //make sure the operation is only changing status to "cancelled"
-            if (!bookingDto.Status.Equals("cancelled"))
+            if (!status.Name.Equals("cancelled"))
                 throw new InvalidOperationException("Currently, you're only allowed to change the status to \"cancelled\".");
             //check if the reason for cancelling the booking was provided
             if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
@@ -133,7 +150,7 @@ namespace TodoAPI.Services
 
 
             //update the booking status and add the reason for cancelling
-            booking.Status = bookingDto.Status;
+            booking.Status = status;
             booking.CancelReason = bookingDto.CancelReason;
             await _context.SaveChangesAsync();
 
@@ -153,7 +170,7 @@ namespace TodoAPI.Services
 
             //if status is cancelled
             //send an email to the admin to tell them that a user booking has cancelled their booking
-            if (bookingDto.Status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+            if (status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
             {
                 //and then send an email to the admin
                 var emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, bookingDto.CancelReason);
@@ -172,6 +189,7 @@ namespace TodoAPI.Services
             var bookings = await _context.Bookings
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
+                .Include(x => x.Status)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -199,6 +217,7 @@ namespace TodoAPI.Services
             var bookings = await _context.Bookings.Where(x => x.Status.Equals("completed"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
+                 .Include(x => x.Status)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -225,6 +244,7 @@ namespace TodoAPI.Services
             var bookings = await _context.Bookings.Where(x => x.Status.Equals("pending"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
+                 .Include(x => x.Status)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -251,6 +271,7 @@ namespace TodoAPI.Services
             var bookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
+                 .Include(x => x.Status)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
