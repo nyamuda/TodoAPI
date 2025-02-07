@@ -16,6 +16,8 @@ namespace TodoAPI.Data
 
         public DbSet<Feedback> Feedback { get; set; } = default!;
 
+        public DbSet<Status> Statuses { get; set; } = default!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -51,6 +53,15 @@ namespace TodoAPI.Data
                 .WithOne(b => b.Feedback)
                 .HasForeignKey<Feedback>(f => f.BookingId)
                 .OnDelete(DeleteBehavior.Cascade); // Cascade delete if the primary entity which 'Booking' is deleted
+
+
+            //A booking can have only one status and a status can have  many bookings (many bookings can have the same status)
+            //Thus, there is a one-many relationship between Booking and Status
+            modelBuilder.Entity<Status>()
+                    .HasMany(s => s.Bookings)
+                    .WithOne(b => b.Status)
+                    .HasForeignKey(b => b.StatusId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
 
         }

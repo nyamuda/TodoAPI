@@ -62,8 +62,8 @@ namespace TodoAPI.Controllers
                     pageInfo
                 };
                 return Ok(response);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
@@ -98,7 +98,7 @@ namespace TodoAPI.Controllers
                     return NotFound(new { message = "User with the given email does not exist." });
 
                 //get the bookings of a user with that email
-                var (bookings, pageInfo) = await _bookingService.GetCompletedBookings(page, pageSize,user);
+                var (bookings, pageInfo) = await _bookingService.GetCompletedBookings(page, pageSize, user);
 
                 var response = new
                 {
@@ -107,7 +107,7 @@ namespace TodoAPI.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
@@ -194,7 +194,7 @@ namespace TodoAPI.Controllers
                 };
                 return Ok(response);
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { messgae = ex.Message });
             }
@@ -210,7 +210,7 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetBookingUserStatistics()
         {
-           try
+            try
             {
                 //First, get the access token for the authorized user
                 // Get the token from the Authorization header
@@ -228,7 +228,7 @@ namespace TodoAPI.Controllers
 
                 //user statistics
                 var statistics = await _bookingService.GetBookingUserStatistics(email);
-                
+
                 return Ok(statistics);
             }
             catch (KeyNotFoundException ex)
@@ -289,7 +289,7 @@ namespace TodoAPI.Controllers
                     return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
                 }
 
-                
+
 
                 return Ok(booking);
             }
@@ -319,7 +319,7 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Post(AddBookingDto bookingDto)
         {
-           try
+            try
             {
 
                 //First, get the access token for the authorized user
@@ -337,13 +337,13 @@ namespace TodoAPI.Controllers
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
-                var booking=await _bookingService.AddBooking(bookingDto, email);
+                var booking = await _bookingService.AddBooking(bookingDto, email);
 
 
                 return CreatedAtAction(nameof(Get), new { id = booking.Id }, booking);
 
             }
-            catch(KeyNotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
             }
@@ -357,11 +357,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new {message=ex.Message});
-            }     
-            
-            
+                return StatusCode(500, new { message = ex.Message });
             }
+
+
+        }
 
         // POST api/<BookingsController>/guest
         [HttpPost("guest")]
@@ -369,7 +369,7 @@ namespace TodoAPI.Controllers
         {
             try
             {
-               Booking booking= await _bookingService.AddGuestBooking(bookingDto);
+                Booking booking = await _bookingService.AddGuestBooking(bookingDto);
                 return CreatedAtAction(nameof(Get), new { id = booking.Id }, booking);
 
             }
@@ -395,7 +395,7 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Put(int id, UpdateBookingDto bookingDto)
         {
-           try
+            try
             {
                 //First, get the access token for the authorized user
                 // Get the token from the Authorization header
@@ -413,7 +413,7 @@ namespace TodoAPI.Controllers
 
 
                 //get user with the given email
-                var user = _userService.GetUserByEmail(tokenEmail);
+                var user = await _userService.GetUserByEmail(tokenEmail);
                 //booking they're trying to access
                 var booking = await _bookingService.GetBooking(id);
 
@@ -425,14 +425,14 @@ namespace TodoAPI.Controllers
                     return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
                 }
 
-                await _bookingService.UpdateBooking(id, bookingDto);
+                await _bookingService.UpdateBooking(id, bookingDto, user);
                 return NoContent();
             }
-            catch(KeyNotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
             }
-           
+
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
@@ -468,9 +468,9 @@ namespace TodoAPI.Controllers
             }
 
         }
-       
 
-       
+
+
 
     }
 }

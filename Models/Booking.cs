@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 
 namespace TodoAPI.Models
 {
@@ -8,11 +8,11 @@ namespace TodoAPI.Models
         public string VehicleType { get; set; } = default!; 
         public int? ServiceTypeId { get; set; }
 
-        [JsonIgnore]
         public ServiceType ServiceType { get; set; } = default!;
         public string Location { get; set; } = default!;
-        public string Status { get; set; } = "Pending";
-        
+        public int StatusId { get; set; }
+
+        public Status Status { get; set; }
         public string? CancelReason { get; set; } //reason for cancelling a booking
         public DateTime ScheduledAt { get; set; }
 

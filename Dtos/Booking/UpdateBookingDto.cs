@@ -16,11 +16,10 @@ namespace TodoAPI.Dtos.Booking
         public string Location { get; set; }
         [Required]
         public DateTime ScheduledAt { get; set; }
+ 
+        public string? AdditionalNotes { get; set; }
 
         [Required]
-        public string AdditionalNotes { get; set; }
-
-        [Required]
-        public string  CancelReason { get; set; }
+        public string?  CancelReason { get; set; }
     }
 }
