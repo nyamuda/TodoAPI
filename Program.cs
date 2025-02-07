@@ -27,6 +27,7 @@ builder.Services.AddScoped<GoogleService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<FeedbackService>();
 builder.Services.AddScoped<ServiceTypesService>();
+builder.Services.AddScoped<StatusService>();
 
 
 

@@ -30,6 +30,30 @@ namespace TodoAPI.Services
             List<Status> statuses = await _context.Statuses.ToListAsync();
             return statuses;    
         }
+
+        //Add a status
+
+        public async Task<Status> AddStatus(StatusDto statusDto)
+        {
+            //check to see if a status with a given name does not already exist
+            var statusWithNameExist=await _context.Statuses.FirstOrDefaultAsync(x => x.Name.Equals(statusDto.Name.ToLower()));
+
+            //if status with the given name already exists, throw an exception
+            if (statusWithNameExist is not null)
+                throw new InvalidOperationException($"Status with name {statusDto.Name} already exists.");
+
+            Status status = new Status
+            {
+                Name = statusDto.Name
+            };
+
+            _context.Statuses.Add(status);
+
+            await _context.SaveChangesAsync();
+
+            return status;
+
+        }
         //Update a status with a given ID
         public async Task UpdateStatus(int id, StatusDto statusDto)
         {
