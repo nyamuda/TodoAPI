@@ -31,7 +31,7 @@ namespace TodoAPI.Services
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-            if(user is null)
+            if (user is null)
                 throw new KeyNotFoundException($"User with ID {id} was not found.");
 
             return user;
@@ -88,6 +88,8 @@ namespace TodoAPI.Services
 
             return user;
 
-    }
+        }
+
+        
     }
 }

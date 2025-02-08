@@ -469,6 +469,60 @@ namespace TodoAPI.Controllers
 
         }
 
+        // PUT api/<BookingsController>/5
+        [HttpPut("{id}/statuses/{statusId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatus(int id,int statusId)
+        {
+            try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email and role
+                var tokenEmail = claims.FindFirst(ClaimTypes.Email)?.Value;
+                var role = claims.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (tokenEmail == null || role == null)
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
+
+
+                //get user with the given email
+                var user = await _userService.GetUserByEmail(tokenEmail);
+                //booking they're trying to access
+                var booking = await _bookingService.GetBooking(id);
+
+                //for a user to perform this request, their ID 
+                //must match the ID of the user of the booking they're trying to access
+                //OR they should be the admin
+                if (!booking.UserId.Equals(user.Id) && !role.Equals("Admin"))
+                {
+                    return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
+                }
+
+                await _bookingService.UpdateBooking(id, bookingDto, user);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+
 
 
 

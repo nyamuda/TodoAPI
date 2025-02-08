@@ -50,7 +50,7 @@ namespace TodoAPI.Services
                 ScheduledAt = bookingDto.ScheduledAt,
                 AdditionalNotes = bookingDto.AdditionalNotes,
                 User = user,
-                Status=status
+                Status = status
             };
             // Add a new booking to the database
             _context.Bookings.Add(booking);
@@ -99,7 +99,7 @@ namespace TodoAPI.Services
                 ServiceTypeId = serviceType.Id,
                 ScheduledAt = bookingDto.ScheduledAt,
                 AdditionalNotes = bookingDto.AdditionalNotes,
-                Status=status
+                Status = status
             };
             // Add the new booking to the database
             _context.Bookings.Add(booking);
@@ -131,7 +131,7 @@ namespace TodoAPI.Services
         {
             //get the booking with the given id
             var booking = await GetBooking(id);
-           
+
             //get the service type
             var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == bookingDto.ServiceTypeId);
 
@@ -157,8 +157,6 @@ namespace TodoAPI.Services
 
 
             //Send an email to notify the admin of the status change      
-
-
             var name = user.Name;
             var email = user.Email;
             var phone = user.Phone;
@@ -309,7 +307,7 @@ namespace TodoAPI.Services
         public async Task DeleteBooking(int id)
         {
 
-            var booking = await GetBooking(id);      
+            var booking = await GetBooking(id);
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }
@@ -338,7 +336,107 @@ namespace TodoAPI.Services
             return userStats;
         }
 
+        //Cancel booking
+        public async Task ChangeBookingStatus(Booking booking, User user, BookingStatusUpdateDto statusUpdateDto)
+        {
+            //get the status with the given ID
+            Status status = await _statusService.GetStatus(statusUpdateDto.StatusId);
 
+            //Normal users can only change status to "cancelled"
+            //They can only cancel their bookings
+            //While admin can change the status to anything other "cancelled" e.g "confirmed", "en route" etc
+            if (user.Role.Equals("User"))
+            {
+                if (!status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+                    throw new UnauthorizedAccessException("You're only authorized to change the status to \"cancelled\".");
+            }
+            //if status is changed to "cancelled", then a reason must be provided
+            //check if the reason for cancelling the booking was provided
+            if (string.IsNullOrWhiteSpace(statusUpdateDto.CancelReason) && status.Name.Equals("cancelled"))
+                throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
+
+            //update booking and change its status
+            booking.Status = status;
+            if (status.Name.Equals("cancelled"))
+                booking.CancelReason = statusUpdateDto.CancelReason;
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+
+            //send email to user to admin
+            //to them known that the status of the booking has be changed
+            await EmailAboutStatusChange(user,booking);
+
+
+        }
+
+        //Send an email to an admin or user about a change in status of a booking
+        private async Task EmailAboutStatusChange(User user, Booking booking)
+        {
+            //Send an email to notify the admin of the status change      
+            var name = user.Name;
+            var email = user.Email;
+            var phone = user.Phone;
+            var location = booking.Location;
+            var vehicleType = booking.VehicleType;
+            var serviceType = booking.ServiceType;
+            var scheduledAt = booking.ScheduledAt;
+            var additionalNotes = booking.AdditionalNotes;
+            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason)  ? booking.CancelReason : "";
+
+
+            //email body and subject
+            var emailBody = string.Empty;
+            var emailSubject = string.Empty;
+
+            //If booking is cancelled by a user
+            //send an email to the admin to tell them that a user booking has cancelled their booking
+            if (user.Role.Equals("User"))
+            {
+               
+                if (booking.Status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    //send an email to the admin
+                    emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
+                    emailSubject = "Booking Cancelled";
+                    var adminEmail = _emailSender.AdminEmail;
+                    await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
+                }
+            }
+            
+            //If the booking status was changed by the admin
+            //send an email to the user of the booking to let them know about the status change
+            if (user.Role.Equals("Admin"))
+            {
+               
+                switch (booking.Status.Name)
+                {
+                    case "confirmed":
+                        emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
+                        emailSubject = "Booking Confirmed";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    case "cancelled":
+                        //then send an email to the user
+                        emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
+                        emailSubject = "Booking Cancelled";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    case "en route":
+                        emailBody = _templateService.BookingEnRoute(name, scheduledAt, location);
+                        emailSubject = "Car Wash On the Way";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    default:
+                        break;
+                }
+             
+
+
+
+                
+
+
+        }
 
 
     }
