@@ -362,9 +362,9 @@ namespace TodoAPI.Services
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            //send email to user to admin
-            //to them known that the status of the booking has be changed
-            await EmailAboutStatusChange(user,booking);
+            //send email to user or admin
+            //to let them known that the status of the booking has be changed
+            await EmailAboutStatusChange(user, booking);
 
 
         }
@@ -381,7 +381,7 @@ namespace TodoAPI.Services
             var serviceType = booking.ServiceType;
             var scheduledAt = booking.ScheduledAt;
             var additionalNotes = booking.AdditionalNotes;
-            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason)  ? booking.CancelReason : "";
+            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason) ? booking.CancelReason : "";
 
 
             //email body and subject
@@ -392,7 +392,7 @@ namespace TodoAPI.Services
             //send an email to the admin to tell them that a user booking has cancelled their booking
             if (user.Role.Equals("User"))
             {
-               
+
                 if (booking.Status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     //send an email to the admin
@@ -402,12 +402,12 @@ namespace TodoAPI.Services
                     await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
                 }
             }
-            
+
             //If the booking status was changed by the admin
             //send an email to the user of the booking to let them know about the status change
             if (user.Role.Equals("Admin"))
             {
-               
+
                 switch (booking.Status.Name)
                 {
                     case "confirmed":
@@ -428,16 +428,13 @@ namespace TodoAPI.Services
                         break;
                     default:
                         break;
+
                 }
-             
 
 
-
-                
+            }
 
 
         }
-
-
     }
 }

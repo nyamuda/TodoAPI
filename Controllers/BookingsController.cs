@@ -470,9 +470,9 @@ namespace TodoAPI.Controllers
         }
 
         // PUT api/<BookingsController>/5
-        [HttpPut("{id}/statuses/{statusId}")]
+        [HttpPut("{id}/statuses")]
         [Authorize]
-        public async Task<IActionResult> UpdateStatus(int id,int statusId)
+        public async Task<IActionResult> UpdateStatus(int id,BookingStatusUpdateDto statusUpdateDto)
         {
             try
             {
@@ -488,8 +488,7 @@ namespace TodoAPI.Controllers
                 var role = claims.FindFirst(ClaimTypes.Role)?.Value;
 
                 if (tokenEmail == null || role == null)
-                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
-
+                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
 
                 //get user with the given email
                 var user = await _userService.GetUserByEmail(tokenEmail);
@@ -500,16 +499,19 @@ namespace TodoAPI.Controllers
                 //must match the ID of the user of the booking they're trying to access
                 //OR they should be the admin
                 if (!booking.UserId.Equals(user.Id) && !role.Equals("Admin"))
-                {
-                    return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
-                }
+                    throw new UnauthorizedAccessException("Your account lacks the necessary permissions to complete this request.");
 
-                await _bookingService.UpdateBooking(id, bookingDto, user);
+                await _bookingService.ChangeBookingStatus(booking,user,statusUpdateDto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
 
             catch (InvalidOperationException ex)
