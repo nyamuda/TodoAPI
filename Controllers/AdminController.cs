@@ -245,12 +245,10 @@ namespace TodoAPI.Controllers
 
         // PUT api/<BookingsController>/bookings/5/statuses
         [HttpPut("bookings/{id}/statuses")]
-        [Authorize]
-        public async Task<IActionResult> UpdateStatus(int id, BookingStatusUpdateDto statusUpdateDto)
+        public async Task<IActionResult> UpdateBookingStatus(int id, BookingStatusUpdateDto statusUpdateDto)
         {
             try
             {
-     
                 await _adminService.ChangeBookingStatus(id,statusUpdateDto);
                 return NoContent();
             }

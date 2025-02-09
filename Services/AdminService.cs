@@ -12,7 +12,7 @@ namespace TodoAPI.Services
         private readonly TemplateService _templateService;
         private readonly EmailSender _emailSender;
         private readonly StatusService _statusService;
-        private readonly BookingService _bookingServie;
+        private readonly BookingService _bookingService;
 
         public AdminService(ApplicationDbContext context,TemplateService templateService,EmailSender emailSender,StatusService statusService, BookingService bookingService)
         {
@@ -20,7 +20,7 @@ namespace TodoAPI.Services
             _templateService = templateService;
             _emailSender = emailSender;
             _statusService = statusService;
-            _bookingServie = bookingService;
+            _bookingService = bookingService;
         }
 
         // Add a new booking
@@ -200,13 +200,13 @@ namespace TodoAPI.Services
         public async Task ChangeBookingStatus(int id,BookingStatusUpdateDto statusUpdateDto)
         {
             //get the booking with the given ID
-            Booking booking = await _bookingServie.GetBooking(id);
+            Booking booking = await _bookingService.GetBooking(id);
             //get the status with the given name
             Status status = await _statusService.GetStatusByName(statusUpdateDto.StatusName);
 
             //check to see if the new status of the booking is different from the old one
             if (booking.StatusId.Equals(status.Id))
-                throw new InvalidOperationException("The booking already has the given status. Please change the status to a different one.");
+                throw new InvalidOperationException($"The booking already has the status \"{status.Name}\".");
             
             //if status is changed to "cancelled", then a reason must be provided
             //check if the reason for cancelling the booking was provided
@@ -227,17 +227,12 @@ namespace TodoAPI.Services
 
         }
 
-        //Send an email to a user about a change in status of a booking
+        //Send an email to a user and tell them about a change in the status of their booking
         private async Task EmailAboutStatusChange(Booking booking)
         {
 
+            var (name, email, phone) = await _bookingService.GetBookingUserInfo(booking.Id);
            
-
-
-            //Send an email to notify th user or admin of the status change      
-            var name = user.Name;
-            var email = user.Email;
-            var phone = user.Phone;
             var location = booking.Location;
             var vehicleType = booking.VehicleType;
             var serviceType = booking.ServiceType;
@@ -250,52 +245,26 @@ namespace TodoAPI.Services
             var emailBody = string.Empty;
             var emailSubject = string.Empty;
 
-            //If booking is cancelled by a user
-            //send an email to the admin to tell them that a user booking has cancelled their booking
-
-            if (user.Role.Equals("User"))
+            switch (booking.Status.Name)
             {
-
-
-                if (booking.Status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
-                {
-
-                    //send an email to the admin
+                case "confirmed":
+                    emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
+                    emailSubject = "Booking Confirmed";
+                    await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                    break;
+                case "cancelled":
+                    //then send an email to the user
                     emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
                     emailSubject = "Booking Cancelled";
-                    var adminEmail = _emailSender.AdminEmail;
-                    await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
-                }
-            }
-
-            //If the booking status was changed by the admin
-            //send an email to the user of the booking to let them know about the status change
-            if (user.Role.Equals("Admin"))
-            {
-
-                switch (booking.Status.Name)
-                {
-                    case "confirmed":
-                        emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
-                        emailSubject = "Booking Confirmed";
-                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-                        break;
-                    case "cancelled":
-                        //then send an email to the user
-                        emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
-                        emailSubject = "Booking Cancelled";
-                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-                        break;
-                    case "en route":
-                        emailBody = _templateService.BookingEnRoute(name, scheduledAt, location);
-                        emailSubject = "Car Wash On the Way";
-                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-                        break;
-                    default:
-                        break;
-
-                }
-
+                    await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                    break;
+                case "en route":
+                    emailBody = _templateService.BookingEnRoute(name, scheduledAt, location);
+                    emailSubject = "Car Wash On the Way";
+                    await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                    break;
+                default:
+                    break;
 
             }
 
