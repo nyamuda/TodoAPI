@@ -25,7 +25,7 @@ namespace TodoAPI.Models
         public User? User { get; set; } // Nullable for guest bookings
 
         //Guest user for users not registered
-       GuestUser? GuestUser { get; set; }
+       public GuestUser? GuestUser { get; set; }
 
         public Feedback? Feedback { get; set; }
 

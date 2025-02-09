@@ -12,14 +12,16 @@ namespace TodoAPI.Services
         private readonly TemplateService _templateService;
         private readonly EmailSender _emailSender;
         private readonly StatusService _statusService;
+        private readonly UserService _userService;
 
 
-        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService)
+        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService,UserService userService)
         {
             _context = context;
             _templateService = templateService;
             _emailSender = emailSender;
             _statusService = statusService;
+            _userService = userService;
         }
 
         // Add a new booking
@@ -109,15 +111,19 @@ namespace TodoAPI.Services
                     Name = "pending"
                 };
                 _context.Statuses.Add(status);
-                await _context.SaveChangesAsync();        
+                await _context.SaveChangesAsync();
             }
 
             //create the booking
+            GuestUser guestUser = new GuestUser()
+            {
+                Name = bookingDto.GuestName,
+                Email = bookingDto.GuestEmail,
+                Phone = bookingDto.GuestPhone
+            };
             var booking = new Booking
             {
-                GuestName = bookingDto.GuestName,
-                GuestEmail = bookingDto.GuestEmail,
-                GuestPhone = bookingDto.GuestPhone,
+                GuestUser = guestUser,
                 Location = bookingDto.Location,
                 VehicleType = bookingDto.VehicleType,
                 ServiceTypeId = serviceType.Id,
@@ -130,9 +136,9 @@ namespace TodoAPI.Services
             await _context.SaveChangesAsync();
 
             //send an email to notify the user of the new booking
-            var name = booking.GuestName;
-            var phone = booking.GuestPhone;
-            var email = booking.GuestEmail;
+            var name = booking.GuestUser.Name;
+            var phone = booking.GuestUser.Phone;
+            var email = booking.GuestUser.Email;
             var location = booking.Location;
             var vehicleType = booking.VehicleType;
             var scheduleAt = booking.ScheduledAt;
@@ -289,7 +295,7 @@ namespace TodoAPI.Services
         //Get an booking by id
         public async Task<Booking> GetBooking(int id)
         {
-            var booking = await _context.Bookings.Include(b =>b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
+            var booking = await _context.Bookings.Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
@@ -402,29 +408,41 @@ namespace TodoAPI.Services
         {
             Booking booking = await GetBooking(id);
 
-            // if the user who made the booking was a guest user
-            if (booking.User is null)
-            {
-                var name = booking.GuestName;
-                var email = booking.GuestEmail;
-                var phone = booking.GuestPhone;
+            var name = string.Empty;
+            var email = string.Empty;
+            var phone = string.Empty;
 
-                if (name is null || email is null || phone is null)
+            // if the user who made the booking was a guest user
+            if (booking.UserId is null)
+            {
+                if (booking.GuestUser is null)
                     throw new InvalidOperationException("Booking lacks key user information such as name, email and phone.");
 
-                return (name, email, phone);
+                name = booking.GuestUser.Name;
+                email = booking.GuestUser.Email;
+                phone = booking.GuestUser.Phone;         
+               
             }
 
-           else
+            else
             {
-                var name = booking.User.Name;
-                var email = booking.User.Email;
-                var phone = booking.User.Phone;
+                if(booking.User is null)
+                {
+                    User user = await _userService.GetUser((int)booking.UserId);
 
-                return (name, email, phone);
+                    name= user.Name;
+                    email = user.Email;
+                    phone = user.Phone;
+                }
+                else
+                {
+                    name = booking.User.Name;
+                    email = booking.User.Email;
+                    phone = booking.User.Phone;
+                }
 
             }
-                
+            return (name, email, phone);
         }
     }
 }
