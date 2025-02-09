@@ -434,8 +434,8 @@ namespace TodoAPI.Services
              <p><span class=""highlight"">Vehicle Type:</span> {vehicleType}</p>
              <p><span class=""highlight"">Service Type:</span> {serviceType.Name} (R{serviceType.Price})</p>
             <p><span class=""highlight"">Scheduled At:</span> {scheduledAt:dddd, MMMM dd, yyyy h:mm tt}</p>
-            <p><span class=""highlight"">Cancellation Reason:</span></p>
-            <p>{(string.IsNullOrWhiteSpace(cancellationReason) ? "No reason provided." : cancellationReason)}</p>
+            <p><span class=""highlight"">Cancellation Reason:</span> {cancellationReason}</p>
+            
             <p>If you have any questions or concerns, please contact us for further assistance.</p>
         </div>
         <div class=""email-footer"">

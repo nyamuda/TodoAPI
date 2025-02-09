@@ -242,6 +242,38 @@ namespace TodoAPI.Controllers
             }
 
         }
-        
+
+        // PUT api/<BookingsController>/bookings/5/statuses
+        [HttpPut("bookings/{id}/statuses")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatus(int id, BookingStatusUpdateDto statusUpdateDto)
+        {
+            try
+            {
+     
+                await _adminService.ChangeBookingStatus(id,statusUpdateDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+
     }
 }

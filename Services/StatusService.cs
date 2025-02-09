@@ -80,19 +80,8 @@ namespace TodoAPI.Services
         public async Task<Status> GetStatusByName(string name)
         {
             var status =await _context.Statuses.FirstOrDefaultAsync(x => x.Name.Equals(name.ToLower()));
-
-            //if status with the given name does not exist,
-            //create one and return that status
-            if(status is null)
-            {
-                Status newStatus = new Status
-                {
-                    Name = name.ToLower()
-                };
-                _context.Statuses.Add(newStatus);
-                await _context.SaveChangesAsync();
-                return newStatus;
-            }
+            if (status is null)
+                throw new KeyNotFoundException($"Status with name \"{name}\" does not exist.");                 
             return status;
 
         }

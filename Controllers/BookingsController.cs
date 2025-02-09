@@ -392,7 +392,7 @@ namespace TodoAPI.Controllers
 
         // PUT api/<BookingsController>/5
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(int id, UpdateBookingDto bookingDto)
         {
             try
@@ -495,6 +495,7 @@ namespace TodoAPI.Controllers
                 //booking they're trying to access
                 var booking = await _bookingService.GetBooking(id);
 
+
                 //for a user to perform this request, their ID 
                 //must match the ID of the user of the booking they're trying to access
                 //OR they should be the admin
@@ -520,7 +521,7 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message});
             }
         }
 

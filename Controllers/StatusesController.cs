@@ -108,5 +108,26 @@ namespace TodoAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        // GET api/<StatusesController>/5
+        [HttpGet("name/{name}")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            try
+            {
+                var status = await _statusService.GetStatusByName(name);
+
+                return Ok(status);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 }

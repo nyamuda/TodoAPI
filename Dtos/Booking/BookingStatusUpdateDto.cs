@@ -5,7 +5,7 @@ namespace TodoAPI.Dtos.Booking
     public class BookingStatusUpdateDto
     {
         [Required]
-        public int StatusId { get; set; }
+        public string StatusName { get; set; }
         
         //if status is changed to "cancelled"
         public string? CancelReason { get; set; }

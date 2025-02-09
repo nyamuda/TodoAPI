@@ -12,13 +12,15 @@ namespace TodoAPI.Services
         private readonly TemplateService _templateService;
         private readonly EmailSender _emailSender;
         private readonly StatusService _statusService;
+        private readonly BookingService _bookingServie;
 
-        public AdminService(ApplicationDbContext context,TemplateService templateService,EmailSender emailSender,StatusService statusService)
+        public AdminService(ApplicationDbContext context,TemplateService templateService,EmailSender emailSender,StatusService statusService, BookingService bookingService)
         {
             _context = context;
             _templateService = templateService;
             _emailSender = emailSender;
             _statusService = statusService;
+            _bookingServie = bookingService;
         }
 
         // Add a new booking
@@ -63,11 +65,7 @@ namespace TodoAPI.Services
 
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
-
-            //get the status with with the given ID and add it to the booking
-            Status status = await _statusService.GetStatus(bookingDto.StatusId);
-
-            booking.Status = status;
+            
             booking.ServiceType = serviceType;
             booking.VehicleType = bookingDto.VehicleType;
             booking.Location = bookingDto.Location;
@@ -75,71 +73,7 @@ namespace TodoAPI.Services
             booking.AdditionalNotes = bookingDto.AdditionalNotes;
 
             await _context.SaveChangesAsync();
-
-            //Send an email to notify the user of the status change
-            var name = "";
-            var email = "";
-            var phone = "";
-            var location =bookingDto.Location;
-            var vehicleType = bookingDto.VehicleType;
-            var scheduledAt = bookingDto.ScheduledAt;
-            var additionalNotes = bookingDto.AdditionalNotes;
-
-            //Get the user who made the booking
-            //check if user ID exists
-            //if user ID is null, the user is a guest user
-            var userId = booking.UserId;
-            if(userId is null)
-            {
-                name = booking.GuestName;
-                email = booking.GuestEmail;
-                phone = booking.GuestPhone;
-            }
-            else
-            {
-                //get user
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id.Equals(userId));
-                if (user is null)
-                    throw new KeyNotFoundException("The user of the booking was not found.");
-
-                name = user.Name;
-                email = user.Email;
-                phone = user.Phone;
-            }
            
-            //if status is confirmed
-            //send an email to the user to tell them that their booking has been confirmed
-            if (status.Name.Equals("confirmed",StringComparison.OrdinalIgnoreCase))
-            {
-
-                var emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
-                var emailSubject = "Booking Confirmed";
-                await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-            }
-            //if status is cancelled
-            //send an email to the user to tell them that their booking has been cancelled
-            if (status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
-            {
-                //first, save the reason for cancelling the booking to the database
-                if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
-                    throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
-                booking.CancelReason = bookingDto.CancelReason;
-                await _context.SaveChangesAsync();
-
-                //then send an email to the user
-                var emailBody = _templateService.BookingCancellation(name,email,phone,serviceType,vehicleType,location,scheduledAt,bookingDto.CancelReason);
-                var emailSubject = "Booking Cancelled";
-                await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-            }
-            //if status is en route
-            //send an email to the user to tell them that the team is on their way
-            if (status.Name.Equals("en route", StringComparison.OrdinalIgnoreCase))
-            {
-                var emailBody = _templateService.BookingEnRoute(name,scheduledAt,location);
-                var emailSubject = "Car Wash On the Way";
-                await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-            }
-
 
         }
 
@@ -260,6 +194,112 @@ namespace TodoAPI.Services
                 TotalCancelledBookings = totalCancelledBookings
             };
             return adminStats;
+        }
+
+        //Change booking status
+        public async Task ChangeBookingStatus(int id,BookingStatusUpdateDto statusUpdateDto)
+        {
+            //get the booking with the given ID
+            Booking booking = await _bookingServie.GetBooking(id);
+            //get the status with the given name
+            Status status = await _statusService.GetStatusByName(statusUpdateDto.StatusName);
+
+            //check to see if the new status of the booking is different from the old one
+            if (booking.StatusId.Equals(status.Id))
+                throw new InvalidOperationException("The booking already has the given status. Please change the status to a different one.");
+            
+            //if status is changed to "cancelled", then a reason must be provided
+            //check if the reason for cancelling the booking was provided
+            if (string.IsNullOrWhiteSpace(statusUpdateDto.CancelReason) && status.Name.Equals("cancelled"))
+                throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
+
+            //update booking and change its status
+            booking.Status = status;
+            if (status.Name.Equals("cancelled"))
+                booking.CancelReason = statusUpdateDto.CancelReason;
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+
+            //send email to the user who made the booking
+            //to let them know that the status of the booking has be changed
+            await EmailAboutStatusChange(booking);
+
+
+        }
+
+        //Send an email to a user about a change in status of a booking
+        private async Task EmailAboutStatusChange(Booking booking)
+        {
+
+           
+
+
+            //Send an email to notify th user or admin of the status change      
+            var name = user.Name;
+            var email = user.Email;
+            var phone = user.Phone;
+            var location = booking.Location;
+            var vehicleType = booking.VehicleType;
+            var serviceType = booking.ServiceType;
+            var scheduledAt = booking.ScheduledAt;
+            var additionalNotes = booking.AdditionalNotes;
+            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason) ? booking.CancelReason : "";
+
+
+            //email body and subject
+            var emailBody = string.Empty;
+            var emailSubject = string.Empty;
+
+            //If booking is cancelled by a user
+            //send an email to the admin to tell them that a user booking has cancelled their booking
+
+            if (user.Role.Equals("User"))
+            {
+
+
+                if (booking.Status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+
+                    //send an email to the admin
+                    emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
+                    emailSubject = "Booking Cancelled";
+                    var adminEmail = _emailSender.AdminEmail;
+                    await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
+                }
+            }
+
+            //If the booking status was changed by the admin
+            //send an email to the user of the booking to let them know about the status change
+            if (user.Role.Equals("Admin"))
+            {
+
+                switch (booking.Status.Name)
+                {
+                    case "confirmed":
+                        emailBody = _templateService.BookingConfirmation(name, email, phone, serviceType, vehicleType, location, scheduledAt, additionalNotes);
+                        emailSubject = "Booking Confirmed";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    case "cancelled":
+                        //then send an email to the user
+                        emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
+                        emailSubject = "Booking Cancelled";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    case "en route":
+                        emailBody = _templateService.BookingEnRoute(name, scheduledAt, location);
+                        emailSubject = "Car Wash On the Way";
+                        await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                        break;
+                    default:
+                        break;
+
+                }
+
+
+            }
+
+
         }
 
 

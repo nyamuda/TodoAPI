@@ -36,11 +36,22 @@ namespace TodoAPI.Services
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
-
             //default booking status is "pending"
             //get status with name "pending"
-            //and it to the booking
-            Status status = await _statusService.GetStatusByName("pending");
+            //and add it to the booking
+            var status = await _context.Statuses.FirstOrDefaultAsync(x => x.Name.Equals("pending"));
+
+            //if status with name "pending" does not exist,
+            //create one
+            if (status is null)
+            {
+                status = new Status
+                {
+                    Name = "pending"
+                };
+                _context.Statuses.Add(status);
+                await _context.SaveChangesAsync();
+            }
 
             var booking = new Booking
             {
@@ -86,9 +97,22 @@ namespace TodoAPI.Services
 
             //default booking status is "pending"
             //get status with name "pending"
-            //and it to the booking
-            Status status = await _statusService.GetStatusByName("pending");
+            //and add it to the booking
+            var status = await _context.Statuses.FirstOrDefaultAsync(x => x.Name.Equals("pending"));
 
+            //if status with name "pending" does not exist,
+            //create one
+            if (status is null)
+            {
+                status = new Status
+                {
+                    Name = "pending"
+                };
+                _context.Statuses.Add(status);
+                await _context.SaveChangesAsync();        
+            }
+
+            //create the booking
             var booking = new Booking
             {
                 GuestName = bookingDto.GuestName,
@@ -138,44 +162,14 @@ namespace TodoAPI.Services
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
 
-            //get status 
-            Status status = await _statusService.GetStatus(bookingDto.StatusId);
 
-            //make sure the operation is only changing status to "cancelled"
-            if (!status.Name.Equals("cancelled"))
-                throw new InvalidOperationException("Currently, you're only allowed to change the status to \"cancelled\".");
-            //check if the reason for cancelling the booking was provided
-            if (string.IsNullOrWhiteSpace(bookingDto.CancelReason))
-                throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
+            booking.ServiceType = serviceType;
+            booking.VehicleType = bookingDto.VehicleType;
+            booking.Location = bookingDto.Location;
+            booking.ScheduledAt = bookingDto.ScheduledAt;
+            booking.AdditionalNotes = bookingDto.AdditionalNotes;
 
-
-            //update the booking status and add the reason for cancelling
-            booking.Status = status;
-            booking.CancelReason = bookingDto.CancelReason;
             await _context.SaveChangesAsync();
-
-
-
-            //Send an email to notify the admin of the status change      
-            var name = user.Name;
-            var email = user.Email;
-            var phone = user.Phone;
-            var location = bookingDto.Location;
-            var vehicleType = bookingDto.VehicleType;
-
-            var scheduledAt = bookingDto.ScheduledAt;
-            var additionalNotes = bookingDto.AdditionalNotes;
-
-            //if status is cancelled
-            //send an email to the admin to tell them that a user booking has cancelled their booking
-            if (status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
-            {
-                //and then send an email to the admin
-                var emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, bookingDto.CancelReason);
-                var emailSubject = "Booking Cancelled";
-                var adminEmail = _emailSender.AdminEmail;
-                await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
-            }
 
 
         }
@@ -212,7 +206,7 @@ namespace TodoAPI.Services
         public async Task<(List<Booking>, PageInfo)> GetCompletedBookings(int page, int pageSize, User user)
         {
 
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("completed"))
+            var bookings = await _context.Bookings.Where(x => x.Status.Name.Equals("completed"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
                  .Include(x => x.Status)
@@ -222,7 +216,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that have been completed
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("completed")).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Name.Equals("completed")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -239,7 +233,7 @@ namespace TodoAPI.Services
         //Get all pending bookings for a user
         public async Task<(List<Booking>, PageInfo)> GetPendingBookings(int page, int pageSize, User user)
         {
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("pending"))
+            var bookings = await _context.Bookings.Where(x => x.Status.Name.Equals("pending"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
                  .Include(x => x.Status)
@@ -249,7 +243,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that are pending
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("pending")).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Name.Equals("pending")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -266,7 +260,7 @@ namespace TodoAPI.Services
         //Get all cancelled bookings
         public async Task<(List<Booking>, PageInfo)> GetCancelledBookings(int page, int pageSize, User user)
         {
-            var bookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled"))
+            var bookings = await _context.Bookings.Where(x => x.Status.Name.Equals("cancelled"))
                 .Where(x => x.UserId.Equals(user.Id))
                 .Include(x => x.ServiceType)
                  .Include(x => x.Status)
@@ -276,7 +270,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             //total bookings that are cancelled
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Equals("cancelled")).CountAsync();
+            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).Where(x => x.Status.Name.Equals("cancelled")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -295,7 +289,7 @@ namespace TodoAPI.Services
         //Get an booking by id
         public async Task<Booking> GetBooking(int id)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+            var booking = await _context.Bookings.Include(b =>b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
@@ -340,7 +334,7 @@ namespace TodoAPI.Services
         public async Task ChangeBookingStatus(Booking booking, User user, BookingStatusUpdateDto statusUpdateDto)
         {
             //get the status with the given ID
-            Status status = await _statusService.GetStatus(statusUpdateDto.StatusId);
+            Status status = await _statusService.GetStatusByName(statusUpdateDto.StatusName);
 
             //Normal users can only change status to "cancelled"
             //They can only cancel their bookings
@@ -372,7 +366,9 @@ namespace TodoAPI.Services
         //Send an email to an admin or user about a change in status of a booking
         private async Task EmailAboutStatusChange(User user, Booking booking)
         {
-            //Send an email to notify the admin of the status change      
+
+
+            //Send an email to notify th user or admin of the status change      
             var name = user.Name;
             var email = user.Email;
             var phone = user.Phone;
@@ -390,11 +386,14 @@ namespace TodoAPI.Services
 
             //If booking is cancelled by a user
             //send an email to the admin to tell them that a user booking has cancelled their booking
+
             if (user.Role.Equals("User"))
             {
 
+
                 if (booking.Status.Name.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
                 {
+
                     //send an email to the admin
                     emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
                     emailSubject = "Booking Cancelled";
@@ -435,6 +434,36 @@ namespace TodoAPI.Services
             }
 
 
+        }
+
+        //Get information about a user who made a specific booking
+        public async Task<(string name, string email, string phone)> GetBookingUserInfo(int id)
+        {
+            Booking booking = await GetBooking(id);
+
+            // if the user who made the booking was a guest user
+            if (booking.User is null)
+            {
+                var name = booking.GuestName;
+                var email = booking.GuestEmail;
+                var phone = booking.GuestPhone;
+
+                if (name is null || email is null || phone is null)
+                    throw new InvalidOperationException("Booking lacks key user information such as name, email and phone.");
+
+                return (name, email, phone);
+            }
+
+           else
+            {
+                var name = booking.User.Name;
+                var email = booking.User.Email;
+                var phone = booking.User.Phone;
+
+                return (name, email, phone);
+
+            }
+                
         }
     }
 }
