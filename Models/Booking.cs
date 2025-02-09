@@ -24,10 +24,8 @@ namespace TodoAPI.Models
 
         public User? User { get; set; } // Nullable for guest bookings
 
-        //Guest fields for users not logged in
-        public string? GuestName { get; set; }  
-        public string? GuestEmail { get; set; }
-        public string? GuestPhone { get; set; } 
+        //Guest user for users not registered
+       GuestUser? GuestUser { get; set; }
 
         public Feedback? Feedback { get; set; }
 
