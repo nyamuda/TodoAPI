@@ -71,6 +71,28 @@ namespace TodoAPI.Controllers
             }
 
         }
+        // GET: api/<BookingsController>/bookings/cancelled
+        [HttpGet("bookings/cancelled")]
+        public async Task<IActionResult> GetCancelled(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+
+                var (bookings, pageInfo) = await _adminService.GetCancelledBookings(page, pageSize);
+
+                var response = new
+                {
+                    bookings,
+                    pageInfo
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+
+        }
 
         // GET: api/<BookingsController>/bookings/pending
         [HttpGet("bookings/pending")]
