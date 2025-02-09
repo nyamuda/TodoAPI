@@ -64,6 +64,13 @@ namespace TodoAPI.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
 
+
+            //GuestUser Entity is owned by the Booking Entity
+            //This is so because guest users are only allowed for those
+            //users who are not registered but want to create booking
+            modelBuilder.Entity<Booking>().OwnsOne(b => b.GuestUser);
+
+
         }
     }
 }

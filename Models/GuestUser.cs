@@ -1,7 +1,11 @@
-﻿namespace TodoAPI.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TodoAPI.Models
 {
+    [Owned]
     public class GuestUser
     {
+        
         public string Name { get; set; }
 
         public string Email { get; set; }
