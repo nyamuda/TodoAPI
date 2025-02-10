@@ -70,6 +70,9 @@ namespace TodoAPI.Data
             //users who are not registered but want to create booking
             modelBuilder.Entity<Booking>().OwnsOne(b => b.GuestUser);
 
+            //CancelDetials Entity is owned by the Booking Entity         
+            modelBuilder.Entity<Booking>().OwnsOne(b => b.CancelDetails);
+
 
         }
     }

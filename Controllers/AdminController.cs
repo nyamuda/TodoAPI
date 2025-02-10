@@ -271,7 +271,23 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                await _adminService.ChangeBookingStatus(id,statusUpdateDto);
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email
+                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (email is null)
+                    return Unauthorized(new { message = "Access denied. The token lacks necessary claims for verification." });
+
+                //get user with the email
+                var user = await _userService.GetUserByEmail(email);
+
+                await _adminService.ChangeBookingStatus(id,user,statusUpdateDto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

@@ -15,7 +15,7 @@ namespace TodoAPI.Services
         private readonly UserService _userService;
 
 
-        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService,UserService userService)
+        public BookingService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService, UserService userService)
         {
             _context = context;
             _templateService = templateService;
@@ -295,7 +295,7 @@ namespace TodoAPI.Services
         //Get an booking by id
         public async Task<Booking> GetBooking(int id)
         {
-            var booking = await _context.Bookings.Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
+            var booking = await _context.Bookings.Include(b => b.Status).Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
@@ -358,10 +358,21 @@ namespace TodoAPI.Services
             if (string.IsNullOrWhiteSpace(statusUpdateDto.CancelReason) && status.Name.Equals("cancelled"))
                 throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
 
-            //update booking and change its status
+            //if the booking is cancelled
+            //provide the reason and the user who cancelled the booking
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
-                booking.CancelReason = statusUpdateDto.CancelReason;
+            {
+                var cancelDetails = new CancelDetails()
+                {
+                    CancelReason = statusUpdateDto.CancelReason!,
+                    CancelledBy = user
+
+                };
+                booking.CancelDetails = cancelDetails;
+
+            }
+
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
@@ -384,7 +395,7 @@ namespace TodoAPI.Services
             var serviceType = booking.ServiceType;
             var scheduledAt = booking.ScheduledAt;
             var additionalNotes = booking.AdditionalNotes;
-            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason) ? booking.CancelReason : "";
+            var cancelReason = !string.IsNullOrEmpty(booking.CancelDetails?.CancelReason) ? booking.CancelDetails.CancelReason : "";
 
 
             //email body and subject
@@ -420,17 +431,17 @@ namespace TodoAPI.Services
 
                 name = booking.GuestUser.Name;
                 email = booking.GuestUser.Email;
-                phone = booking.GuestUser.Phone;         
-               
+                phone = booking.GuestUser.Phone;
+
             }
 
             else
             {
-                if(booking.User is null)
+                if (booking.User is null)
                 {
                     User user = await _userService.GetUser((int)booking.UserId);
 
-                    name= user.Name;
+                    name = user.Name;
                     email = user.Email;
                     phone = user.Phone;
                 }

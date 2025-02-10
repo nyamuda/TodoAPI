@@ -13,7 +13,7 @@ namespace TodoAPI.Models
         public int StatusId { get; set; }
 
         public Status Status { get; set; }
-        public string? CancelReason { get; set; } //reason for cancelling a booking
+        public CancelDetails? CancelDetails { get; set; } //details about a cancelled booking
         public DateTime ScheduledAt { get; set; }
 
         public string? AdditionalNotes { get; set; }
@@ -26,6 +26,7 @@ namespace TodoAPI.Models
 
         //Guest user for users not registered
        public GuestUser? GuestUser { get; set; }
+
 
         public Feedback? Feedback { get; set; }
 

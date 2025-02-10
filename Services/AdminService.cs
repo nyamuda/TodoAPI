@@ -229,7 +229,7 @@ namespace TodoAPI.Services
         }
 
         //Change booking status
-        public async Task ChangeBookingStatus(int id, BookingStatusUpdateDto statusUpdateDto)
+        public async Task ChangeBookingStatus(int id,User user, BookingStatusUpdateDto statusUpdateDto)
         {
             //get the booking with the given ID
             Booking booking = await _bookingService.GetBooking(id);
@@ -245,10 +245,20 @@ namespace TodoAPI.Services
             if (string.IsNullOrWhiteSpace(statusUpdateDto.CancelReason) && status.Name.Equals("cancelled"))
                 throw new InvalidOperationException("The reason for cancelling the booking was not provided.");
 
-            //update booking and change its status
+            //if the booking is cancelled
+            //provide the reason and the admin who cancelled the booking
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
-                booking.CancelReason = statusUpdateDto.CancelReason;
+            {
+                var cancelDetails = new CancelDetails()
+                {
+                    CancelReason = statusUpdateDto.CancelReason!,
+                    CancelledBy = user
+
+                };
+                booking.CancelDetails = cancelDetails;
+            }
+               
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
@@ -270,7 +280,7 @@ namespace TodoAPI.Services
             var serviceType = booking.ServiceType;
             var scheduledAt = booking.ScheduledAt;
             var additionalNotes = booking.AdditionalNotes;
-            var cancelReason = !string.IsNullOrEmpty(booking.CancelReason) ? booking.CancelReason : "";
+            var cancelReason = !string.IsNullOrEmpty(booking.CancelDetails?.CancelReason) ? booking.CancelDetails.CancelReason : "";
 
 
             //email body and subject
