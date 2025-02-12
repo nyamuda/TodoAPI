@@ -366,7 +366,7 @@ namespace TodoAPI.Services
                 var cancelDetails = new CancelDetails()
                 {
                     CancelReason = statusUpdateDto.CancelReason!,
-                    CancelledBy = user
+                    CancelledByUser = user
 
                 };
                 booking.CancelDetails = cancelDetails;
