@@ -70,8 +70,14 @@ namespace TodoAPI.Data
             //users who are not registered but want to create booking
             modelBuilder.Entity<Booking>().OwnsOne(b => b.GuestUser);
 
-            //CancelDetials Entity is owned by the Booking Entity         
-            modelBuilder.Entity<Booking>().OwnsOne(b => b.CancelDetails);
+            //there is a one-one relationship between Booking and CancelDetails
+            //with the CancelDetails entity having the potential to be the child entity('many' side entity)
+            //hence, the CancelDetails entity is the one with the foreign key (BookingId)
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.CancelDetails)
+                .WithOne(cd => cd.Booking)
+                .HasForeignKey<CancelDetails>(cd => cd.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
         }

@@ -13,6 +13,7 @@ namespace TodoAPI.Models
         public int StatusId { get; set; }
 
         public Status Status { get; set; }
+
         public CancelDetails? CancelDetails { get; set; } //details about a cancelled booking
         public DateTime ScheduledAt { get; set; }
 
