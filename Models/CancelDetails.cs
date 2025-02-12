@@ -10,6 +10,7 @@ namespace TodoAPI.Models
 
         public DateTime CancelledAt { get; set; } = DateTime.Now;
 
+        public int CancelledByUserId { get; set; }
         public User CancelledByUser { get; set; } =default!;
 
         public int BookingId { get; set; }=default!;

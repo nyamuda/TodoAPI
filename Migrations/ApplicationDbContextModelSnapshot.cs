@@ -67,6 +67,37 @@ namespace TodoAPI.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("TodoAPI.Models.CancelDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CancelReason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CancelledAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CancelledByUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("CancelledByUserId");
+
+                    b.ToTable("CancelDetails");
+                });
+
             modelBuilder.Entity("TodoAPI.Models.Feedback", b =>
                 {
                     b.Property<int>("Id")
@@ -183,36 +214,6 @@ namespace TodoAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.OwnsOne("TodoAPI.Models.CancelDetails", "CancelDetails", b1 =>
-                        {
-                            b1.Property<int>("BookingId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("CancelReason")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<int>("CancelledById")
-                                .HasColumnType("int");
-
-                            b1.HasKey("BookingId");
-
-                            b1.HasIndex("CancelledById");
-
-                            b1.ToTable("Bookings");
-
-                            b1.WithOwner()
-                                .HasForeignKey("BookingId");
-
-                            b1.HasOne("TodoAPI.Models.User", "CancelledBy")
-                                .WithMany()
-                                .HasForeignKey("CancelledById")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b1.Navigation("CancelledBy");
-                        });
-
                     b.OwnsOne("TodoAPI.Models.GuestUser", "GuestUser", b1 =>
                         {
                             b1.Property<int>("BookingId")
@@ -238,8 +239,6 @@ namespace TodoAPI.Migrations
                                 .HasForeignKey("BookingId");
                         });
 
-                    b.Navigation("CancelDetails");
-
                     b.Navigation("GuestUser");
 
                     b.Navigation("ServiceType");
@@ -247,6 +246,25 @@ namespace TodoAPI.Migrations
                     b.Navigation("Status");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoAPI.Models.CancelDetails", b =>
+                {
+                    b.HasOne("TodoAPI.Models.Booking", "Booking")
+                        .WithOne("CancelDetails")
+                        .HasForeignKey("TodoAPI.Models.CancelDetails", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TodoAPI.Models.User", "CancelledByUser")
+                        .WithMany()
+                        .HasForeignKey("CancelledByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("CancelledByUser");
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Feedback", b =>
@@ -262,6 +280,8 @@ namespace TodoAPI.Migrations
 
             modelBuilder.Entity("TodoAPI.Models.Booking", b =>
                 {
+                    b.Navigation("CancelDetails");
+
                     b.Navigation("Feedback");
                 });
 
