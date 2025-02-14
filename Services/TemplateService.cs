@@ -615,6 +615,105 @@ namespace TodoAPI.Services
 ";
         }
 
+        public string BookingCompletedEmail(string url, string name, string serviceType)
+        {
+            return $@"
+<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Booking Completed</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }}
+
+        .email-container {{
+            text-align: start;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }}
+
+        .email-header {{
+            text-align: start;
+            margin-bottom: 1rem;
+        }}
+
+        .email-header h1 {{
+            margin: 0;
+            font-size: 24px;
+            color: #333333;
+        }}
+
+        .email-body {{
+            margin-bottom: 20px;
+        }}
+
+        .email-body p {{
+            font-size: 16px;
+            color: #555555;
+            line-height: 1.5;
+        }}
+
+        .email-footer {{
+            text-align: start;
+        }}
+
+        .feedback-button {{
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }}
+
+        .feedback-button:hover {{
+            background-color: #0056b3;
+        }}
+
+        .footer-text {{
+            font-size: 14px;
+            color: #999999;
+            margin-top: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <div class=""email-container"">
+        <div class=""email-header"">
+            <h1>Booking Completed!</h1>
+        </div>
+        <div class=""email-body"">
+            <p>Hi {name},</p>
+            <p>We’re happy to inform you that your <strong>{serviceType}</strong> service has been successfully completed.</p>
+            <p>We’d love to hear about your experience! Click the button below to provide feedback and rate your service.</p>
+            
+            <p>Thank you for choosing us!</p>
+            <p>Best regards,</p>
+            <p>Your Car Wash Team</p>
+        </div>
+        <div class=""email-footer"">
+            <a href=""{url}"" class=""feedback-button"">Give Feedback</a>
+            <p class=""footer-text"">If you have any questions, feel free to contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>
+";
+        }
+
+
 
     }
 
