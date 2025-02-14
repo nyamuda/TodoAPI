@@ -295,7 +295,7 @@ namespace TodoAPI.Services
         //Get an booking by id
         public async Task<Booking> GetBooking(int id)
         {
-            var booking = await _context.Bookings.Include(b => b.Status).Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
+            var booking = await _context.Bookings.Include(b => b.CancelDetails).Include(b => b.Status).Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
@@ -363,10 +363,13 @@ namespace TodoAPI.Services
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
             {
+                //user who cancelled the booking
+                var cancelledByUser = new CancelledByUser() { Name = user.Name, Role = user.Role };
+                //cancel details
                 var cancelDetails = new CancelDetails()
                 {
                     CancelReason = statusUpdateDto.CancelReason!,
-                    CancelledByUser = user
+                    CancelledByUser = cancelledByUser
 
                 };
                 booking.CancelDetails = cancelDetails;

@@ -79,14 +79,10 @@ namespace TodoAPI.Data
                 .HasForeignKey<CancelDetails>(cd => cd.BookingId)
                 .OnDelete(DeleteBehavior.Cascade);  // Booking delete → CancelDetails delete
 
+      
 
-            //there is a one-many relationship between CancelDetails and User
-            //A User can have many CancelDetail while a CancelDetail can only have one user
-            modelBuilder.Entity<CancelDetails>()
-                .HasOne(cd => cd.CancelledByUser)
-                .WithMany()
-                .HasForeignKey(cd => cd.CancelledByUserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevents cascade delete for Users 
+            //CancelledByUser Entity is owned by the CancelDetails Entity
+            modelBuilder.Entity<CancelDetails>().OwnsOne(cd => cd.CancelledByUser);
 
 
         }

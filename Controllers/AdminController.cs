@@ -28,11 +28,12 @@ namespace TodoAPI.Controllers
 
         // GET: api/<BookingsController>/bookings
         [HttpGet("bookings")]
-        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string? status = "all")
         {
             try
             {
-                var (bookings, pageInfo) = await _adminService.GetBookings(page, pageSize);
+
+                var (bookings, pageInfo) = await _adminService.GetBookings(page, pageSize, status?.ToLower());
 
                 var response = new
                 {
@@ -54,8 +55,8 @@ namespace TodoAPI.Controllers
         public async Task<IActionResult> GetCompleted(int page = 1, int pageSize = 10)
         {
             try
-            {           
-             
+            {
+
                 var (bookings, pageInfo) = await _adminService.GetCompletedBookings(page, pageSize);
 
                 var response = new
@@ -101,7 +102,7 @@ namespace TodoAPI.Controllers
             try
             {
 
-                
+
                 var (bookings, pageInfo) = await _adminService.GetPendingBookings(page, pageSize);
                 var response = new
                 {
@@ -122,12 +123,12 @@ namespace TodoAPI.Controllers
         {
             try
             {
-             
+
                 var statistics = await _adminService.GetStatistics();
 
                 return Ok(statistics);
             }
-           
+
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
@@ -149,9 +150,9 @@ namespace TodoAPI.Controllers
         {
             try
             {
-               
+
                 var booking = await _adminService.GetBooking(id);
-         
+
                 return Ok(booking);
             }
             catch (KeyNotFoundException ex)
@@ -214,7 +215,7 @@ namespace TodoAPI.Controllers
 
         }
 
-       
+
 
         // PUT api/<BookingsController>/bookings/5
         [HttpPut("bookings/{id}")]
@@ -287,7 +288,7 @@ namespace TodoAPI.Controllers
                 //get user with the email
                 var user = await _userService.GetUserByEmail(email);
 
-                await _adminService.ChangeBookingStatus(id,user,statusUpdateDto);
+                await _adminService.ChangeBookingStatus(id, user, statusUpdateDto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

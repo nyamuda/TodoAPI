@@ -79,19 +79,32 @@ namespace TodoAPI.Services
 
         //Get all bookings
         //return a list of bookings and a PageInfo object
-        public async Task<(List<Booking>, PageInfo)> GetBookings(int page, int pageSize)
+        public async Task<(List<Booking>, PageInfo)> GetBookings(int page, int pageSize, string? status)
         {
-            var bookings = await _context.Bookings
+
+            var query = _context.Bookings
                 .OrderByDescending(x => x.CreatedAt)
                 .Include(x => x.ServiceType)
                 .Include(x => x.Status)
                 .Include(x => x.User)
+                .AsQueryable();
+
+
+           
+
+            // Apply filter only if "status" is not null and not "all"
+            if (!string.IsNullOrEmpty(status) && !status.Equals("all"))
+            {
+                query=query.Where(x => x.Status.Name==status);
+            };
+
+            var bookings = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
             var totalBookings = await _context.Bookings.CountAsync();
-            bool hasMore = totalBookings > page * pageSize;
+            bool hasMore = totalBookings > page * pageSize; 
 
             var pageInfo = new PageInfo()
             {
@@ -100,7 +113,6 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
-
             return (bookings, pageInfo);
 
         }
@@ -146,6 +158,35 @@ namespace TodoAPI.Services
 
             //total bookings that are cancelled
             var totalBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("cancelled")).CountAsync();
+            bool hasMore = totalBookings > page * pageSize;
+
+            var pageInfo = new PageInfo()
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+
+            };
+
+            return (bookings, pageInfo);
+
+        }
+
+        //Get all cancelled bookings
+        public async Task<(List<Booking>, PageInfo)> GetEnRouteBookings(int page, int pageSize)
+        {
+            var bookings = await _context.Bookings.Where(x => x.Status.Name.Equals("en route"))
+
+                .Include(x => x.ServiceType)
+                .Include(x => x.Status)
+                .Include(x => x.User)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //total bookings that are cancelled
+            var totalBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("en route")).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
@@ -229,7 +270,7 @@ namespace TodoAPI.Services
         }
 
         //Change booking status
-        public async Task ChangeBookingStatus(int id,User user, BookingStatusUpdateDto statusUpdateDto)
+        public async Task ChangeBookingStatus(int id, User user, BookingStatusUpdateDto statusUpdateDto)
         {
             //get the booking with the given ID
             Booking booking = await _bookingService.GetBooking(id);
@@ -250,15 +291,18 @@ namespace TodoAPI.Services
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
             {
+                //user who cancelled the booking
+                var cancelledByUser = new CancelledByUser() { Name = user.Name, Role = user.Role };
+                //cancel details
                 var cancelDetails = new CancelDetails()
                 {
                     CancelReason = statusUpdateDto.CancelReason!,
-                    CancelledByUser = user
+                    CancelledByUser = cancelledByUser
 
                 };
                 booking.CancelDetails = cancelDetails;
             }
-               
+
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
