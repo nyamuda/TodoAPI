@@ -144,6 +144,8 @@ namespace TodoAPI.Services
             int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed")).CountAsync();
             int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending")).CountAsync();
             int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled")).CountAsync();
+            int totalConfirmedBookings = await _context.Bookings.Where(x => x.Status.Equals("confirmed")).CountAsync();
+            int totalEnRouteBookings = await _context.Bookings.Where(x => x.Status.Equals("en route")).CountAsync();
 
 
             var adminStats = new BookingAdminStatsDto
@@ -151,7 +153,9 @@ namespace TodoAPI.Services
                 TotalBookings = totalBookings,
                 TotalCompletedBookings = totalCompletedBookings,
                 TotalPendingBookings = totalPendingBookings,
-                TotalCancelledBookings = totalCancelledBookings
+                TotalCancelledBookings = totalCancelledBookings,
+                TotalConfirmedBookings=totalConfirmedBookings,
+                TotalEnRouteBookings=totalEnRouteBookings
             };
             return adminStats;
         }
