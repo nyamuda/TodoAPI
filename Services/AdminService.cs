@@ -82,16 +82,8 @@ namespace TodoAPI.Services
         public async Task<(List<Booking>, PageInfo)> GetBookings(int page, int pageSize, string? status)
         {
 
-            var query = _context.Bookings
-                .OrderByDescending(x => x.CreatedAt)
-                .Include(x => x.ServiceType)
-                .Include(x => x.Status)
-                .Include(x => x.User)
-                .AsQueryable();
-
-
-           
-
+            var query = _context.Bookings.AsQueryable();
+  
             // Apply filter only if "status" is not null and not "all"
             if (!string.IsNullOrEmpty(status) && !status.Equals("all"))
             {
@@ -99,6 +91,10 @@ namespace TodoAPI.Services
             };
 
             var bookings = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Include(x => x.ServiceType)
+                .Include(x => x.Status)
+                .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
