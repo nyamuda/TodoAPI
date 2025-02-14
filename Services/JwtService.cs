@@ -21,7 +21,7 @@ namespace TodoAPI.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            //short tokens are for email verifications and password resets  = 15 minutes
+            //short tokens are for email verifications and password resets  = 30 minutes
             var timeInMinutes = duration.Equals("long") ? Convert.ToDouble(jwtSettings["ExpiryInMinutes"]): 30;
 
 
@@ -59,7 +59,7 @@ namespace TodoAPI.Services
             var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
             if (principal == null)
-                throw new InvalidOperationException("The provided token is invalid or expired.");
+                throw new InvalidOperationException("The provided token is invalid or has expired.");
 
             return principal;
         }

@@ -25,8 +25,6 @@ namespace TodoAPI.Services
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {feedbackDto.BookingId} does not exist.");
-
-
             //check if the booking has been completed
             if (!booking.Status.Name.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Feedback cannot be added as the booking has not been completed.");

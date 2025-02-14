@@ -13,14 +13,18 @@ namespace TodoAPI.Services
         private readonly EmailSender _emailSender;
         private readonly StatusService _statusService;
         private readonly BookingService _bookingService;
+        private readonly AppService _appService;
+        private readonly JwtService _jwtService;
 
-        public AdminService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService, BookingService bookingService)
+        public AdminService(ApplicationDbContext context, TemplateService templateService, EmailSender emailSender, StatusService statusService, BookingService bookingService, AppService appService, JwtService jwtService)
         {
             _context = context;
             _templateService = templateService;
             _emailSender = emailSender;
             _statusService = statusService;
             _bookingService = bookingService;
+            _appService = appService;
+            _jwtService = jwtService;
         }
 
         // Add a new booking
@@ -240,6 +244,25 @@ namespace TodoAPI.Services
                     emailSubject = "Car Wash On the Way";
                     await _emailSender.SendEmail(name, email, emailSubject, emailBody);
                     break;
+                case "completed":
+                    //send email to user to notify them that their booking has been completed
+                    //and encourage them to provide feedback for the service they received
+
+                    //Create JWT token for the feedback URL
+                    bool isUserVerified = booking.User is not null ? booking.User.IsVerified : false;
+                    User user = new User()
+                    {
+                        Name = name,
+                        Email = email,
+                        Role = "User",
+                        IsVerified = isUserVerified
+                    };
+                    string token = _jwtService.GenerateJwtToken(user);
+                    string feedbackUrl = $"{_appService.AppDomainName}/feedback?bookingId={booking.Id}&token={token}";
+                    emailBody = _templateService.BookingCompletedEmail(feedbackUrl, name, booking.ServiceType.Name);
+                    emailSubject = "Your Car Wash is Finished – Leave a Review";
+                    await _emailSender.SendEmail(name, email, emailSubject, emailBody);
+                    break;        
                 default:
                     break;
 
