@@ -82,24 +82,34 @@ namespace TodoAPI.Controllers
                 ClaimsPrincipal claims = _jwtService.ValidateToken(token);
 
                 //get the email
-                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
+                var tokenEmail = claims.FindFirst(ClaimTypes.Email)?.Value;
 
-                if (string.IsNullOrWhiteSpace(email))
+                if (string.IsNullOrWhiteSpace(tokenEmail))
                 {
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
-                //get user with the given email
-                var user = await _userService.GetUserByEmail(email);
-                //booking they're trying to access
+
+                //Feedback for a car wash service can come from both registered and unregistered users
+                //For a user to provide feedback when the booking is completed,
+                //their email (from the token) must match the email of the user who made the booking (the booking user email)
+                //In other words, users must only give feedback to the booking they created themselves
+              
+                //First, get the booking they're trying to give feedback for
                 var booking = await _bookingService.GetBooking(feedbackDto.BookingId);
 
-                //for a user to perform this request, their ID 
-                //must match the UserId of the booking
-                //In other words, users must only give feedback to the booking they created themselves
-                if(!booking.UserId.Equals(user.Id))
-                {
-                    throw new UnauthorizedAccessException("Access denied. You're not authorized to provide feedback to this booking.");
-                }
+                //Second, get the user email from the booking
+                //Depending on whether they're a registered user or a guest(unregister user)
+                string? bookedUserEmail = booking.User is not null ? booking.User.Email : booking.GuestUser?.Email;
+
+                if (bookedUserEmail == null)
+                    throw new InvalidOperationException("Booking details are incomplete. Unable to verify the user.");
+
+                //if the emails don't match,
+                //then the user is not authorized to provide feedback for this booking
+                //since they are not the one who created the booking
+                if (!tokenEmail.Equals(bookedUserEmail))
+                    throw new UnauthorizedAccessException("You can only provide feedback for your own booking.");
+
 
                 //Add the feedback
               var feedback=  await _feedbackService.AddFeedback(feedbackDto);
