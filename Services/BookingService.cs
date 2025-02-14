@@ -253,13 +253,15 @@ namespace TodoAPI.Services
             int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed") && x.UserId == user.Id).CountAsync();
             int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending") && x.UserId == user.Id).CountAsync();
             int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled") && x.UserId == user.Id).CountAsync();
+            int totalConfirmedBookings = await _context.Bookings.Where(x => x.Status.Equals("confirmed") && x.UserId == user.Id).CountAsync();
 
             var userStats = new BookingUserStatsDto
             {
                 TotalBookings = totalBookings,
                 TotalCompletedBookings = totalCompletedBookings,
                 TotalPendingBookings = totalPendingBookings,
-                TotalCancelledBookings = totalCancelledBookings
+                TotalCancelledBookings = totalCancelledBookings,
+                TotalConfirmedBookings=totalConfirmedBookings
             };
             return userStats;
         }

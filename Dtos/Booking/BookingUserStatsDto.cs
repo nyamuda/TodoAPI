@@ -5,6 +5,8 @@
         public int TotalBookings { get; set; } = 0;
 
         public int TotalCompletedBookings { get; set; } = 0;
+ 
+        public int TotalConfirmedBookings { get; set; } = 0;
 
         public int TotalPendingBookings { get; set; } = 0;
 
