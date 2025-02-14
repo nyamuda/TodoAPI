@@ -30,7 +30,7 @@ namespace TodoAPI.Controllers
         // GET: api/<BookingsController>
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10,string status="all")
         {
             try
             {
@@ -54,7 +54,7 @@ namespace TodoAPI.Controllers
                     return NotFound(new { message = "User with the given email does not exist." });
 
 
-                var (bookings, pageInfo) = await _bookingService.GetBookings(page, pageSize, user);
+                var (bookings, pageInfo) = await _bookingService.GetBookings(page, pageSize, user, status.ToLower());
 
                 var response = new
                 {
