@@ -1,4 +1,5 @@
 ﻿using Firebase.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
@@ -33,10 +34,33 @@ namespace TodoAPI.Controllers
 
         // POST api/<ImagesController>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post(IFormFile file, IConfiguration config)
         {
-           
+            try
+            {
+                if (file is null || file.Length == 0) throw new InvalidOperationException("Invalid file.");
 
+                //max length is 5MB
+                if (file.Length > 5 * 1024 * 1024) throw new InvalidOperationException("File size cannot exceed 5MB.");
+
+                //generate unique file name
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
+
+                //save image to Firebase storage
+
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex) {
+                return StatusCode(500, new { Message = ex.Message });
+            }
         }
 
         // PUT api/<ImagesController>/5
