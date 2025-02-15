@@ -226,6 +226,7 @@ namespace TodoAPI.Services
             var emailBody = string.Empty;
             var emailSubject = string.Empty;
 
+            //then send an email to the user
             switch (booking.Status.Name)
             {
                 case "confirmed":
@@ -234,7 +235,6 @@ namespace TodoAPI.Services
                     await _emailSender.SendEmail(name, email, emailSubject, emailBody);
                     break;
                 case "cancelled":
-                    //then send an email to the user
                     emailBody = _templateService.BookingCancellation(name, email, phone, serviceType, vehicleType, location, scheduledAt, cancelReason);
                     emailSubject = "Booking Cancelled";
                     await _emailSender.SendEmail(name, email, emailSubject, emailBody);
@@ -245,7 +245,7 @@ namespace TodoAPI.Services
                     await _emailSender.SendEmail(name, email, emailSubject, emailBody);
                     break;
                 case "completed":
-                    //send email to user to notify them that their booking has been completed
+                    //send email to the user to notify them that their booking has been completed
                     //and encourage them to provide feedback for the service they received
 
                     //Create JWT token for the feedback URL

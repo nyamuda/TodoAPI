@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 
 
@@ -31,6 +33,11 @@ builder.Services.AddScoped<StatusService>();
 
 
 
+//Firebase
+var firebaseApp = FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile("firebase-service-account.json")
+});
 
 
 

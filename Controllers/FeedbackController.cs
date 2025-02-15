@@ -46,6 +46,7 @@ namespace TodoAPI.Controllers
 
         // GET api/<FeedbackController>/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> Get(int id)
         {
             try

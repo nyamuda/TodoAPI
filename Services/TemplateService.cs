@@ -692,12 +692,12 @@ namespace TodoAPI.Services
 <body>
     <div class=""email-container"">
         <div class=""email-header"">
-            <h1>Booking Completed!</h1>
+            <h1>Booking Completed</h1>
         </div>
         <div class=""email-body"">
             <p>Hi {name},</p>
             <p>We’re happy to inform you that your <strong>{serviceType}</strong> service has been successfully completed.</p>
-            <p>We’d love to hear about your experience! Click the button below to provide feedback and rate your service.</p>
+            <p>We’d love to hear about your experience. Click the button below to provide feedback and rate your service.</p>
             
             <p>Thank you for choosing us!</p>
             <p>Best regards,</p>
