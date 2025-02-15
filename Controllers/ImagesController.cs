@@ -19,22 +19,22 @@ namespace TodoAPI.Controllers
             _firebaseStorage = new FirebaseStorage(bucket);
         }
         // GET: api/<ImagesController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
 
         // GET api/<ImagesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+        //[HttpGet("{id}")]
+        //public string Get(int id)
+        //{
+        //    return "value";
+        //}
 
         // POST api/<ImagesController>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Post(IFormFile file, IConfiguration config)
         {
             try
@@ -48,6 +48,11 @@ namespace TodoAPI.Controllers
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
 
                 //save image to Firebase storage
+                //and get the URL
+                using var stream = file.OpenReadStream();
+                var downloadUrl = await _firebaseStorage.Child("carwash-images").Child(fileName).PutAsync(stream);
+
+                return StatusCode(201, new {Message="Image has been successfully uploaded.",ImageUrl=downloadUrl});
 
             }
             catch (UnauthorizedAccessException ex)
@@ -58,21 +63,42 @@ namespace TodoAPI.Controllers
             {
                 return BadRequest(new { Message = ex.Message });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
 
         // PUT api/<ImagesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //[HttpPut("{id}")]
+        //public void Put()
+        //{
+        //}
 
         // DELETE api/<ImagesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{fileName}")]
+        public async Task<IActionResult> Delete(string fileName)
         {
+            try
+            {
+                await _firebaseStorage.Child("carwash-images").Child(fileName).DeleteAsync();
+
+                return NoContent();
+
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+
         }
     }
 }
