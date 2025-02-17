@@ -1,6 +1,7 @@
 ﻿using Firebase.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TodoAPI.Services;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,11 +13,13 @@ namespace TodoAPI.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly FirebaseStorage _firebaseStorage;
+        private readonly ImageService _imageService;
 
-        public ImagesController(FirebaseStorage firebaseStorage, IConfiguration config)
+        public ImagesController(FirebaseStorage firebaseStorage, IConfiguration config, ImageService imageService)
         {
             var bucket = config.GetSection("Authentication:Firebase:Bucket").Value;
             _firebaseStorage = new FirebaseStorage(bucket);
+            _imageService = imageService;
         }
         // GET: api/<ImagesController>
         //[HttpGet]
@@ -43,6 +46,11 @@ namespace TodoAPI.Controllers
 
                 //max length is 5MB
                 if (file.Length > 5 * 1024 * 1024) throw new InvalidOperationException("File size cannot exceed 5MB.");
+
+                //check if the image is a valid image or not
+                if (_imageService.IsImageValid(file) is false) 
+                    throw new InvalidOperationException("Invalid file. Only image files are allowed.");
+
 
                 //generate unique file name
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);

@@ -30,6 +30,7 @@ builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<FeedbackService>();
 builder.Services.AddScoped<ServiceTypesService>();
 builder.Services.AddScoped<StatusService>();
+builder.Services.AddScoped<ImageService>();
 
 
 
