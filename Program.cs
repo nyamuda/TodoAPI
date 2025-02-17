@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Firebase.Storage;
 
 
 
@@ -38,6 +39,14 @@ builder.Services.AddScoped<ImageService>();
 var firebaseApp = FirebaseApp.Create(new AppOptions
 {
     Credential = GoogleCredential.FromFile("firebase-service-account.json")
+});
+// Read the bucket name from configuration
+var bucketName = builder.Configuration["Authentication:Firebase:Bucket"];
+
+// Register FirebaseStorage
+builder.Services.AddSingleton(provider =>
+{
+    return new FirebaseStorage(bucketName);
 });
 
 

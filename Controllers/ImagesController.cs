@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoAPI.Services;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,8 +16,7 @@ namespace TodoAPI.Controllers
 
         public ImagesController(FirebaseStorage firebaseStorage, IConfiguration config, ImageService imageService)
         {
-            var bucket = config.GetSection("Authentication:Firebase:Bucket").Value;
-            _firebaseStorage = new FirebaseStorage(bucket);
+            _firebaseStorage = firebaseStorage;
             _imageService = imageService;
         }
         // GET: api/<ImagesController>
@@ -37,7 +35,7 @@ namespace TodoAPI.Controllers
 
         // POST api/<ImagesController>
         [HttpPost]
-        [Authorize(Roles ="Admin")]
+       // [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Post(IFormFile file, IConfiguration config)
         {
             try
@@ -50,7 +48,6 @@ namespace TodoAPI.Controllers
                 //check if the image is a valid image or not
                 if (_imageService.IsImageValid(file) is false) 
                     throw new InvalidOperationException("Invalid file. Only image files are allowed.");
-
 
                 //generate unique file name
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
