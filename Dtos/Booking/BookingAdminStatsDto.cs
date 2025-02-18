@@ -14,6 +14,8 @@
 
         public int TotalCancelledBookings { get; set; } = 0;
 
+        public int TotalRegisteredUsers { get; set; } = 0;
+
         public int TotalRevenue { get; set; } = 0;
 
 

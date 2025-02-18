@@ -87,11 +87,11 @@ namespace TodoAPI.Services
         {
 
             var query = _context.Bookings.AsQueryable();
-  
+
             // Apply filter only if "status" is not null and not "all"
             if (!string.IsNullOrEmpty(status) && !status.Equals("all"))
             {
-                query=query.Where(x => x.Status.Name==status);
+                query = query.Where(x => x.Status.Name == status);
             };
 
             var bookings = await query
@@ -104,7 +104,7 @@ namespace TodoAPI.Services
                 .ToListAsync();
 
             var totalBookings = await _context.Bookings.CountAsync();
-            bool hasMore = totalBookings > page * pageSize; 
+            bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
             {
@@ -116,7 +116,7 @@ namespace TodoAPI.Services
             return (bookings, pageInfo);
 
         }
-        
+
 
 
         //Get an booking by id
@@ -145,11 +145,13 @@ namespace TodoAPI.Services
 
             //then get statistics for the admin
             int totalBookings = await _context.Bookings.CountAsync();
-            int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Equals("completed")).CountAsync();
-            int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Equals("pending")).CountAsync();
-            int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Equals("cancelled")).CountAsync();
-            int totalConfirmedBookings = await _context.Bookings.Where(x => x.Status.Equals("confirmed")).CountAsync();
-            int totalEnRouteBookings = await _context.Bookings.Where(x => x.Status.Equals("en route")).CountAsync();
+            int totalCompletedBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("completed")).CountAsync();
+            int totalPendingBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("pending")).CountAsync();
+            int totalCancelledBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("cancelled")).CountAsync();
+            int totalConfirmedBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("confirmed")).CountAsync();
+            int totalEnRouteBookings = await _context.Bookings.Where(x => x.Status.Name.Equals("en route")).CountAsync();
+            //total clients registered excluding Admin
+            int totalRegisteredUsers = await _context.Users.Where(x => x.Role != "Admin").CountAsync();
 
 
             var adminStats = new BookingAdminStatsDto
@@ -158,8 +160,9 @@ namespace TodoAPI.Services
                 TotalCompletedBookings = totalCompletedBookings,
                 TotalPendingBookings = totalPendingBookings,
                 TotalCancelledBookings = totalCancelledBookings,
-                TotalConfirmedBookings=totalConfirmedBookings,
-                TotalEnRouteBookings=totalEnRouteBookings
+                TotalConfirmedBookings = totalConfirmedBookings,
+                TotalEnRouteBookings = totalEnRouteBookings,
+                TotalRegisteredUsers=totalRegisteredUsers
             };
             return adminStats;
         }
@@ -262,7 +265,7 @@ namespace TodoAPI.Services
                     emailBody = _templateService.BookingCompletedEmail(feedbackUrl, name, booking.ServiceType.Name);
                     emailSubject = "Your Car Wash is Finished – Leave a Review";
                     await _emailSender.SendEmail(name, email, emailSubject, emailBody);
-                    break;        
+                    break;
                 default:
                     break;
 

@@ -47,7 +47,7 @@ namespace TodoAPI.Controllers
 
                 //check if the image is a valid image or not
                 if (_imageService.IsImageValid(file) is false) 
-                    throw new InvalidOperationException("Invalid file. Only image files are allowed.");
+                    throw new InvalidOperationException("Unsupported file. Please choose a valid image to upload.");
 
                 //generate unique file name
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);

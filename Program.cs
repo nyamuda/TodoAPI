@@ -44,12 +44,20 @@ var firebaseApp = FirebaseApp.Create(new AppOptions
 var bucketName = builder.Configuration["Authentication:Firebase:Bucket"];
 
 // Register FirebaseStorage
+// Register FirebaseStorage with an Auth Token
 builder.Services.AddSingleton(provider =>
 {
-    return new FirebaseStorage(bucketName);
+    var googleCredential = GoogleCredential.FromFile("firebase-service-account.json");
+    return new FirebaseStorage(bucketName, new FirebaseStorageOptions
+    {
+        AuthTokenAsyncFactory = async () =>
+        {
+            var accessToken = await googleCredential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+            return accessToken; // Pass access token for authenticated requests
+        },
+        ThrowOnCancel = true
+    });
 });
-
-
 
 //Handle Cyclesd
 builder.Services.AddControllers().AddJsonOptions(options =>
