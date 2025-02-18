@@ -98,6 +98,7 @@ namespace TodoAPI.Services
                 .OrderByDescending(x => x.CreatedAt)
                 .Include(x => x.ServiceType)
                 .Include(x => x.Status)
+                .Include(x => x.Feedback)
                 .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
