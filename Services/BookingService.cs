@@ -204,7 +204,7 @@ namespace TodoAPI.Services
 
 
             //total bookings
-            var totalBookings = await _context.Bookings.Where(x => x.UserId.Equals(user.Id)).CountAsync();
+            var totalBookings = await query.Where(x => x.UserId.Equals(user.Id)).CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()

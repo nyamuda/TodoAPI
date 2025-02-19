@@ -104,7 +104,7 @@ namespace TodoAPI.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var totalBookings = await _context.Bookings.CountAsync();
+            var totalBookings = await query.CountAsync();
             bool hasMore = totalBookings > page * pageSize;
 
             var pageInfo = new PageInfo()
