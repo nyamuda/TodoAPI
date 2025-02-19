@@ -156,7 +156,6 @@ namespace TodoAPI.Services
         }
 
         //Update an booking
-        //For now, a user can only update the status to "cancelled"
         public async Task UpdateBooking(int id, UpdateBookingDto bookingDto, User user)
         {
             //get the booking with the given id
@@ -167,6 +166,15 @@ namespace TodoAPI.Services
 
             if (serviceType is null)
                 throw new KeyNotFoundException("Service type with the provided ID does not exist.");
+
+            //To ensure proper handling of bookings,
+            //users are only allowed to update their booking details
+            //while the booking status is "Pending." 
+            //Once a booking is "Confirmed" or "En Route,"
+            //users cannot update their bookings but they can still cancel.
+            if (!booking.Status.Name.Equals("pending"))
+                throw new InvalidOperationException("Bookings can only be updated while in the 'Pending' status. Updates are not allowed once the booking is confirmed or en route.");
+
 
 
             booking.ServiceType = serviceType;

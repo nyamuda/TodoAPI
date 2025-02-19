@@ -259,7 +259,7 @@ namespace TodoAPI.Controllers
 
         // PUT api/<BookingsController>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> Put(int id, UpdateBookingDto bookingDto)
         {
             try

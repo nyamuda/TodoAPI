@@ -19,7 +19,5 @@ namespace TodoAPI.Dtos.Booking
  
         public string? AdditionalNotes { get; set; }
 
-        [Required]
-        public string?  CancelReason { get; set; }
     }
 }
