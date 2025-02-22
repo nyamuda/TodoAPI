@@ -96,7 +96,7 @@ namespace TodoAPI.Services
                 throw new KeyNotFoundException("User with the provided email does not exist.");
 
             //generate reset token
-            var token = _jwtService.GenerateJwtToken(user:userExists,duration:"short");
+            var token = _jwtService.GenerateJwtToken(user:userExists);
 
             string resetUrl = $"{_appService.AppDomainName}/account/password-reset?token={token}";
 
@@ -139,7 +139,7 @@ namespace TodoAPI.Services
                 throw new KeyNotFoundException("User with the provided email does not exist.");
 
             //generate reset token
-            var token = _jwtService.GenerateJwtToken(user: userExists, duration: "short");
+            var token = _jwtService.GenerateJwtToken(user: userExists);
 
             string confirmUrl = $"{_appService.AppDomainName}/account/verify?token={token}";
 
