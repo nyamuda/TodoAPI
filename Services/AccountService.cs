@@ -80,7 +80,8 @@ namespace TodoAPI.Services
             }
 
             //create token since the provided password is correct
-            var token = _jwtService.GenerateJwtToken(user);
+            //token lifespan is 72 hours
+            var token = _jwtService.GenerateJwtToken(user:user,expiresIn: 4320);
 
             return token;
         }
