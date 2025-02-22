@@ -259,7 +259,8 @@ namespace TodoAPI.Services
                         Role = "User",
                         IsVerified = isUserVerified
                     };
-                    string token = _jwtService.GenerateJwtToken(user);
+                    //token lifespan is 7 days
+                    string token = _jwtService.GenerateJwtToken(user:user, expiresIn: 10080);
                     string feedbackUrl = $"{_appService.AppDomainName}/feedback?bookingId={booking.Id}&token={token}";
                     emailBody = _templateService.BookingCompletedEmail(feedbackUrl, name, booking.ServiceType.Name);
                     emailSubject = "Your Car Wash is Finished – Leave a Review";
