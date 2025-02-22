@@ -60,9 +60,7 @@ namespace TodoAPI.Services
         //Update the status of an booking
         public async Task UpdateBooking(int id, UpdateBookingDto bookingDto)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            if (booking is null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
+            var booking = await _bookingService.GetBooking(id);
 
             //get the service type
             var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == bookingDto.ServiceTypeId);

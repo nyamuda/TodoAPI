@@ -173,7 +173,7 @@ namespace TodoAPI.Services
             //Once a booking is "Confirmed" or "En Route,"
             //users cannot update their bookings but they can still cancel.
             if (!booking.Status.Name.Equals("pending"))
-                throw new InvalidOperationException("Bookings can only be updated while in the 'Pending' status. Updates are not allowed once the booking is confirmed or en route.");
+                throw new InvalidOperationException("Bookings can only be updated while in the 'Pending' status.");
 
 
 
