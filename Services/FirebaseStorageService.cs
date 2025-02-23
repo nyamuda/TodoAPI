@@ -26,7 +26,7 @@ namespace TodoAPI.Services
             _storageClient = StorageClient.Create(credential);
 
             //The firebase storage bucket name
-            _bucketName = firebaseConfig["ServiceAccountPath"] ?? throw new InvalidOperationException("Firebase bucket configuration is missing.");
+            _bucketName = firebaseConfig["Bucket"] ?? throw new InvalidOperationException("Firebase bucket configuration is missing.");
 
         }
 
