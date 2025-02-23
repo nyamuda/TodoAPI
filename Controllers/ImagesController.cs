@@ -61,10 +61,13 @@ namespace TodoAPI.Controllers
         // POST api/<ImagesController>
         [HttpPost]
         // [Authorize(Roles ="Admin")]
-        public async Task<IActionResult> Post(IFormFile file, UploadImageDto uploadDto)
+        public async Task<IActionResult> Post(UploadImageDto uploadDto)
         {
             try
             {
+                IFormFile file = uploadDto.File;
+                var fileCategory = uploadDto.Category?.ToLower();
+
                 if (file is null || file.Length == 0) throw new InvalidOperationException("Invalid file.");
 
                 //max length is 5MB
@@ -75,22 +78,21 @@ namespace TodoAPI.Controllers
                     throw new InvalidOperationException("Unsupported file. Please choose a valid image to upload.");
 
 
-                //upload the image and get the url
-                var fileUrl = await _firebaseStorageService.UploadFileAsync(file: file, category:uploadDto.Category);
+                //upload the image to Firebase and get the url
+                var fileUrl = await _firebaseStorageService.UploadFileAsync(file: file, category: fileCategory);
 
                 //save the image information to the database
-
                 var addImageDto = new AddImageDto()
                 {
                     Url = fileUrl,
                     FileName = file.FileName,
-                    Category = uploadDto.Category,
+                    Category = fileCategory,
                     Description = uploadDto.Description
                 };
-                
+
                 var image = await _imageService.AddImage(addImageDto);
 
-                return CreatedAtAction(nameof(Get), new {Id=image.Id},image);
+                return CreatedAtAction(nameof(Get), new { id = image.Id }, image);
 
             }
             catch (UnauthorizedAccessException ex)
