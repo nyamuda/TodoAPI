@@ -1,5 +1,6 @@
 ﻿using Firebase.Storage;
 using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Identity.Client.Extensions.Msal;
 
@@ -12,8 +13,11 @@ namespace TodoAPI.Services
 
         public FirebaseStorageService()
         {
-            // Initialize Google Cloud Storage client
-            _storageClient = StorageClient.Create();
+            // Load credentials explicitly from the root folder
+            var credential = GoogleCredential.FromFile(
+                Path.Combine(AppContext.BaseDirectory, "firebase-service-account.json")
+            );
+            _storageClient = StorageClient.Create(credential);
             _bucketName = "drivingschool-7c02e.appspot.com"; // Your Firebase Storage bucket name
 
         }
