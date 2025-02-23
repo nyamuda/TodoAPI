@@ -11,30 +11,36 @@ namespace TodoAPI.Services
         private readonly StorageClient _storageClient;
         private readonly string _bucketName;
 
-        public FirebaseStorageService()
+        public FirebaseStorageService(IConfiguration config)
         {
+            //Get the Firebase Storage configuration
+            var firebaseConfig = config.GetSection("Authentication:Firebase");
+            var serviceAccountPath = firebaseConfig["ServiceAccountPath"] ?? throw new InvalidOperationException("Firebase service account configuration is missing.");
+
             // Load credentials explicitly from the root folder
             var credential = GoogleCredential.FromFile(
-                Path.Combine(AppContext.BaseDirectory, "firebase-service-account.json")
+                Path.Combine(AppContext.BaseDirectory, serviceAccountPath)
             );
             _storageClient = StorageClient.Create(credential);
-            _bucketName = "drivingschool-7c02e.appspot.com"; // Your Firebase Storage bucket name
+
+            //The firebase storage bucket name
+            _bucketName = firebaseConfig["ServiceAccountPath"] ?? throw new InvalidOperationException("Firebase bucket configuration is missing.");
 
         }
 
         public async Task<string> UploadFileAsync(IFormFile file)
         {
-            // Generate unique filename (optional)
+            // Generate unique filename
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = $"car-wash/{fileName}"; 
+            var filePath = $"car-wash/{fileName}";
 
             // Upload to Firebase Storage
             using var stream = file.OpenReadStream();
             await _storageClient.UploadObjectAsync(
-                _bucketName,
-                filePath,
-                file.ContentType,
-                stream
+               bucket: _bucketName,
+               objectName: filePath,
+               contentType: file.ContentType,
+               source: stream
             );
 
             // Return public URL
