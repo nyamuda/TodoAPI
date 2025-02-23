@@ -2,6 +2,7 @@
 
 namespace TodoAPI.Dtos.Images
 {
+    //Dto for adding image information to the database
     public class AddImageDto
     {
 

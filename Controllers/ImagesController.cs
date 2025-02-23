@@ -2,6 +2,7 @@
 using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TodoAPI.Dtos.Images;
 using TodoAPI.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,27 +19,49 @@ namespace TodoAPI.Controllers
 
         public ImagesController(FirebaseStorageService firebaseStorageService, IConfiguration config, ImageService imageService)
         {
-            _firebaseStorageService=firebaseStorageService;
+            _firebaseStorageService = firebaseStorageService;
             _imageService = imageService;
         }
-        // GET: api/<ImagesController>
-        //[HttpGet]
-        //public IEnumerable<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
+        // GET: api/<StatusesController>
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var images = await _imageService.GetImages();
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
 
-        // GET api/<ImagesController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
+        // GET api/<StatusesController>/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            try
+            {
+                var image = await _imageService.GetImage(id);
+
+                return Ok(image);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
         // POST api/<ImagesController>
         [HttpPost]
-       // [Authorize(Roles ="Admin")]
-        public async Task<IActionResult> Post(IFormFile file, IConfiguration config)
+        // [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> Post(IFormFile file, UploadImageDto uploadDto)
         {
             try
             {
@@ -48,22 +71,26 @@ namespace TodoAPI.Controllers
                 if (file.Length > 5 * 1024 * 1024) throw new InvalidOperationException("File size cannot exceed 5MB.");
 
                 //check if the image is a valid image or not
-                if (_imageService.IsImageValid(file) is false) 
+                if (_imageService.IsImageValid(file) is false)
                     throw new InvalidOperationException("Unsupported file. Please choose a valid image to upload.");
 
-                ////generate unique file name
-                //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
 
-                ////save image to Firebase storage
-                ////and get the URL
-                //using var stream = file.OpenReadStream();
-                //var downloadUrl = await _firebaseStorage.Child("carwash-images").Child(fileName).PutAsync(stream);
+                //upload the image and get the url
+                var fileUrl = await _firebaseStorageService.UploadFileAsync(file: file, category:uploadDto.Category);
 
-                //return StatusCode(201, new {Message="Image has been successfully uploaded.",ImageUrl=downloadUrl});
-                // Generate unique filename
-                var fileUrl=await _firebaseStorageService.UploadFileAsync(file);
+                //save the image information to the database
 
-                return StatusCode(201, new { Message = "Image has been successfully uploaded.", ImageUrl = fileUrl });
+                var addImageDto = new AddImageDto()
+                {
+                    Url = fileUrl,
+                    FileName = file.FileName,
+                    Category = uploadDto.Category,
+                    Description = uploadDto.Description
+                };
+                
+                var image = await _imageService.AddImage(addImageDto);
+
+                return CreatedAtAction(nameof(Get), new {Id=image.Id},image);
 
             }
             catch (UnauthorizedAccessException ex)
