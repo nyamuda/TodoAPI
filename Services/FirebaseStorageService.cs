@@ -35,7 +35,7 @@ namespace TodoAPI.Services
         public async Task<string> UploadFileAsync(IFormFile file, string? category)
         {
             // Generate unique filename
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
             var filePath = string.Empty;
             //Check if category is empty or not
             //If empty, the file will be saved in the root folder on Firebase

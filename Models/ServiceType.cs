@@ -6,8 +6,12 @@
 
         public string Name { get; set; }
 
-        public double Price { get; set; }
+        public int? ImageId { get; set; }    
 
+        public Image? Image { get; set; }
+
+       
+        public double Price { get; set; }
 
         public List<Booking> Bookings { get; set; } = new List<Booking>();
     }

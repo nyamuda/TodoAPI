@@ -18,6 +18,8 @@ namespace TodoAPI.Data
 
         public DbSet<Status> Statuses { get; set; } = default!;
 
+        public DbSet<Image>  Images { get; set; } = default!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -83,6 +85,15 @@ namespace TodoAPI.Data
 
             //CancelledByUser Entity is owned by the CancelDetails Entity
             modelBuilder.Entity<CancelDetails>().OwnsOne(cd => cd.CancelledByUser);
+
+            //there is a one-one relationship between ServiceType and Image
+            //with the ServiceType entity having the potential to be the child entity('many' side entity)
+            //hence, the ServiceType entity is the one with the foreign key (ImageId)
+            modelBuilder.Entity<ServiceType>()
+                .HasOne(s=>s.Image)
+                .WithOne()
+                .HasForeignKey<ServiceType>(s=>s.ImageId)
+                .OnDelete(DeleteBehavior.NoAction); // Image delete → ServiceType no action
 
 
         }
