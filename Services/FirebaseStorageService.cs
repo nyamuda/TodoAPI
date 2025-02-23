@@ -15,6 +15,8 @@ namespace TodoAPI.Services
         {
             //Get the Firebase Storage configuration
             var firebaseConfig = config.GetSection("Authentication:Firebase");
+
+            //Location of the service path
             var serviceAccountPath = firebaseConfig["ServiceAccountPath"] ?? throw new InvalidOperationException("Firebase service account configuration is missing.");
 
             // Load credentials explicitly from the root folder
@@ -28,11 +30,16 @@ namespace TodoAPI.Services
 
         }
 
-        public async Task<string> UploadFileAsync(IFormFile file)
+        public async Task<string> UploadFileAsync(IFormFile file, string folderName)
         {
+            //check if folderName ends with a "/"
+            if(!folderName.EndsWith("/"))
+            {
+                folderName += "/";
+            }
             // Generate unique filename
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = $"car-wash/{fileName}";
+            var filePath = $"car-wash/{folderName}{fileName}";
 
             // Upload to Firebase Storage
             using var stream = file.OpenReadStream();
