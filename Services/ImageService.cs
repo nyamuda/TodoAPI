@@ -51,6 +51,7 @@ namespace TodoAPI.Services
 
         }
 
+        //Update an image with a given ID
         public async Task UpdateImage(int id, UpdateImageDto imageDto)
         {
             //get the image with the given ID
@@ -61,6 +62,18 @@ namespace TodoAPI.Services
             image.FileName = imageDto.FileName;
             image.Category = imageDto.Category;
             image.Description=imageDto.Description;
+
+            await _context.SaveChangesAsync();
+        }
+
+        //Delete and image with a given ID
+        public async Task DeleteImage(int id)
+        {
+            //first, get the image
+            var image = await GetImage(id);
+
+            //if the image exists, delete it
+            _context.Remove(image);
 
             await _context.SaveChangesAsync();
         }
