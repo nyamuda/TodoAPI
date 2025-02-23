@@ -1,4 +1,5 @@
 ﻿using Firebase.Storage;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoAPI.Services;
@@ -11,12 +12,13 @@ namespace TodoAPI.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        private readonly FirebaseStorage _firebaseStorage;
+        private readonly FirebaseStorageService _firebaseStorageService;
         private readonly ImageService _imageService;
+        private readonly string _bucketName = "drivingschool-7c02e.appspot.com";
 
-        public ImagesController(FirebaseStorage firebaseStorage, IConfiguration config, ImageService imageService)
+        public ImagesController(FirebaseStorageService firebaseStorageService, IConfiguration config, ImageService imageService)
         {
-            _firebaseStorage = firebaseStorage;
+            _firebaseStorageService=firebaseStorageService;
             _imageService = imageService;
         }
         // GET: api/<ImagesController>
@@ -49,15 +51,19 @@ namespace TodoAPI.Controllers
                 if (_imageService.IsImageValid(file) is false) 
                     throw new InvalidOperationException("Unsupported file. Please choose a valid image to upload.");
 
-                //generate unique file name
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
+                ////generate unique file name
+                //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
 
-                //save image to Firebase storage
-                //and get the URL
-                using var stream = file.OpenReadStream();
-                var downloadUrl = await _firebaseStorage.Child("carwash-images").Child(fileName).PutAsync(stream);
+                ////save image to Firebase storage
+                ////and get the URL
+                //using var stream = file.OpenReadStream();
+                //var downloadUrl = await _firebaseStorage.Child("carwash-images").Child(fileName).PutAsync(stream);
 
-                return StatusCode(201, new {Message="Image has been successfully uploaded.",ImageUrl=downloadUrl});
+                //return StatusCode(201, new {Message="Image has been successfully uploaded.",ImageUrl=downloadUrl});
+                // Generate unique filename
+                var fileUrl=await _firebaseStorageService.UploadFileAsync(file);
+
+                return StatusCode(201, new { Message = "Image has been successfully uploaded.", ImageUrl = fileUrl });
 
             }
             catch (UnauthorizedAccessException ex)
@@ -70,7 +76,7 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.Message });
+                return StatusCode(500, new { Message = ex.ToString() });
             }
         }
 
@@ -81,29 +87,29 @@ namespace TodoAPI.Controllers
         //}
 
         // DELETE api/<ImagesController>/5
-        [HttpDelete("{fileName}")]
-        public async Task<IActionResult> Delete(string fileName)
-        {
-            try
-            {
-                await _firebaseStorage.Child("carwash-images").Child(fileName).DeleteAsync();
+        //[HttpDelete("{fileName}")]
+        //public async Task<IActionResult> Delete(string fileName)
+        //{
+        //    try
+        //    {
+        //        await _firebaseStorage.Child("carwash-images").Child(fileName).DeleteAsync();
 
-                return NoContent();
+        //        return NoContent();
 
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { Message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = ex.Message });
-            }
+        //    }
+        //    catch (UnauthorizedAccessException ex)
+        //    {
+        //        return Unauthorized(new { Message = ex.Message });
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { Message = ex.Message });
+        //    }
 
-        }
+        //}
     }
 }

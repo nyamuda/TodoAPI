@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using Firebase.Storage;
+
 
 
 
@@ -32,34 +32,21 @@ builder.Services.AddScoped<FeedbackService>();
 builder.Services.AddScoped<ServiceTypesService>();
 builder.Services.AddScoped<StatusService>();
 builder.Services.AddScoped<ImageService>();
+builder.Services.AddScoped<FirebaseStorageService>();
 
 
+//// Read Firebase config from appsettings.json
+//var firebaseConfig = builder.Configuration.GetSection("Authentication:Firebase");
 
-//Firebase
-var firebaseApp = FirebaseApp.Create(new AppOptions
+// Initialize Firebase Admin SDK with Service Account
+FirebaseApp.Create(new AppOptions
 {
-    Credential = GoogleCredential.FromFile("firebase-service-account.json")
-});
-// Read the bucket name from configuration
-var bucketName = builder.Configuration["Authentication:Firebase:Bucket"];
-
-// Register FirebaseStorage
-// Register FirebaseStorage with an Auth Token
-builder.Services.AddSingleton(provider =>
-{
-    var googleCredential = GoogleCredential.FromFile("firebase-service-account.json");
-    return new FirebaseStorage(bucketName, new FirebaseStorageOptions
-    {
-        AuthTokenAsyncFactory = async () =>
-        {
-            var accessToken = await googleCredential.UnderlyingCredential.GetAccessTokenForRequestAsync();
-            return accessToken; // Pass access token for authenticated requests
-        },
-        ThrowOnCancel = true
-    });
+    Credential = GoogleCredential.FromFile(Path.Combine(AppContext.BaseDirectory, "firebase-service-account.json"))
 });
 
-//Handle Cyclesd
+
+
+//Handle Cycles
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
