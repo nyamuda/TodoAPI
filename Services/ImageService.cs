@@ -32,6 +32,25 @@ namespace TodoAPI.Services
             return images;  
         }
 
+
+        //Add a new image
+        public async Task<Models.Image> AddImage(AddImageDto imageDto)
+        {
+            var image = new Models.Image()
+            {
+                Url = imageDto.Url,
+                FileName = imageDto.FileName,
+                Category = imageDto.Category,
+                Description = imageDto.Description
+            };
+            _context.Add(image);
+
+            await _context.SaveChangesAsync();
+
+            return image;
+
+        }
+
         public async Task UpdateImage(int id, UpdateImageDto imageDto)
         {
             //get the image with the given ID
