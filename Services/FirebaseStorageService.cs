@@ -1,5 +1,6 @@
 ﻿using Firebase.Storage;
 using FirebaseAdmin;
+using Google.Api.Gax.ResourceNames;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Identity.Client.Extensions.Msal;
@@ -10,6 +11,7 @@ namespace TodoAPI.Services
     {
         private readonly StorageClient _storageClient;
         private readonly string _bucketName;
+        private readonly string _rootFolder = "car-wash";
 
         public FirebaseStorageService(IConfiguration config)
         {
@@ -30,16 +32,30 @@ namespace TodoAPI.Services
 
         }
 
-        public async Task<string> UploadFileAsync(IFormFile file, string folderName)
+        public async Task<string> UploadFileAsync(IFormFile file, string? category)
         {
-            //check if folderName ends with a "/"
-            if(!folderName.EndsWith("/"))
-            {
-                folderName += "/";
-            }
             // Generate unique filename
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = $"car-wash/{folderName}{fileName}";
+            var filePath = string.Empty;
+            //Check if category is empty or not
+            //If empty, the file will be saved in the root folder on Firebase
+            if (string.IsNullOrEmpty(category))
+            {
+                filePath = $"{_rootFolder}/{fileName}";
+            }
+            //If not empty, the file will be save inside the folder with the given category name
+            else
+            {
+                if(category.EndsWith("/"))
+                {
+                    filePath = $"{_rootFolder}/{category}{fileName}";
+                }
+                else
+                {
+                    filePath = $"{_rootFolder}/{category}/{fileName}";
+                }
+            }
+           
 
             // Upload to Firebase Storage
             using var stream = file.OpenReadStream();
