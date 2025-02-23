@@ -2,6 +2,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using TodoAPI.Data;
+using TodoAPI.Dtos.Images;
 
 namespace TodoAPI.Services
 {
@@ -31,7 +32,19 @@ namespace TodoAPI.Services
             return images;  
         }
 
-        public async Task UpdateImage(int id)
+        public async Task UpdateImage(int id, UpdateImageDto imageDto)
+        {
+            //get the image with the given ID
+            var image=await GetImage(id);
+
+            //Update the image
+            image.Url=imageDto.Url;
+            image.FileName = imageDto.FileName;
+            image.Category = imageDto.Category;
+            image.Description=imageDto.Description;
+
+            await _context.SaveChangesAsync();
+        }
 
         //check whether an image is a real and valid image or not
         public bool IsImageValid(IFormFile file)
