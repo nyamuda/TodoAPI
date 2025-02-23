@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using TodoAPI.Data;
 
@@ -13,10 +14,24 @@ namespace TodoAPI.Services
         }
 
 
-        public async Task<Image> GetImage(int id)
+        //Get image by ID
+        public async Task<Models.Image> GetImage(int id)
         {
-            var image=await _context.
+            var image = await _context.Images.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (image is null) throw new KeyNotFoundException($"Image with ID {id} does not exist.");
+
+            return image;
         }
+
+        //Get all images
+        public async Task<List<Models.Image>> GetImages()
+        {
+            var images = await _context.Images.ToListAsync();
+            return images;  
+        }
+
+        public async Task UpdateImage(int id)
 
         //check whether an image is a real and valid image or not
         public bool IsImageValid(IFormFile file)
