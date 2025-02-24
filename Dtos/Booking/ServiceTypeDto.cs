@@ -11,6 +11,6 @@ namespace TodoAPI.Dtos.Booking
         public double Price { get; set; }
 
         [Required]
-        public Models.Image Image { get; set; } = default!;
+        public int ImageId { get; set; }   
     }
 }
