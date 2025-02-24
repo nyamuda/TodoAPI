@@ -7,7 +7,7 @@
         //Used to display or access the image publicly.
         public string Url { get; set; } = default!;
         //Internal file path used for deletion or updating in Firebase Storage
-        //We can use it if we want to delete the image on Firebase
+        //We can use it if we want to delete the image from Firebase
         public string FilePath { get; set; } = default!;
         public string FileName { get; set; } = default!;
 

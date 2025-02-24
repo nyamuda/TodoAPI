@@ -124,8 +124,12 @@ namespace TodoAPI.Controllers
                 //first, get the image details
                 var image = await _imageService.GetImage(id);
 
-                //second, delete the image on Firebase
-                _firebaseStorageService.DeleteFileysnc(image);
+                //second, delete the image from Firebase
+                await _firebaseStorageService.DeleteFileAsync(image.FilePath);
+
+                //third, delete the image details from the database
+                await _imageService.DeleteImage(id);
+
 
                 return NoContent();
 

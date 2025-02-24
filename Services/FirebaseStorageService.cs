@@ -45,7 +45,7 @@ namespace TodoAPI.Services
             {
                 filePath = $"{_rootFolder}/{fileName}";
             }
-            //If not empty, the file will be save inside the folder with the given category name
+            //If not empty, the file will be saved inside the folder with the given category name
             else
             {
                 if(category.EndsWith("/"))
@@ -73,7 +73,7 @@ namespace TodoAPI.Services
         }
 
         //Remove a file from Firebase using its filePath
-        public async Task DeleteImageAsync(string filePath)
+        public async Task DeleteFileAsync(string filePath)
         {
            
             await _storageClient.DeleteObjectAsync(_bucketName, filePath);
