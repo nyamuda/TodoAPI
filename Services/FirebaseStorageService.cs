@@ -34,7 +34,7 @@ namespace TodoAPI.Services
 
         }
 
-        public async Task<string> UploadFileAsync(IFormFile file, string? category)
+        public async Task<(string url, string filePath)> UploadFileAsync(IFormFile file, string? category)
         {
             // Generate unique filename
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.Name);
@@ -48,7 +48,7 @@ namespace TodoAPI.Services
             //If not empty, the file will be saved inside the folder with the given category name
             else
             {
-                if(category.EndsWith("/"))
+                if (category.EndsWith("/"))
                 {
                     filePath = $"{_rootFolder}/{category}{fileName}";
                 }
@@ -57,7 +57,7 @@ namespace TodoAPI.Services
                     filePath = $"{_rootFolder}/{category}/{fileName}";
                 }
             }
-           
+
 
             // Upload to Firebase Storage
             using var stream = file.OpenReadStream();
@@ -68,16 +68,19 @@ namespace TodoAPI.Services
                source: stream
             );
 
-            // Return public URL
-            return $"https://firebasestorage.googleapis.com/v0/b/{_bucketName}/o/{Uri.EscapeDataString(filePath)}?alt=media";
+            // public URL
+            var url= $"https://firebasestorage.googleapis.com/v0/b/{_bucketName}/o/{Uri.EscapeDataString(filePath)}?alt=media";
+
+            //Return public url and filePath
+            return (url, filePath);
         }
 
         //Remove a file from Firebase using its filePath
         public async Task DeleteFileAsync(string filePath)
         {
-           
-            await _storageClient.DeleteObjectAsync(_bucketName, filePath);
-         
+
+            await _storageClient.DeleteObjectAsync(bucket: _bucketName, objectName: filePath);
+
         }
 
     }

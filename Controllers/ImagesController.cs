@@ -79,13 +79,14 @@ namespace TodoAPI.Controllers
 
 
                 //upload the image to Firebase and get the url
-                var fileUrl = await _firebaseStorageService.UploadFileAsync(file: file, category: fileCategory);
+                var (url,filePath) = await _firebaseStorageService.UploadFileAsync(file: file, category: fileCategory);
 
                 //save the image information to the database
                 var addImageDto = new AddImageDto()
                 {
-                    Url = fileUrl,
-                    FileName = file.FileName,
+                    Url = url,
+                    FilePath = filePath,
+                    FileName = file.FileName,         
                     Category = fileCategory,
                     Description = uploadDto.Description
                 };
@@ -109,14 +110,9 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // PUT api/<ImagesController>/5
-        //[HttpPut("{id}")]
-        //public void Put()
-        //{
-        //}
-
        // DELETE api/<ImagesController>/5
         [HttpDelete("{id}")]
+        // [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

@@ -12,6 +12,9 @@ namespace TodoAPI.Dtos.Images
         [Required]
         public string FileName { get; set; } = default!;
 
+        [Required]
+        public string FilePath { get; set; } = default!;    
+
         public string? Category { get; set; }
 
         public string? Description { get; set; }
