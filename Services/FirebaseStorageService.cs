@@ -3,7 +3,9 @@ using FirebaseAdmin;
 using Google.Api.Gax.ResourceNames;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.Extensions.Msal;
+using TodoAPI.Models;
 
 namespace TodoAPI.Services
 {
@@ -68,6 +70,14 @@ namespace TodoAPI.Services
 
             // Return public URL
             return $"https://firebasestorage.googleapis.com/v0/b/{_bucketName}/o/{Uri.EscapeDataString(filePath)}?alt=media";
+        }
+
+        //Remove a file from Firebase using its filePath
+        public async Task DeleteImageAsync(string filePath)
+        {
+           
+            await _storageClient.DeleteObjectAsync(_bucketName, filePath);
+         
         }
 
     }

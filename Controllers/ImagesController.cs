@@ -115,30 +115,38 @@ namespace TodoAPI.Controllers
         //{
         //}
 
-        // DELETE api/<ImagesController>/5
-        //[HttpDelete("{fileName}")]
-        //public async Task<IActionResult> Delete(string fileName)
-        //{
-        //    try
-        //    {
-        //        await _firebaseStorage.Child("carwash-images").Child(fileName).DeleteAsync();
+       // DELETE api/<ImagesController>/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                //first, get the image details
+                var image = await _imageService.GetImage(id);
 
-        //        return NoContent();
+                //second, delete the image on Firebase
+                _firebaseStorageService.DeleteFileysnc(image);
 
-        //    }
-        //    catch (UnauthorizedAccessException ex)
-        //    {
-        //        return Unauthorized(new { Message = ex.Message });
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        return BadRequest(new { Message = ex.Message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { Message = ex.Message });
-        //    }
+                return NoContent();
 
-        //}
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { Message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+
+        }
     }
 }
