@@ -25,7 +25,7 @@ namespace TodoAPI.Services
             {
                 Name = serviceTypeDto.Name,
                 Price = serviceTypeDto.Price,
-                Image=serviceTypeDto.Image
+                ImageId=serviceTypeDto.Image.Id
             };
 
             _context.Add(serviceType);
