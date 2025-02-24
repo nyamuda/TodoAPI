@@ -39,11 +39,12 @@ namespace TodoAPI.Services
             var image = new Models.Image()
             {
                 Url = imageDto.Url,
+                FilePath=imageDto.FilePath,
                 FileName = imageDto.FileName,
                 Category = imageDto.Category,
                 Description = imageDto.Description
             };
-            _context.Add(image);
+            _context.Images.Add(image);
 
             await _context.SaveChangesAsync();
 

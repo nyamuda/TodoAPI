@@ -12,6 +12,5 @@ namespace TodoAPI.Dtos.Images
         public string? Description { get; set; }
 
 
-
     }
 }

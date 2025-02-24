@@ -8,6 +8,9 @@ namespace TodoAPI.Dtos.Booking
         public string Name { get; set; }
 
         [Required]
-        public double Price { get; set; }   
+        public double Price { get; set; }
+
+        [Required]
+        public Models.Image Image { get; set; } = default!;
     }
 }
