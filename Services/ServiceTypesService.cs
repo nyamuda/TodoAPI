@@ -10,22 +10,26 @@ namespace TodoAPI.Services
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly ImageService _imageService;
 
-        public ServiceTypesService(ApplicationDbContext context)
+        public ServiceTypesService(ApplicationDbContext context,ImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
 
         // Add a new booking service type
         public async Task<ServiceType> AddServiceType(ServiceTypeDto serviceTypeDto)
         {
+            //check if the image with the given ID really exists
+            var image = _imageService.GetImage(serviceTypeDto.ImageId);
 
             var serviceType = new ServiceType()
             {
                 Name = serviceTypeDto.Name,
                 Price = serviceTypeDto.Price,
-                ImageId=serviceTypeDto.ImageId
+                ImageId=image.Id
             };
 
             _context.Add(serviceType);
