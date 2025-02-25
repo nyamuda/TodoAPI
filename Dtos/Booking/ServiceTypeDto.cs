@@ -11,6 +11,12 @@ namespace TodoAPI.Dtos.Booking
         public double Price { get; set; }
 
         [Required]
+        public string Overview { get; set; }
+
+        [Required]
+        public string Description { get; set; }
+
+        [Required]
         public int ImageId { get; set; }   
     }
 }

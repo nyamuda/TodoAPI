@@ -29,6 +29,8 @@ namespace TodoAPI.Services
             {
                 Name = serviceTypeDto.Name,
                 Price = serviceTypeDto.Price,
+                Overview=serviceTypeDto.Overview,
+                Description=serviceTypeDto.Description,
                 ImageId=image.Id
             };
 
