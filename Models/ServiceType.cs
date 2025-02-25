@@ -6,7 +6,11 @@
 
         public string Name { get; set; }
 
-        public int? ImageId { get; set; }    
+        public string Overview { get; set; } = default!;
+
+        public string Description { get; set; }=default!;
+
+        public int? ImageId { get; set; }   
 
         public Image? Image { get; set; }
 
