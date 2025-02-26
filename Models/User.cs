@@ -1,5 +1,8 @@
-﻿namespace TodoAPI.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TodoAPI.Models
 {
+    [Index(nameof(Email), IsUnique = true)]
     public class User
     {
         public int Id { get; set; }
