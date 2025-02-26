@@ -1,5 +1,6 @@
 ﻿namespace TodoAPI.Models
 {
+
     public class Status
     {
         public int Id { get; set; }
