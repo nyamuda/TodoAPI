@@ -29,12 +29,15 @@ namespace TodoAPI.Services
             if (!booking.Status.Name.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Feedback cannot be added as the booking has not been completed.");
 
+            
+
             //add the feedback to the database
             var feedback = new Feedback
             {
                 Content = feedbackDto.Content,
                 Rating = feedbackDto.Rating,
-                BookingId = booking.Id
+                BookingId = booking.Id,
+                ServiceTypeId=booking.ServiceTypeId
             };
 
             _context.Feedback.Add(feedback);

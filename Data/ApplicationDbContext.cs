@@ -110,7 +110,7 @@ namespace TodoAPI.Data
                  .HasOne(f => f.ServiceType)
                  .WithMany(s => s.Feedback)
                  .HasForeignKey(f => f.ServiceTypeId)
-                 .OnDelete(DeleteBehavior.Cascade); //Service Type delete → Feedback delete
+                 .OnDelete(DeleteBehavior.NoAction); //ServiceType delete → Feedback no action
 
 
 

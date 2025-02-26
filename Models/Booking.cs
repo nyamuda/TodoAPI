@@ -6,7 +6,7 @@ namespace TodoAPI.Models
     {
         public int Id { get; set; }
         public string VehicleType { get; set; } = default!; 
-        public int? ServiceTypeId { get; set; }
+        public int ServiceTypeId { get; set; }
 
         public ServiceType ServiceType { get; set; } = default!;
         public string Location { get; set; } = default!;
