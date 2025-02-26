@@ -22,5 +22,7 @@
         public List<Feature> Features { get; set; } = new List<Feature>();
 
         public List<Booking> Bookings { get; set; } = new List<Booking>();
+
+        public List<Feedback> Feedback { get;set; }=new List<Feedback>();   
     }
 }

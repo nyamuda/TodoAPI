@@ -103,7 +103,16 @@ namespace TodoAPI.Data
             modelBuilder.Entity<ServiceType>()
                 .HasMany(s => s.Features)
                 .WithMany(f => f.ServiceTypes);
-               
+
+            //There is a many-one relationship between ServiceType and Feedback
+            //A ServiceType can have many feedback while a Feedback can only be for one ServiceType
+            modelBuilder.Entity<Feedback>()
+                 .HasOne(f => f.ServiceType)
+                 .WithMany(s => s.Feedback)
+                 .HasForeignKey(f => f.ServiceTypeId)
+                 .OnDelete(DeleteBehavior.Cascade); //Service Type delete → Feedback delete
+
+
 
 
         }
