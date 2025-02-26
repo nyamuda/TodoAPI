@@ -96,6 +96,14 @@ namespace TodoAPI.Data
                 .OnDelete(DeleteBehavior.NoAction); // Image delete → ServiceType no action
 
 
+            //there is a many-to-many relationship between Feature and ServiceType
+            //A car wash ServiceType can have many features and a Feature can exist in many service types
+            modelBuilder.Entity<ServiceType>()
+                .HasMany(s => s.Features)
+                .WithMany(f => f.ServiceTypes);
+               
+
+
         }
     }
 }

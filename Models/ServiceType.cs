@@ -19,6 +19,8 @@
        
         public double Price { get; set; }
 
+        public List<Feature> Features { get; set; } = new List<Feature>();
+
         public List<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
