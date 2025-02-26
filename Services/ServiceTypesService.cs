@@ -23,7 +23,7 @@ namespace TodoAPI.Services
         public async Task<ServiceType> AddServiceType(ServiceTypeDto serviceTypeDto)
         {
             //check if the image with the given ID really exists
-            var image = _imageService.GetImage(serviceTypeDto.ImageId);
+            var image = await _imageService.GetImage(serviceTypeDto.ImageId);
 
             var serviceType = new ServiceType()
             {
@@ -35,7 +35,7 @@ namespace TodoAPI.Services
                 ImageId=image.Id
             };
 
-            _context.Add(serviceType);
+            _context.ServiceTypes.Add(serviceType);
             await _context.SaveChangesAsync();
 
             return serviceType;

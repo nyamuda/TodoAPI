@@ -13,11 +13,13 @@ namespace TodoAPI.Controllers
     {
         private readonly AccountService _accountService;
         private readonly JwtService _jwtService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public AccountController(AccountService accountService, JwtService jwtService)
+        public AccountController(AccountService accountService, JwtService jwtService, ErrorMessageService errorMessage)
         {
             _accountService = accountService;
             _jwtService = jwtService;
+            _errorMessage= errorMessage;
         }
        
         // POST api/<AccountController>/register
@@ -36,7 +38,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage,
+                    details = ex.Message
+                });
             }
         }
 
@@ -59,7 +65,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage,
+                    details = ex.Message
+                });
             }
         }
 
@@ -96,7 +106,11 @@ namespace TodoAPI.Controllers
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage,
+                    details = ex.Message
+                });
             }
         }
        
@@ -128,7 +142,11 @@ namespace TodoAPI.Controllers
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage,
+                    details = ex.Message
+                });
             }
         }
     }

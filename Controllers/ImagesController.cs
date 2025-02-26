@@ -55,7 +55,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "An unexpected error occurred. Please try again later.",
+                    details = ex.Message
+                });
             }
         }
         // POST api/<ImagesController>
@@ -79,14 +83,14 @@ namespace TodoAPI.Controllers
 
 
                 //upload the image to Firebase and get the url
-                var (url,filePath) = await _firebaseStorageService.UploadFileAsync(file: file, category: fileCategory);
+                var (url, filePath) = await _firebaseStorageService.UploadFileAsync(file: file, category: fileCategory);
 
                 //save the image information to the database
                 var addImageDto = new AddImageDto()
                 {
                     Url = url,
                     FilePath = filePath,
-                    FileName = file.FileName,         
+                    FileName = file.FileName,
                     Category = fileCategory,
                     Description = uploadDto.Description
                 };
@@ -106,11 +110,15 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.ToString() });
+                return StatusCode(500, new
+                {
+                    message = "An unexpected error occurred. Please try again later.",
+                    details = ex.Message
+                });
             }
         }
 
-       // DELETE api/<ImagesController>/5
+        // DELETE api/<ImagesController>/5
         [HttpDelete("{id}")]
         // [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Delete(int id)
@@ -144,7 +152,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "An unexpected error occurred. Please try again later.",
+                    details = ex.Message
+                });
             }
 
         }
