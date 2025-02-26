@@ -29,7 +29,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex) {
 
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -49,7 +53,11 @@ namespace TodoAPI.Controllers
 
             }
             catch (Exception ex) {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -69,7 +77,11 @@ namespace TodoAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex) {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -89,7 +101,11 @@ namespace TodoAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex) {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -107,7 +123,11 @@ namespace TodoAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex) {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -128,7 +148,11 @@ namespace TodoAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
     }
