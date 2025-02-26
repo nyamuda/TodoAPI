@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoAPI.Data;
 
@@ -11,9 +12,11 @@ using TodoAPI.Data;
 namespace TodoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250226042926_FeatureMigration")]
+    partial class FeatureMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,7 +127,7 @@ namespace TodoAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Features");
+                    b.ToTable("Feature");
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Feedback", b =>

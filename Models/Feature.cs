@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
 
-        public int Name { get; set; } = default!;
+        public string Name { get; set; } = default!;
         public string? Description { get; set; }
 
         public List<ServiceType> ServiceTypes { get; set; }= new List<ServiceType>();

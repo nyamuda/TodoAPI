@@ -20,6 +20,8 @@ namespace TodoAPI.Data
 
         public DbSet<Image>  Images { get; set; } = default!;
 
+        public DbSet<Feature> Features { get; set; } = default!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
