@@ -11,6 +11,9 @@ namespace TodoAPI.Dtos.Booking
         public double Price { get; set; }
 
         [Required]
+        public double Duration { get; set; }
+
+        [Required]
         public string Overview { get; set; }
 
         [Required]

@@ -8,6 +8,8 @@
 
         public string Overview { get; set; } = default!;
 
+        public double Duration { get; set; }=default!;
+
         public string Description { get; set; }=default!;
 
         public int? ImageId { get; set; }   
