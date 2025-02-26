@@ -41,7 +41,11 @@ namespace TodoAPI.Controllers
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
         // POST api/<EmailController>/verify
@@ -63,7 +67,11 @@ namespace TodoAPI.Controllers
 
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
@@ -87,7 +95,11 @@ namespace TodoAPI.Controllers
 
             catch (Exception ex)
             {
-                return NotFound(new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
             }
         }
 
