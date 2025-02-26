@@ -1,6 +1,8 @@
-﻿namespace TodoAPI.Models
-{
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace TodoAPI.Models
+{
+    [Index(nameof(Name),IsUnique =true)]
     public class Status
     {
         public int Id { get; set; }
