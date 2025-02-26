@@ -13,11 +13,13 @@ namespace TodoAPI.Controllers
     {
         private readonly AccountService _accountService;
         private readonly ContactService _contactService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public EmailController(AccountService accountService, ContactService contactService)
+        public EmailController(AccountService accountService, ContactService contactService, ErrorMessageService errorMessage)
         {
             _accountService = accountService;
             _contactService = contactService;
+            _errorMessage = errorMessage;
         }
 
         // POST api/<EmailController>/password

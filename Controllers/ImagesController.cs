@@ -16,11 +16,12 @@ namespace TodoAPI.Controllers
         private readonly FirebaseStorageService _firebaseStorageService;
         private readonly ImageService _imageService;
         private readonly string _bucketName = "drivingschool-7c02e.appspot.com";
-
-        public ImagesController(FirebaseStorageService firebaseStorageService, IConfiguration config, ImageService imageService)
+        private readonly ErrorMessageService _errorMessage;
+        public ImagesController(FirebaseStorageService firebaseStorageService, IConfiguration config, ImageService imageService, ErrorMessageService errorMessage)
         {
             _firebaseStorageService = firebaseStorageService;
             _imageService = imageService;
+            _errorMessage = errorMessage;
         }
         // GET: api/<StatusesController>
         [HttpGet]

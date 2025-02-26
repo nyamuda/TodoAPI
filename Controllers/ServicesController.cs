@@ -13,11 +13,13 @@ namespace TodoAPI.Controllers
     public class ServicesController : ControllerBase
     {
         private readonly ServiceTypesService _serviceTypesService;
+        private readonly ErrorMessageService _errorMessage;
 
 
-        public ServicesController(ServiceTypesService serviceTypesService)
+        public ServicesController(ServiceTypesService serviceTypesService, ErrorMessageService errorMessage)
         {
             _serviceTypesService = serviceTypesService;
+            _errorMessage = errorMessage;
         }
 
         // GET: api/<ServicesController>

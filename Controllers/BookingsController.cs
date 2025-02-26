@@ -19,12 +19,14 @@ namespace TodoAPI.Controllers
         private BookingService _bookingService;
         private readonly JwtService _jwtService;
         private readonly UserService _userService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public BookingsController(BookingService bookingService, JwtService jwtService, UserService userService)
+        public BookingsController(BookingService bookingService, JwtService jwtService, UserService userService, ErrorMessageService errorMessage)
         {
             _bookingService = bookingService;
             _jwtService = jwtService;
             _userService = userService;
+            _errorMessage = errorMessage;
         }
 
         // GET: api/<BookingsController>

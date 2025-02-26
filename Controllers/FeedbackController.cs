@@ -18,14 +18,16 @@ namespace TodoAPI.Controllers
         private readonly JwtService _jwtService;
         private readonly UserService _userService;
         private readonly BookingService _bookingService;
+        private readonly ErrorMessageService _errorMessage;
 
 
-        public FeedbackController(FeedbackService feedbackService, JwtService jwtService, UserService userService, BookingService bookingService)
+        public FeedbackController(FeedbackService feedbackService, JwtService jwtService, UserService userService, BookingService bookingService, ErrorMessageService errorMessage)
         {
             _feedbackService = feedbackService;
             _jwtService = jwtService;
             _userService = userService;
             _bookingService = bookingService;
+            _errorMessage = errorMessage;
         }
         // GET: api/<FeedbackController>
         [HttpGet]

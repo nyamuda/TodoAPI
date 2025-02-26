@@ -15,11 +15,13 @@ namespace TodoAPI.Controllers
 
         private readonly FacebookService _facebookService;
         private readonly GoogleService _googleService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public OAuthController(FacebookService facebookService, GoogleService googleService)
+        public OAuthController(FacebookService facebookService, GoogleService googleService, ErrorMessageService errorMessage)
         {
             _facebookService = facebookService;
             _googleService = googleService;
+            _errorMessage = errorMessage;
         }
 
         // POST api/<UsersController>/google-login

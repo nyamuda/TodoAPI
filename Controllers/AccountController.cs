@@ -40,7 +40,7 @@ namespace TodoAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = _errorMessage,
+                    message = _errorMessage.UnexpectedErrorMessage(),
                     details = ex.Message
                 });
             }
@@ -67,7 +67,7 @@ namespace TodoAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = _errorMessage,
+                    message = _errorMessage.UnexpectedErrorMessage(),
                     details = ex.Message
                 });
             }
@@ -108,7 +108,7 @@ namespace TodoAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = _errorMessage,
+                    message = _errorMessage.UnexpectedErrorMessage(),
                     details = ex.Message
                 });
             }
@@ -144,7 +144,7 @@ namespace TodoAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = _errorMessage,
+                    message = _errorMessage.UnexpectedErrorMessage(),
                     details = ex.Message
                 });
             }

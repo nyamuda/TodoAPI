@@ -11,10 +11,12 @@ namespace TodoAPI.Controllers
     public class StatusesController : ControllerBase
     {
         private readonly StatusService _statusService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public StatusesController(StatusService statusService)
+        public StatusesController(StatusService statusService, ErrorMessageService errorMessage)
         {
             _statusService = statusService;
+            _errorMessage = errorMessage;
         }
         // GET: api/<StatusesController>
         [HttpGet]

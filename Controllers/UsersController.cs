@@ -15,11 +15,13 @@ namespace TodoAPI.Controllers
     {
         private readonly UserService _userService;
         private readonly JwtService _jwtService;
+        private readonly ErrorMessageService _errorMessage;
 
-        public UsersController(UserService userService, JwtService jwtService)
+        public UsersController(UserService userService, JwtService jwtService, ErrorMessageService errorMessage)
         {
             _userService = userService;
             _jwtService = jwtService;
+            _errorMessage = errorMessage;
         }
 
 
