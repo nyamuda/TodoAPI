@@ -17,6 +17,9 @@ namespace TodoAPI.Dtos.Booking
         public string Overview { get; set; }
 
         [Required]
+        public List<int> FeatureIds { get; set; } = new List<int>();
+
+        [Required]
         public string Description { get; set; }
 
         [Required]

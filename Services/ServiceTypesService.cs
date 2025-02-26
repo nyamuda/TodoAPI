@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto;
 using TodoAPI.Data;
 using TodoAPI.Dtos.Booking;
 using TodoAPI.Models;
@@ -12,7 +13,7 @@ namespace TodoAPI.Services
         private readonly ApplicationDbContext _context;
         private readonly ImageService _imageService;
 
-        public ServiceTypesService(ApplicationDbContext context,ImageService imageService)
+        public ServiceTypesService(ApplicationDbContext context, ImageService imageService)
         {
             _context = context;
             _imageService = imageService;
@@ -25,15 +26,28 @@ namespace TodoAPI.Services
             //check if the image with the given ID really exists
             var image = await _imageService.GetImage(serviceTypeDto.ImageId);
 
+            //get all features that have given feature IDs
+            //these IDs are IDs of the features that were selected
+            //by the client for the service
+            var selectedServiceFeatures = await _context.Features
+                .Where(x => serviceTypeDto.FeatureIds.Contains(x.Id)).ToListAsync();
+
+            //make sure the number of given feature IDs match 
+            //the number of returned features with those IDs
+            if (serviceTypeDto.FeatureIds.Count != selectedServiceFeatures.Count)
+                throw new InvalidOperationException("One or more features are invalid.");
+
             var serviceType = new ServiceType()
             {
                 Name = serviceTypeDto.Name,
                 Price = serviceTypeDto.Price,
-                Duration=serviceTypeDto.Duration,
-                Overview=serviceTypeDto.Overview,
-                Description=serviceTypeDto.Description,
-                ImageId=image.Id
+                Duration = serviceTypeDto.Duration,
+                Overview = serviceTypeDto.Overview,
+                Description = serviceTypeDto.Description,
+                ImageId = image.Id
             };
+
+            serviceType.Features.AddRange(selectedServiceFeatures);
 
             _context.ServiceTypes.Add(serviceType);
             await _context.SaveChangesAsync();
@@ -70,7 +84,7 @@ namespace TodoAPI.Services
         //Get all service types
         public async Task<List<ServiceType>> GetServiceTypes()
         {
-            var serviceTypes = await _context.ServiceTypes.Include(x=>x.Image).ToListAsync();
+            var serviceTypes = await _context.ServiceTypes.Include(x => x.Image).ToListAsync();
             return serviceTypes;
         }
 
