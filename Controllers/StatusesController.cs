@@ -132,7 +132,7 @@ namespace TodoAPI.Controllers
         }
 
         // GET api/<StatusesController>/5
-        [HttpGet("name/{name}")]
+        [HttpGet("names/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             try

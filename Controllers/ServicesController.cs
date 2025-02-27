@@ -139,7 +139,32 @@ namespace TodoAPI.Controllers
             }
         }
 
-       
-      
+
+        // GET api/<ServicesController>/popular
+        [HttpGet("popular")]
+        public async Task<IActionResult> GetPopular(int id)
+        {
+            try
+            {
+                var serviceType = await _serviceTypesService.GetPopularServiceType();
+                return Ok(serviceType);
+            }
+
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
+            }
+        }
+
+
+
     }
 }
