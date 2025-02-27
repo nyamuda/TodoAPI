@@ -119,9 +119,9 @@ namespace TodoAPI.Controllers
                 if (!tokenEmail.Equals(bookedUserEmail))
                     throw new UnauthorizedAccessException("You can only provide feedback for your own booking.");
 
-
+                
                 //Add the feedback
-              var feedback=  await _feedbackService.AddFeedback(feedbackDto);
+              var feedback=  await _feedbackService.AddFeedback(feedbackDto, bookedUserEmail);
 
                 return CreatedAtAction(nameof(Get),new {id=feedback.Id},feedback);
 

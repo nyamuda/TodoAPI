@@ -18,9 +18,9 @@ namespace TodoAPI.Services
 
 
         //Add feedback for the booking after its completed
-        public async Task<Feedback> AddFeedback(BookingFeedbackDto feedbackDto)
+        public async Task<Feedback> AddFeedback(BookingFeedbackDto feedbackDto, string userEmail)
         {
-           // check if the booking exists
+            // check if the booking exists
             var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(feedbackDto.BookingId));
 
             if (booking is null)
@@ -29,7 +29,6 @@ namespace TodoAPI.Services
             if (!booking.Status.Name.Equals("completed", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Feedback cannot be added as the booking has not been completed.");
 
-            
 
             //add the feedback to the database
             var feedback = new Feedback
@@ -37,9 +36,19 @@ namespace TodoAPI.Services
                 Content = feedbackDto.Content,
                 Rating = feedbackDto.Rating,
                 BookingId = booking.Id,
-                ServiceTypeId=booking.ServiceTypeId
+                ServiceTypeId = booking.ServiceTypeId
             };
 
+
+            //If the user is registered,
+            //get their ID and add it to the feedback as well
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail));
+            if (user is not null)
+            {
+                feedback.UserId = user.Id;
+            }
+
+            //Finally, save the feedback
             _context.Feedback.Add(feedback);
             await _context.SaveChangesAsync();
 

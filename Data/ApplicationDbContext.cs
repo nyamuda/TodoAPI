@@ -118,7 +118,7 @@ namespace TodoAPI.Data
                 .HasOne(f => f.User)
                 .WithMany(u => u.Feedback)
                 .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade); //User delete → Feedback delete
+                .OnDelete(DeleteBehavior.NoAction); //User delete → Feedback no action
 
 
         }
