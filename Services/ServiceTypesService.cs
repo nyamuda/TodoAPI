@@ -84,7 +84,7 @@ namespace TodoAPI.Services
         //Get all service types
         public async Task<List<ServiceType>> GetServiceTypes()
         {
-            var serviceTypes = await _context.ServiceTypes.Include(x => x.Image).Include(x =>x.Features).ToListAsync();
+            var serviceTypes = await _context.ServiceTypes.Include(x => x.Feedback).Include(x => x.Image).Include(x =>x.Features).ToListAsync();
             return serviceTypes;
         }
 

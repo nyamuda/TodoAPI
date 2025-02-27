@@ -20,5 +20,8 @@ namespace TodoAPI.Models
         public bool IsVerified { get; set; } = false;
 
         public List<Booking> Bookings { get; set; } = new List<Booking>();
+
+        public List<Feedback> Feedback { get; set; } = new List<Feedback>();
+
     }
 }
