@@ -19,7 +19,7 @@ namespace TodoAPI.Models
 
         public string? AdditionalNotes { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int? UserId { get; set; } // Nullable for guest bookings
 
