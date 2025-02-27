@@ -12,8 +12,8 @@ using TodoAPI.Data;
 namespace TodoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250226122116_FeedbackServiceType")]
-    partial class FeedbackServiceType
+    [Migration("20250227005412_FeedbackServiceCorrected")]
+    partial class FeedbackServiceCorrected
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -152,7 +152,7 @@ namespace TodoAPI.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<int>("ServiceTypeId")
+                    b.Property<int?>("ServiceTypeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -409,8 +409,7 @@ namespace TodoAPI.Migrations
                     b.HasOne("TodoAPI.Models.ServiceType", "ServiceType")
                         .WithMany("Feedback")
                         .HasForeignKey("ServiceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Booking");
 

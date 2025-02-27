@@ -5,7 +5,7 @@
 namespace TodoAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class FeedbackServiceType : Migration
+    public partial class FeedbackServiceCorrected : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,8 +14,7 @@ namespace TodoAPI.Migrations
                 name: "ServiceTypeId",
                 table: "Feedback",
                 type: "int",
-                nullable: false,
-                defaultValue: 0);
+                nullable: true);
 
             migrationBuilder.AlterColumn<int>(
                 name: "ServiceTypeId",
@@ -37,8 +36,7 @@ namespace TodoAPI.Migrations
                 table: "Feedback",
                 column: "ServiceTypeId",
                 principalTable: "ServiceTypes",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />

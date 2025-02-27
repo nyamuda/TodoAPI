@@ -13,7 +13,7 @@
         public Booking? Booking { get; set; }
 
 
-        public int ServiceTypeId { get; set; }  
+        public int? ServiceTypeId { get; set; }  
 
         public ServiceType? ServiceType { get; set; } 
     }
