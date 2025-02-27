@@ -84,7 +84,7 @@ namespace TodoAPI.Services
         //Get all service types
         public async Task<List<ServiceType>> GetServiceTypes()
         {
-            var serviceTypes = await _context.ServiceTypes.Include(x => x.Feedback).Include(x => x.Image).Include(x =>x.Features).ToListAsync();
+            var serviceTypes = await _context.ServiceTypes.Include(x => x.Feedback).Include(x => x.Image).Include(x => x.Features).ToListAsync();
             return serviceTypes;
         }
 
@@ -97,6 +97,30 @@ namespace TodoAPI.Services
                 throw new KeyNotFoundException($"Service type with the ID {id} does not exist.");
 
             return serviceType;
+
+        }
+
+        //Get the most popular service
+        public async Task<ServiceType> GetPopularServiceType()
+        {
+            //the query
+            var query = _context.ServiceTypes.AsQueryable();
+
+            //Now, the most popular service type is the one with the most bookings
+            //So, let's find the service with the most bookings by:
+            //First, ordering (in descending order) the service types by number of bookings they have &
+            //Second, taking the first service type from that list
+            //In other words, the most popular service type will be the one at the top of that list
+            var popularService = await query
+                 .OrderByDescending(st => st.Bookings.Count)
+                 .FirstOrDefaultAsync();
+
+            //if there no service type found,
+            //then it means no service types exist at all in the database
+            if (popularService is null) 
+                throw new KeyNotFoundException("No car wash service types found in the database.");
+
+            return popularService;
 
         }
 
