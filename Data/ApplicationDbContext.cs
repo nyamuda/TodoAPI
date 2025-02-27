@@ -112,7 +112,13 @@ namespace TodoAPI.Data
                  .HasForeignKey(f => f.ServiceTypeId)
                  .OnDelete(DeleteBehavior.NoAction); //ServiceType delete → Feedback no action
 
-
+            //There is a many-one relationship between User and Feedback
+            //A User can have many feedback while a Feedback can only be from one User
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Feedback)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade); //User delete → Feedback delete
 
 
         }
