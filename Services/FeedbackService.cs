@@ -92,9 +92,26 @@ namespace TodoAPI.Services
             return feedback;
         }
         //Get all the feedback
-        public async Task<List<Feedback>> GetAllFeedback()
+        public async Task<(List<Feedback> feedback,PageInfo pageInfo)> GetAllFeedback(int page, int pageSize,)
         {
-            return await _context.Feedback.ToListAsync();
+           var feedback=await _context.Feedback
+                .Include(x=>x.User)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //total feedback
+            int totalFeedback = await _context.Feedback.CountAsync();
+            bool hasMore = totalFeedback > page * pageSize;
+
+            var pageInfo = new PageInfo
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+            };
+
+            return (feedback, pageInfo);
         }
 
         //Delete feedback with a given ID

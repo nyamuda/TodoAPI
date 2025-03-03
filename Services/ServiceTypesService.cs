@@ -96,7 +96,7 @@ namespace TodoAPI.Services
         //Get service type by ID
         public async Task<ServiceType> GetServiceType(int id)
         {
-            var serviceType = await _context.ServiceTypes.Include(x => x.Bookings).Include(x => x.Feedback).Include(x=>x.Features).FirstOrDefaultAsync(x => x.Id.Equals(id));
+            var serviceType = await _context.ServiceTypes.Include(x => x.Image).Include(x => x.Feedback).Include(x=>x.Features).FirstOrDefaultAsync(x => x.Id.Equals(id));
 
             if (serviceType is null)
                 throw new KeyNotFoundException($"Service type with the ID {id} does not exist.");
