@@ -187,7 +187,7 @@ namespace TodoAPI.Controllers
                 return StatusCode(500, new
                 {
                     message = _errorMessage.UnexpectedErrorMessage(),
-                    details = ex.Message
+                    details = ex.ToString()
                 });
             }
         }

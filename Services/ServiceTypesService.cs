@@ -170,15 +170,15 @@ namespace TodoAPI.Services
         public async Task<double> GetFeedbackAverageRating(int serviceTypeId)
         {
             //total number of all feedback
-            var totalFeedback = await _context.Feedback
-                .Where(x => serviceTypeId.Equals(serviceTypeId))
+            int totalFeedback = await _context.Feedback
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
                 .CountAsync();
 
             //total sum of the ratings
             double totalSumOfRatings = await _context.Feedback
                 .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
                 .SumAsync(x => x.Rating);
-
+           
 
             //calculate average rating
             double averageRating = Math.Round(totalSumOfRatings / totalFeedback, 2, MidpointRounding.AwayFromZero);
