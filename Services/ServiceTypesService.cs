@@ -129,5 +129,45 @@ namespace TodoAPI.Services
 
         }
 
+        //Get all the feedback for a service type
+        public async Task<(List<Feedback> feedback, PageInfo pageInfo, double averageRating)> GetServiceTypeFeedback(int page, int pageSize, int serviceTypeId)
+        {
+            //check if service with the given serviceTypeId exists
+            var serviceType = await _context.ServiceTypes.Where(x => x.Id.Equals(serviceTypeId)).FirstOrDefaultAsync();
+
+            if (serviceType is null)
+                throw new KeyNotFoundException($"Car was service with ID {serviceTypeId} does not exist.");
+
+           //get the feedback for a particular service type  
+            var feedback = await _context.Feedback
+                .Include(x => x.User)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //total feedback
+            int totalFeedback = await _context.Feedback
+                .Where(x=>x.ServiceTypeId.Equals(serviceTypeId))
+                .CountAsync();
+            bool hasMore = totalFeedback > page * pageSize;
+
+            //calculate the average rating from all the feedback of the service
+            //sum of all ratings
+            double sumOfAllRatings = await _context.Feedback
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
+                .SumAsync(x => x.Rating);
+            //average rating rounded to 2 decimals
+            double averageRating = Math.Round(sumOfAllRatings / totalFeedback, 2, MidpointRounding.AwayFromZero);
+
+            var pageInfo = new PageInfo
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMore
+            };
+
+            return (feedback, pageInfo, averageRating);
+        }
+
     }
 }

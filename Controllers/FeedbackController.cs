@@ -31,7 +31,7 @@ namespace TodoAPI.Controllers
         }
         // GET: api/<FeedbackController>
         [HttpGet]
-        public async Task<IActionResult> Get(int? serviceTypeId, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Get(int serviceTypeId, int page = 1, int pageSize = 10)
         {
             try
             {

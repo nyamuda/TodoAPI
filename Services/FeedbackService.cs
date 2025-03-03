@@ -92,8 +92,13 @@ namespace TodoAPI.Services
             return feedback;
         }
         //Get all the feedback for a particular car wash service type
-        public async Task<(List<Feedback> feedback, PageInfo pageInfo, double averageRating)> GetAllFeedback(int page, int pageSize, int? serviceTypeId)
+        public async Task<(List<Feedback> feedback, PageInfo pageInfo, double averageRating)> GetAllFeedback(int page, int pageSize, int serviceTypeId)
         {
+            //check if service with the given serviceTypeId exists
+            var serviceType=awai
+
+
+
             var query = _context.Feedback.AsQueryable();
 
             //if the serviceType ID is provided,
