@@ -31,14 +31,14 @@ namespace TodoAPI.Controllers
         }
         // GET: api/<FeedbackController>
         [HttpGet]
-        public async Task<IActionResult> Get(int? serviceTypeId,int page=1, int pageSize=10)
+        public async Task<IActionResult> Get(int? serviceTypeId, int page = 1, int pageSize = 10)
         {
             try
             {
-                var (feedback,pageInfo) = await _feedbackService.GetAllFeedback(page,pageSize,serviceTypeId);
+                var (feedback, pageInfo, averageRating) = await _feedbackService.GetAllFeedback(page, pageSize, serviceTypeId);
 
-                
-                return Ok(new {feedback=feedback,pageInfo=pageInfo});
+
+                return Ok(new { feedback = feedback, pageInfo = pageInfo, averageRating = averageRating });
             }
             catch (Exception ex)
             {
@@ -104,7 +104,7 @@ namespace TodoAPI.Controllers
                 //For a user to provide feedback when the booking is completed,
                 //their email (from the token) must match the email of the user who made the booking (the booking user email)
                 //In other words, users must only give feedback to the booking they created themselves
-              
+
                 //First, get the booking they're trying to give feedback for
                 var booking = await _bookingService.GetBooking(feedbackDto.BookingId);
 
@@ -121,11 +121,11 @@ namespace TodoAPI.Controllers
                 if (!tokenEmail.Equals(bookedUserEmail))
                     throw new UnauthorizedAccessException("You can only provide feedback for your own booking.");
 
-                
-                //Add the feedback
-              var feedback=  await _feedbackService.AddFeedback(feedbackDto, bookedUserEmail);
 
-                return CreatedAtAction(nameof(Get),new {id=feedback.Id},feedback);
+                //Add the feedback
+                var feedback = await _feedbackService.AddFeedback(feedbackDto, bookedUserEmail);
+
+                return CreatedAtAction(nameof(Get), new { id = feedback.Id }, feedback);
 
             }
             catch (InvalidOperationException ex)
@@ -188,7 +188,7 @@ namespace TodoAPI.Controllers
                 await _feedbackService.UpdateFeedback(id, feedbackDto);
 
                 return NoContent();
-              
+
             }
             catch (InvalidOperationException ex)
             {
@@ -217,7 +217,7 @@ namespace TodoAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-           try
+            try
             {
                 //First, get the access token for the authorized user
                 // Get the token from the Authorization header
