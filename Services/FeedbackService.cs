@@ -91,10 +91,11 @@ namespace TodoAPI.Services
 
             return feedback;
         }
-        //Get all the feedback
-        public async Task<(List<Feedback> feedback,PageInfo pageInfo)> GetAllFeedback(int page, int pageSize)
+        //Get all the feedback for a particular car wash service type
+        public async Task<(List<Feedback> feedback,PageInfo pageInfo)> GetAllFeedback(int page, int pageSize, int serviceTypeId)
         {
            var feedback=await _context.Feedback
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
                 .Include(x=>x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
