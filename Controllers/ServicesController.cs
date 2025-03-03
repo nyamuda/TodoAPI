@@ -69,6 +69,7 @@ namespace TodoAPI.Controllers
 
         // POST api/<ServicesController>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Post(ServiceTypeDto serviceTypeDto)
         {
             try
@@ -93,6 +94,7 @@ namespace TodoAPI.Controllers
 
         // PUT api/<ServicesController>/5
         [HttpPut("{id}")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Put(int id, ServiceTypeDto serviceTypeDto)
         {
             try
@@ -117,6 +119,7 @@ namespace TodoAPI.Controllers
 
         // DELETE api/<ServicesController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
