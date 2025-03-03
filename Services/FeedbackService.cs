@@ -92,7 +92,7 @@ namespace TodoAPI.Services
             return feedback;
         }
         //Get all the feedback
-        public async Task<(List<Feedback> feedback,PageInfo pageInfo)> GetAllFeedback(int page, int pageSize,)
+        public async Task<(List<Feedback> feedback,PageInfo pageInfo)> GetAllFeedback(int page, int pageSize)
         {
            var feedback=await _context.Feedback
                 .Include(x=>x.User)

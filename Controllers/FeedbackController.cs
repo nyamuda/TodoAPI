@@ -31,11 +31,11 @@ namespace TodoAPI.Controllers
         }
         // GET: api/<FeedbackController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int page=1, int pageSize=10)
         {
             try
             {
-                var feedback = await _feedbackService.GetAllFeedback();
+                var feedback = await _feedbackService.GetAllFeedback(page,pageSize);
                 return Ok(feedback);
             }
             catch (Exception ex)
