@@ -92,7 +92,7 @@ namespace TodoAPI.Services
             return feedback;
         }
         //Get all the feedback for a particular car wash service type
-        public async Task<(List<Feedback> feedback, PageInfo pageInfo)> GetAllFeedback(int page, int pageSize, int? serviceTypeId)
+        public async Task<(List<Feedback> feedback, PageInfo pageInfo, double averageRating)> GetAllFeedback(int page, int pageSize, int? serviceTypeId)
         {
             var query = _context.Feedback.AsQueryable();
 
@@ -108,11 +108,15 @@ namespace TodoAPI.Services
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-
             //total feedback
             int totalFeedback = await _context.Feedback.CountAsync();
             bool hasMore = totalFeedback > page * pageSize;
+
+            //calculate the average rating from all the feedback
+            //sum of all rating
+            double sumOfAllRatings = await _context.Feedback.SumAsync(x => x.Rating);
+            //average rating rounded to 2 decimals
+            double averageRating= Math.Round(sumOfAllRatings / totalFeedback,2,MidpointRounding.AwayFromZero);
 
             var pageInfo = new PageInfo
             {
@@ -121,7 +125,7 @@ namespace TodoAPI.Services
                 HasMore = hasMore
             };
 
-            return (feedback, pageInfo);
+            return (feedback, pageInfo, averageRating);
         }
 
         //Delete feedback with a given ID
