@@ -23,7 +23,7 @@ namespace TodoAPI.Controllers
         }
 
         // GET: api/<ServicesController>
-        [HttpGet]  
+        [HttpGet]
         public async Task<IActionResult> Get()
         {
             try
@@ -73,7 +73,7 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var serviceType=await _serviceTypesService.AddServiceType(serviceTypeDto);
+                var serviceType = await _serviceTypesService.AddServiceType(serviceTypeDto);
                 return CreatedAtAction(nameof(Get), new { id = serviceType.Id }, serviceType);
             }
 
@@ -163,6 +163,32 @@ namespace TodoAPI.Controllers
                 });
             }
         }
+        // GET: api/<FeedbackController>/5/feedback
+        //Get all feedback for a particular service
+        [HttpGet("{id}/feedback")]
+        public async Task<IActionResult> GetServiceFeedback(int id, int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                var (feedback, pageInfo, averageRating) = await _serviceTypesService.GetServiceTypeFeedback(page, pageSize, serviceTypeId: id);
+
+
+                return Ok(new { feedback = feedback, pageInfo = pageInfo, averageRating = averageRating });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
+            }
+        }
+
 
 
 

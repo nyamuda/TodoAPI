@@ -96,7 +96,7 @@ namespace TodoAPI.Services
         //Get service type by ID
         public async Task<ServiceType> GetServiceType(int id)
         {
-            var serviceType = await _context.ServiceTypes.Include(x => x.Image).Include(x => x.Feedback).Include(x=>x.Features).FirstOrDefaultAsync(x => x.Id.Equals(id));
+            var serviceType = await _context.ServiceTypes.Include(x => x.Image).Include(x => x.Feedback).Include(x => x.Features).FirstOrDefaultAsync(x => x.Id.Equals(id));
 
             if (serviceType is null)
                 throw new KeyNotFoundException($"Service type with the ID {id} does not exist.");
@@ -122,7 +122,7 @@ namespace TodoAPI.Services
 
             //if there no service type found,
             //then it means no service types exist at all in the database
-            if (popularService is null) 
+            if (popularService is null)
                 throw new KeyNotFoundException("No car wash service types found in the database.");
 
             return popularService;
@@ -132,14 +132,13 @@ namespace TodoAPI.Services
         //Get all the feedback for a service type
         public async Task<(List<Feedback> feedback, PageInfo pageInfo, double averageRating)> GetServiceTypeFeedback(int page, int pageSize, int serviceTypeId)
         {
-            //check if service with the given serviceTypeId exists
-            var serviceType = await _context.ServiceTypes.Where(x => x.Id.Equals(serviceTypeId)).FirstOrDefaultAsync();
+            //check if a service with the given serviceTypeId exists
+            ServiceType serviceType = await GetServiceType(serviceTypeId);
 
-            if (serviceType is null)
-                throw new KeyNotFoundException($"Car was service with ID {serviceTypeId} does not exist.");
 
-           //get the feedback for a particular service type  
+            //get the feedback for a particular service type  
             var feedback = await _context.Feedback
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
                 .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -147,18 +146,16 @@ namespace TodoAPI.Services
 
             //total feedback
             int totalFeedback = await _context.Feedback
-                .Where(x=>x.ServiceTypeId.Equals(serviceTypeId))
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
                 .CountAsync();
+            //has more feedback 
             bool hasMore = totalFeedback > page * pageSize;
 
-            //calculate the average rating from all the feedback of the service
-            //sum of all ratings
-            double sumOfAllRatings = await _context.Feedback
-                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
-                .SumAsync(x => x.Rating);
-            //average rating rounded to 2 decimals
-            double averageRating = Math.Round(sumOfAllRatings / totalFeedback, 2, MidpointRounding.AwayFromZero);
 
+            //average rating rounded to 2 decimals
+            double averageRating = await GetFeedbackAverageRating(serviceTypeId);
+
+            //page info for pagination
             var pageInfo = new PageInfo
             {
                 Page = page,
@@ -167,6 +164,26 @@ namespace TodoAPI.Services
             };
 
             return (feedback, pageInfo, averageRating);
+        }
+
+        //Get the average rating of all the feedback for a particular service type
+        public async Task<double> GetFeedbackAverageRating(int serviceTypeId)
+        {
+            //total number of all feedback
+            var totalFeedback = await _context.Feedback
+                .Where(x => serviceTypeId.Equals(serviceTypeId))
+                .CountAsync();
+
+            //total sum of the ratings
+            double totalSumOfRatings = await _context.Feedback
+                .Where(x => x.ServiceTypeId.Equals(serviceTypeId))
+                .SumAsync(x => x.Rating);
+
+
+            //calculate average rating
+            double averageRating = Math.Round(totalSumOfRatings / totalFeedback, 2, MidpointRounding.AwayFromZero);
+
+            return averageRating;
         }
 
     }
