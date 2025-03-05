@@ -28,7 +28,7 @@ namespace TodoAPI.Services
 
             //get all features that have given feature IDs
             //these IDs are IDs of the features that were selected
-            //by the client for the service
+            //by the client for the service type
             var selectedServiceFeatures = await _context.Features
                 .Where(x => serviceTypeDto.FeatureIds.Contains(x.Id)).ToListAsync();
 
@@ -46,7 +46,7 @@ namespace TodoAPI.Services
                 Description = serviceTypeDto.Description,
                 ImageId = image.Id
             };
-
+            //add the features to the service type
             serviceType.Features.AddRange(selectedServiceFeatures);
 
             _context.ServiceTypes.Add(serviceType);
@@ -58,12 +58,36 @@ namespace TodoAPI.Services
         //Update service type
         public async Task UpdateServiceType(int id, ServiceTypeDto serviceTypeDto)
         {
-            var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(x => x.Id == id);
-            if (serviceType is null)
-                throw new KeyNotFoundException("Service type with the given ID does not exist.");
+            //check if the image with the given ID really exists
+            var image = await _imageService.GetImage(serviceTypeDto.ImageId);
 
+            var serviceType = await GetServiceType(id);
+          
+            //get all features that have given feature IDs
+            //these IDs are IDs of the features that were selected
+            //by the client for the service type
+            var selectedServiceFeatures = await _context.Features
+                .Where(x => serviceTypeDto.FeatureIds.Contains(x.Id)).ToListAsync();
+
+            //make sure the number of given feature IDs match 
+            //the number of returned features with those IDs
+            if (serviceTypeDto.FeatureIds.Count != selectedServiceFeatures.Count)
+                throw new InvalidOperationException("One or more features are invalid.");
+
+
+            //update service type
             serviceType.Name = serviceTypeDto.Name;
             serviceType.Price = serviceTypeDto.Price;
+            serviceType.Duration = serviceTypeDto.Duration;
+            serviceType.Overview = serviceTypeDto.Overview;
+            serviceType.Description = serviceTypeDto.Description;
+            serviceType.ImageId = image.Id;
+
+            //add the features to the updated service type
+            serviceType.Features.AddRange(selectedServiceFeatures);
+
+           
+            _context.ServiceTypes.Update(serviceType);
 
             await _context.SaveChangesAsync();
         }
