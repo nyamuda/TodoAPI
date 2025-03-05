@@ -95,7 +95,7 @@ namespace TodoAPI.Data
                 .HasOne(s=>s.Image)
                 .WithOne()
                 .HasForeignKey<ServiceType>(s=>s.ImageId)
-                .OnDelete(DeleteBehavior.NoAction); // Image delete → ServiceType no action
+                .OnDelete(DeleteBehavior.SetNull); // Image delete → ServiceType ImageId equal to Null
 
 
             //there is a many-to-many relationship between Feature and ServiceType
