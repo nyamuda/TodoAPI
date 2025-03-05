@@ -207,7 +207,9 @@ namespace TodoAPI.Services
             //calculate average rating
             double averageRating = Math.Round(totalSumOfRatings / totalFeedback, 2, MidpointRounding.AwayFromZero);
 
-            return averageRating;
+            //in case there is not feedback at all for that serviceType,
+            //return 0
+            return averageRating>0? averageRating:0;
         }
 
     }
