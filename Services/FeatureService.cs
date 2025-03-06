@@ -26,10 +26,26 @@ namespace TodoAPI.Services
         }
 
         //Get all features
-        public async Task<List<Feature>> GetFeatures()
+        public async Task<(List<Feature> features, PageInfo pageInfo)> GetFeatures(int page, int pageSize)
         {
-            List<Feature> features = await _context.Features.ToListAsync();
-            return features;
+            List<Feature> features = await _context.Features
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //total features
+            var totalFeatures = await _context.Features.CountAsync();
+            //is there still more features
+            bool hasMoreFeatures = totalFeatures > pageSize * page;
+
+            var pageInfo = new PageInfo
+            {
+                Page = page,
+                PageSize = pageSize,
+                HasMore = hasMoreFeatures
+            };
+
+            return (features, pageInfo);    
         }
 
         //Add a feature
