@@ -30,6 +30,7 @@ namespace TodoAPI.Services
         {
             List<Feature> features = await _context.Features
                 .Skip((page-1)*pageSize)
+                .OrderByDescending(x=>x.CreatedAt)
                 .Take(pageSize)
                 .ToListAsync();
 
