@@ -20,12 +20,19 @@ namespace TodoAPI.Controllers
 
         // GET: api/<FeaturesController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
             try
             {
-                var features = await _featureService.GetFeatures();
-                return Ok(features);
+                var (features, pageInfo) = await _featureService.GetFeatures(page, pageSize);
+
+                var response = new
+                {
+                    features,
+                    pageInfo
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
