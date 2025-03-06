@@ -20,7 +20,7 @@ namespace TodoAPI.Controllers
 
         // GET: api/<FeaturesController>
         [HttpGet]
-        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Get(int page=1, int pageSize=10)
         {
             try
             {

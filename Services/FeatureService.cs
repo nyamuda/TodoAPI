@@ -28,7 +28,28 @@ namespace TodoAPI.Services
         //Get all features
         public async Task<(List<Feature> features, PageInfo pageInfo)> GetFeatures(int page, int pageSize)
         {
-            List<Feature> features = await _context.Features
+            List<Feature> features = new List<Feature>();
+            PageInfo pageInfo = new()
+            {
+                Page = page,
+                PageSize = pageSize,
+            };
+
+            
+
+            //If page or pageSize is 0 or negative, return all features without pagination
+            if (page<=0 || pageSize<=0)
+            {
+                features= await _context.Features.ToListAsync();
+                
+               
+                pageInfo.HasMore = false;
+                return (features, pageInfo);
+
+            }
+
+
+           features = await _context.Features
                 .Skip((page-1)*pageSize)
                 .OrderByDescending(x=>x.CreatedAt)
                 .Take(pageSize)
@@ -39,13 +60,8 @@ namespace TodoAPI.Services
             //is there still more features
             bool hasMoreFeatures = totalFeatures > pageSize * page;
 
-            var pageInfo = new PageInfo
-            {
-                Page = page,
-                PageSize = pageSize,
-                HasMore = hasMoreFeatures
-            };
-
+          
+            pageInfo.HasMore = hasMoreFeatures;
             return (features, pageInfo);    
         }
 
