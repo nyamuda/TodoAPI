@@ -40,9 +40,7 @@ namespace TodoAPI.Services
             //If page or pageSize is 0 or negative, return all features without pagination
             if (page<=0 || pageSize<=0)
             {
-                features= await _context.Features.ToListAsync();
-                
-               
+                features= await _context.Features.ToListAsync();                     
                 pageInfo.HasMore = false;
                 return (features, pageInfo);
 

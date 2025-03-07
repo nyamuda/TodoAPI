@@ -27,7 +27,9 @@ namespace TodoAPI.Services
         //Get all statuses
         public async Task<List<Status>> GetStatuses()
         {
-            List<Status> statuses = await _context.Statuses.ToListAsync();
+            List<Status> statuses = await _context.Statuses
+                .OrderByDescending(x=>x.CreatedAt)
+                .ToListAsync();
             return statuses;    
         }
 
