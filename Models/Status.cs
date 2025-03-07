@@ -9,5 +9,7 @@ namespace TodoAPI.Models
         public string Name { get; set; }
 
         public List<Booking> Bookings { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
