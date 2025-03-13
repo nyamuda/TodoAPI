@@ -1,16 +1,16 @@
-﻿namespace TodoAPI.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TodoAPI.Dtos.Company
 {
-    public class Company
+    public class CompanyDto
     {
-        public int Id { get; set; }
-
+        [Required]
         public string Name { get; set; } = default!;
-
+        [Required]
         public string Address { get; set; } = default!;
-
+        [Required]
         public string Phone { get; set; } = default!;
-
+        [Required]
         public DateOnly YearFounded { get; set; } = default!;
-
     }
 }
