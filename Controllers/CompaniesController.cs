@@ -84,7 +84,9 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var company
+                var company = _companyService.AddCompany(companyDto);
+
+                return CreatedAtAction(nameof(Get), new { id = company.Id }, company);
 
             }
             catch(InvalidOperationException ex)
@@ -106,8 +108,34 @@ namespace TodoAPI.Controllers
 
         // PUT api/<CompaniesController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, CompanyDto companyDto)
         {
+            try
+            {
+                await _companyService.UpdateCompany(id, companyDto);
+
+                return NoContent();
+
+            }
+
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+            }
         }
 
         // DELETE api/<CompaniesController>/5
