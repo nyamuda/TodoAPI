@@ -164,5 +164,34 @@ namespace TodoAPI.Controllers
                 return StatusCode(500, response);
             }
         }
+        // DELETE api/<CompaniesController>/5
+        [HttpGet("/names/{name}")]
+        public async Task<IActionResult> GetCompanyByName(string name)
+        {
+
+            try
+            {
+                var company = await _companyService.GetCompanyByName(name);
+
+                return Ok(company);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+
+            }
+        }
+
     }
 }
