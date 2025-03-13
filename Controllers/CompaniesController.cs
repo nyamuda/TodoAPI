@@ -108,6 +108,7 @@ namespace TodoAPI.Controllers
 
         // PUT api/<CompaniesController>/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(int id, CompanyDto companyDto)
         {
             try
@@ -140,6 +141,7 @@ namespace TodoAPI.Controllers
 
         // DELETE api/<CompaniesController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -164,7 +166,37 @@ namespace TodoAPI.Controllers
                 return StatusCode(500, response);
             }
         }
-       
+
+
+        // GET api/<CompaniesController>/5/facts
+        [HttpGet("{id}/facts")]
+        public async Task<IActionResult> GetCompanyFacts(int id)
+        {
+            try
+            {
+                var companyFacts = await _companyService.GetCompanyFacts(id);
+
+                return Ok(companyFacts);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+
+            }
+
+        }
+
 
     }
 }
