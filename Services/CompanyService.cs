@@ -99,8 +99,10 @@ namespace TodoAPI.Services
             //calculate the years in service based on the year founded
             int totalYearsInService = DateTime.Now.Year - company.YearFounded.Year;
 
-            //total booking made by the clients of the company
-            int totalBookings = await _context.Bookings.CountAsync();
+            //total completed bookings made by the clients of the company
+            int totalCompletedBookings = await _context.Bookings
+                .Where(x => x.Status.Name.Equals("completed"))
+                .CountAsync();
 
             //total happy users i.e
             //users who gave a rating of 4 or 5 for their completed bookings
@@ -123,7 +125,7 @@ namespace TodoAPI.Services
             {
                 Company = company,
                 TotalYearsInService = totalYearsInService,
-                TotalBookings = totalBookings,
+                TotalCompletedBookings = totalCompletedBookings,
                 OverallRating = overallRating,
                 TotalHappyCustomers = totalHappyUsers
             };

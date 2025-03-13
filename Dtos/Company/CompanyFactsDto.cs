@@ -8,7 +8,7 @@ namespace TodoAPI.Dtos.Company
        
         public int TotalYearsInService { get; set; }
        
-        public int TotalBookings { get; set; }
+        public int TotalCompletedBookings { get; set; }
 
        
         public double OverallRating { get; set; }
