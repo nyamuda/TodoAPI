@@ -45,6 +45,7 @@ namespace TodoAPI.Services
             {
                 Name = companyName,
                 Address = companyDto.Address,
+                Email=companyDto.Email,
                 Phone = companyDto.Phone,
                 YearFounded = companyDto.YearFounded
 
@@ -71,6 +72,7 @@ namespace TodoAPI.Services
             //update the company details
             company.Name = companyDto.Name;
             company.Address=companyDto.Address;
+            company.Email = companyDto.Email;
             company.Phone = companyDto.Phone;
             company.YearFounded = companyDto.YearFounded;
 

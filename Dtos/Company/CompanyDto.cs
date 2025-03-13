@@ -11,6 +11,9 @@ namespace TodoAPI.Dtos.Company
         [Required]
         public string Phone { get; set; } = default!;
         [Required]
+        [EmailAddress]
+        public string Email { get; set; } = default!;
+        [Required]
         public DateOnly YearFounded { get; set; } = default!;
     }
 }

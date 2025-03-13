@@ -2,7 +2,7 @@
 
 namespace TodoAPI.Models
 {
-    [Index(nameof(Name), IsUnique = true)]
+    [Index(nameof(Email), IsUnique = true)]
     public class Company
     {
         public int Id { get; set; }
@@ -10,7 +10,7 @@ namespace TodoAPI.Models
         public string Name { get; set; } = default!;
 
         public string Address { get; set; } = default!;
-
+        public string Email { get; set; } = default!;
         public string Phone { get; set; } = default!;
 
         public DateOnly YearFounded { get; set; } = default!;
