@@ -1,4 +1,5 @@
 ﻿using TodoAPI.Data;
+using TodoAPI.Models;
 
 namespace TodoAPI.Services
 {
@@ -12,6 +13,12 @@ namespace TodoAPI.Services
             _context=context;
         }
 
-        public
+        //Get company by ID
+        public async Task<Company> GetCompanyByID(int id)
+        {
+
+
+
+        }
     }
 }

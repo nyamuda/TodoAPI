@@ -22,6 +22,9 @@ namespace TodoAPI.Data
 
         public DbSet<Feature> Features { get; set; } = default!;
 
+
+        public DbSet<Company> Companies { get; set; } = default!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
