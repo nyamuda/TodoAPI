@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TodoAPI.Dtos.Company;
 using TodoAPI.Models;
 using TodoAPI.Services;
 
@@ -8,6 +10,7 @@ namespace TodoAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class CompaniesController : ControllerBase
     {
         private CompanyService _companyService;
@@ -47,15 +50,58 @@ namespace TodoAPI.Controllers
 
         // GET api/<CompaniesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-           
+            try
+            {
+                var company = await _companyService.GetCompanyByID(id);
+
+                return Ok(company);
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+
+            }
+
         }
 
         // POST api/<CompaniesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> Post(CompanyDto companyDto)
         {
+            try
+            {
+                var company
+
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+            }
+
         }
 
         // PUT api/<CompaniesController>/5
