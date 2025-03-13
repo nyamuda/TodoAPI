@@ -35,6 +35,7 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<FirebaseStorageService>();
 builder.Services.AddScoped<ErrorMessageService>();
 builder.Services.AddScoped<FeatureService>();
+builder.Services.AddScoped<CompanyService>();
 
 
 //// Read Firebase config from appsettings.json
