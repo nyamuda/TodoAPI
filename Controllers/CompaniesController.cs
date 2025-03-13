@@ -140,8 +140,29 @@ namespace TodoAPI.Controllers
 
         // DELETE api/<CompaniesController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+            try
+            {
+                await _companyService.DeleteCompany(id);
+
+                return NoContent();
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            catch(Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+            }
         }
     }
 }
