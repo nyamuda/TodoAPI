@@ -24,19 +24,8 @@ namespace TodoAPI.Services
 
             return company;
         }
-        //Company name is unique
-        //Get company by name
-        public async Task<Company> GetCompanyByName(string name)
-        {
-            Company? company = await _context.Companies.FirstOrDefaultAsync(x => x.Name.Equals(name));
-            if (company is null)
-                throw new KeyNotFoundException($"Company with name {name} does not exist.");
-
-            return company;
-
-        }
-
-        //Get all companies
+       
+       //Get all companies
         public async Task<List<Company>> GetCompanies()
         {
             return await _context.Companies.ToListAsync();
@@ -99,6 +88,30 @@ namespace TodoAPI.Services
 
             await _context.SaveChangesAsync();
 
+        }
+
+        //Get company facts
+        public async Task<CompanyFactsDto> GetCompanyFacts(int id)
+        {
+            //first get the company
+            var company=await GetCompanyByID(id);
+
+            //calculate the years in service based on the year founded
+            int totalYearsInService = DateTime.Now.Year - company.YearFounded.Year;
+
+            //total booking made by the clients of the company
+            int totalBookings = await _context.Bookings.CountAsync();
+
+            //total happy users i.e
+            //users who gave a rating of 4 or 5 for their completed bookings
+            int totalHappyUsers = await _context.Bookings
+                .Where(x => x.Feedback != null && x.Feedback.Rating > 4)
+                .CountAsync();
+
+
+
+
+            
         }
     }
 }
