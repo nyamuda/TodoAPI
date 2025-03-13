@@ -108,10 +108,27 @@ namespace TodoAPI.Services
                 .Where(x => x.Feedback != null && x.Feedback.Rating > 4)
                 .CountAsync();
 
+            //Calculate overall rating from all bookings
+            //first, get the total number of bookings that have received feedback
+            int bookingsWithFeedback = await _context.Bookings.Where(x => x.Feedback != null).CountAsync();
+            //second, get total ratings from all booking that have received feedback
+            double totalRating = await _context.Bookings
+                .Where(x => x.Feedback != null)
+                .SumAsync(x => x.Feedback!.Rating);
+            //finally, calculate the overall rating
+            //round to 2 d.p
+            double overallRating = Math.Round(totalRating / bookingsWithFeedback, 2, MidpointRounding.AwayFromZero);
 
+            var companyFacts = new CompanyFactsDto()
+            {
+                Company = company,
+                TotalYearsInService = totalYearsInService,
+                TotalBookings = totalBookings,
+                OverallRating = overallRating,
+                TotalHappyCustomers = totalHappyUsers
+            };
 
-
-            
+            return companyFacts;   
         }
     }
 }
