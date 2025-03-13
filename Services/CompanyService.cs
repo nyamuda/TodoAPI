@@ -60,11 +60,36 @@ namespace TodoAPI.Services
                 YearFounded = companyDto.YearFounded
 
             };
-
             _context.Companies.Add(company);
             await _context.SaveChangesAsync();
-
             return company;
+        }
+
+        //Update company
+        public async Task UpdateCompany(int id, CompanyDto companyDto)
+        {
+            //check to see if company with given ID exists
+            Company company = await GetCompanyByID(id);
+
+            //update the company details
+            company.Name = companyDto.Name;
+            company.Address=companyDto.Address;
+            company.Phone = companyDto.Phone;
+            company.YearFounded = companyDto.YearFounded;
+
+            await _context.SaveChangesAsync();
+
+        }
+
+        //Delete company by ID
+        public async Task DeleteCompany(int id)
+        {
+            //check to see if company with given ID exists
+            Company company = await GetCompanyByID(id);
+
+            _context.Companies.Remove(company);
+
+            await _context.SaveChangesAsync();
 
         }
     }
