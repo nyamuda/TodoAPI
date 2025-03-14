@@ -222,7 +222,7 @@ namespace TodoAPI.Controllers
             }
 
         // GET api/<UsersController>/email/example@gmail.com
-        [HttpGet("/email/{email}")]
+        [HttpGet("email/{email}")]
         [Authorize]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
