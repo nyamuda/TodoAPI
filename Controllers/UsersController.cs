@@ -220,5 +220,62 @@ namespace TodoAPI.Controllers
                 }
 
             }
+
+        // GET api/<UsersController>/email/example@gmail.com
+        [HttpGet("/email/{email}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            try
+            {
+                //First, get the access token for the authorized user
+                // Get the token from the Authorization header
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                ///validate and decode the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
+
+                //get the email and role
+                var tokenEmail = claims.FindFirst(ClaimTypes.Email)?.Value;
+                var role = claims.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (tokenEmail == null || role == null)
+                    return Unauthorized(new { Message = "Access denied. The token lacks necessary claims for verification." });
+
+                var user = await _userService.GetUserByEmail(email);
+
+                if (user == null)
+                {
+                    return NotFound(new { Message = $"User with email {email} was not found." });
+                }
+
+                //for a user to perform this request, the email from their token
+                //must match the email of the user they're trying to access
+                //OR they should be the admin
+                if (!tokenEmail.Equals(user.Email) && !role.Equals("Admin"))
+                {
+                    return Unauthorized(new { Message = "Your account lacks the necessary permissions to complete this request." });
+                }
+
+                return Ok(user);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
+            }
         }
+    }
     }
