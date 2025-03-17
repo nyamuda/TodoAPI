@@ -56,8 +56,13 @@ namespace TodoAPI.Services
             await _context.SaveChangesAsync();
 
         }
-        public async Task<string> Login(UserLoginDto loginDto)
+        public async Task<(string accessToken, string refreshToken)> Login(UserLoginDto loginDto)
         {
+            //access token lifespan is 72 hours
+            var accessTokenLifespan = 4320;
+
+            //refresh token lifespan is 7 days
+            var refreshTokenLifespan = 10080;
 
 
             //check if user exists
@@ -81,9 +86,13 @@ namespace TodoAPI.Services
 
             //create token since the provided password is correct
             //token lifespan is 72 hours
-            var token = _jwtService.GenerateJwtToken(user:user,expiresIn: 4320);
+            var accessToken = _jwtService.GenerateJwtToken(user:user,expiresIn: accessTokenLifespan);
 
-            return token;
+            //create a refresh token
+            //token lifespan is 7 days
+            var refreshToken = _jwtService.GenerateJwtToken(user: user, expiresIn: refreshTokenLifespan);
+
+            return (accessToken, refreshToken);
         }
    
 

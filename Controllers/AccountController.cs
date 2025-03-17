@@ -52,8 +52,21 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var token = await _accountService.Login(loginDto);
-                return Ok(new { message = "User logged in successfully.", token = token });
+                var accessToken = await _accountService.Login(loginDto);
+
+                //create a refresh token
+                var refreshToken = await _jwtService.GenerateJwtToken()
+
+                //Create an HTTP-Only cookie to store the refresh token
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+
+                return Ok(new { message = "User logged in successfully.", token = accessToken });
             }
             catch (KeyNotFoundException ex)
             {
