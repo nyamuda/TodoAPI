@@ -3,6 +3,7 @@ using System.Security.Claims;
 using TodoAPI.Dtos;
 using TodoAPI.Dtos.Account;
 using TodoAPI.Services;
+using TodoAPI.Models
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TodoAPI.Controllers
@@ -14,12 +15,14 @@ namespace TodoAPI.Controllers
         private readonly AccountService _accountService;
         private readonly JwtService _jwtService;
         private readonly ErrorMessageService _errorMessage;
+        private readonly UserService _userService;
 
-        public AccountController(AccountService accountService, JwtService jwtService, ErrorMessageService errorMessage)
+        public AccountController(AccountService accountService, JwtService jwtService, ErrorMessageService errorMessage, UserService userService)
         {
             _accountService = accountService;
             _jwtService = jwtService;
             _errorMessage= errorMessage;
+            _userService = userService;
         }
        
         // POST api/<AccountController>/register
@@ -140,7 +143,7 @@ namespace TodoAPI.Controllers
                 // If we got here then the token is valid
                 // since there is no exception
                 //get user email
-                string email = claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field not found.");
+                string email = claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field missing from token.");
 
                 //reset the password of the user
                 await _accountService.VerifyAccount(email: email);
@@ -162,5 +165,59 @@ namespace TodoAPI.Controllers
                 });
             }
         }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            try
+            {
+
+                //Get the refresh token from the HTTP-Only cookie
+                var refreshToken = Request.Cookies["refreshToken"];
+                if (string.IsNullOrEmpty(refreshToken))
+                    throw new UnauthorizedAccessException("Refresh token missing.");
+
+
+                //validate the token
+                ClaimsPrincipal claims = _jwtService.ValidateToken(refreshToken);
+
+                // If we got here then the token is valid
+                // since there is no exception
+                //get user email
+                string email = claims.FindFirstValue(ClaimTypes.Email) ?? throw new KeyNotFoundException("Email field missing from refresh token.");
+
+                //get the user with the given email
+                User user = await _userService.GetUserByEmail(email);
+
+                //generate the access token
+                //access token lifespan is 72 hours
+                var accessTokenLifespan = 4320;
+                var accessToken = _jwtService.GenerateJwtToken(user: user, expiresIn: accessTokenLifespan);
+                return Ok(new {token=accessToken });
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = _errorMessage.UnexpectedErrorMessage(),
+                    details = ex.Message
+                });
+            }
+        }
+
     }
 }
