@@ -52,11 +52,9 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var accessToken = await _accountService.Login(loginDto);
+                var (accessToken, refreshToken) = await _accountService.Login(loginDto);
 
-                //create a refresh token
-                var refreshToken = await _jwtService.GenerateJwtToken()
-
+               
                 //Create an HTTP-Only cookie to store the refresh token
                 var cookieOptions = new CookieOptions
                 {
@@ -65,6 +63,8 @@ namespace TodoAPI.Controllers
                     SameSite = SameSiteMode.None,
                     Expires = DateTime.UtcNow.AddDays(7)
                 };
+
+                Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
 
                 return Ok(new { message = "User logged in successfully.", token = accessToken });
             }
