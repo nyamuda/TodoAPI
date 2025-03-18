@@ -22,9 +22,9 @@ namespace TodoAPI.Controllers
             _errorMessage = errorMessage;
         }
 
-        // POST api/<EmailController>/password
+        // POST api/<EmailController>/-reset-password-request
         //email user who has forgotten their password
-        [HttpPost("password")]
+        [HttpPost("reset-password-request")]
         public async Task<IActionResult> PasswordForgot(EmailDto emailDto)
         {
             try
