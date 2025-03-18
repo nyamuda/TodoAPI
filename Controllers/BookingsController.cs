@@ -79,7 +79,7 @@ namespace TodoAPI.Controllers
 
         //User statistics such as the number of completed bookings
         // GET: api/<BookingsController>/statistics
-        [HttpGet("statistics")]
+        [HttpGet("stats")]
         [Authorize]
         public async Task<IActionResult> GetBookingUserStatistics()
         {
