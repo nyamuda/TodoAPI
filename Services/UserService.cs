@@ -49,7 +49,7 @@ namespace TodoAPI.Services
             }
 
             //check if user's new email doesn't already exist
-            var emailExist = await _context.Users.AnyAsync(u => u.Email == user.Email && user.Id != id);
+            var emailExist = await _context.Users.AnyAsync(u => u.Email == user.Email && u.Id != id);
 
             if (emailExist)
                 throw new InvalidOperationException("A user with this email already exists.");
