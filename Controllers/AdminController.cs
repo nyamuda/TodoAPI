@@ -223,8 +223,9 @@ namespace TodoAPI.Controllers
 
         }
 
-        // PUT api/<BookingsController>/bookings/5/statuses
-        [HttpPut("bookings/{id}/statuses")]
+        // PUT api/<BookingsController>/bookings/5/status
+        //Update booking status
+        [HttpPut("bookings/{id}/status")]
         public async Task<IActionResult> UpdateBookingStatus(int id, BookingStatusUpdateDto statusUpdateDto)
         {
             try
