@@ -92,7 +92,7 @@ namespace TodoAPI.Controllers
 
         
 
-        [HttpPost("password-reset")]
+        [HttpPost("reset-password")]
         public async Task<IActionResult> PasswordReset(PasswordResetDto resetDto)
         {
             try
@@ -132,7 +132,7 @@ namespace TodoAPI.Controllers
        
 
         //verify email by validating token
-        [HttpPut("verify")]
+        [HttpPut("verification")]
         public async Task<IActionResult> VerifyAccount(TokenDto tokenDto)
         {
             try

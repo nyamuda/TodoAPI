@@ -52,7 +52,7 @@ namespace TodoAPI.Services
             bool emailExist = await _context.Users.AnyAsync(u => u.Email == userUpdateDto.Email && u.Id != id);
 
             if (emailExist)
-                throw new InvalidOperationException("A user with this email already exists.");
+                throw new InvalidOperationException("An account with this email already exists.");
 
 
 
