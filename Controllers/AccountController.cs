@@ -90,8 +90,8 @@ namespace TodoAPI.Controllers
         }
 
 
-        
 
+        // POST api/<AccountController>/reset-password
         [HttpPost("reset-password")]
         public async Task<IActionResult> PasswordReset(PasswordResetDto resetDto)
         {
@@ -129,8 +129,8 @@ namespace TodoAPI.Controllers
                 });
             }
         }
-       
 
+        // POST api/<AccountController>/verification
         //verify email by validating token
         [HttpPut("verification")]
         public async Task<IActionResult> VerifyAccount(TokenDto tokenDto)
@@ -166,6 +166,7 @@ namespace TodoAPI.Controllers
             }
         }
 
+        // POST api/<AccountController>/refresh-token
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {

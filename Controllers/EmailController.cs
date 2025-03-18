@@ -48,9 +48,9 @@ namespace TodoAPI.Controllers
                 });
             }
         }
-        // POST api/<EmailController>/verify
+        // POST api/<EmailController>/verification-request
         //Send email verification email
-        [HttpPost("verify")]
+        [HttpPost("verification-request")]
         public async Task<IActionResult> EmailVerification(EmailDto emailDto)
         {
             try
