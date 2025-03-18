@@ -75,9 +75,9 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // POST api/<EmailController>/contact-message
+        // POST api/<EmailController>/contact-us
         //Send contact us email
-        [HttpPost("contact-message")]
+        [HttpPost("contact-us")]
         public async Task<IActionResult> Post(ContactUsDto contactUsDto)
         {
             try

@@ -20,10 +20,19 @@ namespace TodoAPI.Controllers
 
         // GET: api/<FeaturesController>
         [HttpGet]
-        public async Task<IActionResult> Get(int page=1, int pageSize=10)
+        public async Task<IActionResult> Get(string? name,int page=1, int pageSize=10)
         {
             try
             {
+                //check to see if the request wants to get a feature by name
+                //i.e if the name query parameter was provided
+                //Note: feature names are unique
+                if(!string.IsNullOrEmpty(name))
+                {
+                    var feature = await _featureService.GetFeatureByName(name);
+                    return Ok(feature);
+                }
+
                 var (features, pageInfo) = await _featureService.GetFeatures(page, pageSize);
 
                 var response = new
@@ -136,28 +145,7 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // GET api/<FeaturesController>/name/{name}
-        [HttpGet("name/{name}")]
-        public async Task<IActionResult> GetByName(string name)
-        {
-            try
-            {
-                var feature = await _featureService.GetFeatureByName(name);
-                return Ok(feature);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = _errorMessage.UnexpectedErrorMessage(),
-                    details = ex.Message
-                });
-            }
-        }
+       
 
     }
 }
