@@ -113,57 +113,6 @@ namespace TodoAPI.Controllers
 
         }
 
-        // POST api/<BookingsController>/bookings
-        [HttpPost("bookings")]
-        public async Task<IActionResult> Post(AddBookingDto bookingDto)
-        {
-            try
-            {
-
-                //First, get the access token for the authorized user
-                // Get the token from the Authorization header
-                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-                ///validate and decode the token
-                ClaimsPrincipal claims = _jwtService.ValidateToken(token);
-
-                //get the email
-                var email = claims.FindFirst(ClaimTypes.Email)?.Value;
-
-                if (string.IsNullOrWhiteSpace(email))
-                {
-                    throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
-                }
-
-                await _adminService.AddBooking(bookingDto, email);
-
-                return Created("Get", bookingDto);
-
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = _errorMessage.UnexpectedErrorMessage(),
-                    details = ex.Message
-                });
-            }
-
-
-        }
-
 
 
         // PUT api/<BookingsController>/bookings/5
