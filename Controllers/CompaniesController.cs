@@ -168,8 +168,8 @@ namespace TodoAPI.Controllers
         }
 
 
-        // GET api/<CompaniesController>/5/facts
-        [HttpGet("{id}/facts")]
+        // GET api/<CompaniesController>/5/company-facts
+        [HttpGet("{id}/company-facts")]
         public async Task<IActionResult> GetCompanyFacts(int id)
         {
             try
