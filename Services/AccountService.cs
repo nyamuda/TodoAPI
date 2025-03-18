@@ -2,7 +2,6 @@
 using TodoAPI.Data;
 using TodoAPI.Dtos;
 using TodoAPI.Models;
-using RestSharp;
 using TodoAPI.Dtos.Account;
 
 namespace TodoAPI.Services
@@ -58,10 +57,10 @@ namespace TodoAPI.Services
         }
         public async Task<(string accessToken, string refreshToken)> Login(UserLoginDto loginDto)
         {
-            //access token lifespan is 72 hours
+            //access token lifespan is 72 hours  = 4320 minutes
             var accessTokenLifespan = 4320;
 
-            //refresh token lifespan is 7 days
+            //refresh token lifespan is 7 days  = 10080 minutes
             var refreshTokenLifespan = 10080;
 
 

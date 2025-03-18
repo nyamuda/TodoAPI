@@ -3,7 +3,7 @@ using System.Security.Claims;
 using TodoAPI.Dtos;
 using TodoAPI.Dtos.Account;
 using TodoAPI.Services;
-using TodoAPI.Models
+using TodoAPI.Models;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TodoAPI.Controllers
@@ -63,11 +63,11 @@ namespace TodoAPI.Controllers
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    SameSite = SameSiteMode.None
+                    
                 };
 
-                Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+               HttpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
 
                 return Ok(new { message = "User logged in successfully.", token = accessToken });
             }
@@ -171,9 +171,12 @@ namespace TodoAPI.Controllers
         {
             try
             {
-
+                foreach (var cookie in HttpContext.Request.Cookies)
+                {
+                    Console.WriteLine($"Cookie is {cookie.Key}: {cookie.Value}");
+                }
                 //Get the refresh token from the HTTP-Only cookie
-                var refreshToken = Request.Cookies["refreshToken"];
+                var refreshToken = HttpContext.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken))
                     throw new UnauthorizedAccessException("Refresh token missing.");
 
@@ -190,7 +193,7 @@ namespace TodoAPI.Controllers
                 User user = await _userService.GetUserByEmail(email);
 
                 //generate the access token
-                //access token lifespan is 72 hours
+                //access token lifespan is 72 hours = 4320 minutes
                 var accessTokenLifespan = 4320;
                 var accessToken = _jwtService.GenerateJwtToken(user: user, expiresIn: accessTokenLifespan);
                 return Ok(new {token=accessToken });

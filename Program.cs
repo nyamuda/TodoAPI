@@ -54,7 +54,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
-    
+
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -92,9 +92,13 @@ builder.Services.AddCors(options =>
             options.AddPolicy("AllowAll",
                 builder =>
                 {
-                    builder.AllowAnyOrigin() // Allow requests from any origin
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    builder
+                    .WithOrigins("http://localhost:8080") // Allow requests from any origin
+                    .AllowCredentials()  // Allow cookies
+                    .AllowAnyMethod()
+                    .AllowAnyMethod()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
                 });
         });
 
