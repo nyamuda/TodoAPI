@@ -26,7 +26,8 @@ namespace TodoAPI.Controllers
             {
                 //check to see if the request wants to get a feature by name
                 //i.e if the name query parameter was provided
-                //Note: feature names are unique
+                //Note: feature names are unique 
+                //this means there can be only one feature with a given name
                 if(!string.IsNullOrEmpty(name))
                 {
                     var feature = await _featureService.GetFeatureByName(name);

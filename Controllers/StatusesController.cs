@@ -20,10 +20,21 @@ namespace TodoAPI.Controllers
         }
         // GET: api/<StatusesController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string? name)
         {
             try
             {
+                //check to see if the request wants to get a status by name
+                //i.e if the name query parameter was provided
+                //Note: status names are unique 
+                //this means there can be only one status with a given name
+                if (!string.IsNullOrEmpty(name))
+                {
+                    var status = await _statusService.GetStatusByName(name);
+                    return Ok(status);
+                }
+
+
                 var statuses = await _statusService.GetStatuses();
                 return Ok(statuses);
             }
@@ -131,29 +142,6 @@ namespace TodoAPI.Controllers
             }
         }
 
-        // GET api/<StatusesController>/5
-        [HttpGet("names/{name}")]
-        public async Task<IActionResult> GetByName(string name)
-        {
-            try
-            {
-                var status = await _statusService.GetStatusByName(name);
-
-                return Ok(status);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = _errorMessage.UnexpectedErrorMessage(),
-                    details = ex.Message
-                });
-            }
-        }
+       
     }
 }
