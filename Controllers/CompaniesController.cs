@@ -50,11 +50,11 @@ namespace TodoAPI.Controllers
 
         // GET api/<CompaniesController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(int? id)
         {
             try
             {
-                var company = await _companyService.GetCompanyByID(id);
+                var company = await _companyService.GetCompany(id);
 
                 return Ok(company);
             }
