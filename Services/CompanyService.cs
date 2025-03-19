@@ -102,17 +102,19 @@ namespace TodoAPI.Services
 
         }
 
-        //Get company facts of the first company record 
+        //Get company facts of the first company 
         //from the database since currently the API is only for one company
-        public async Task<CompanyFactsDto> GetCompanyFacts(int? id)
+        public async Task<CompanyFactsDto> GetCompanyFacts()
         {
-           
+            // Attempt to retrieve the first company from the database
             Company? company = await GetFirstCompany();
 
-            //if company is null,
-            //then no information about any company was saved to the database
-            //in other words, the companies table is empty
-            if (company is null) throw new KeyNotFoundException($"No company information exists in the database.");
+            // If no company is found, it means no company information has been saved yet.
+            // In other words, the "Companies" table is empty.
+            if (company is null)
+            {
+                throw new KeyNotFoundException("Company information is not available. Please ensure a company record exists in the database.");
+            }
 
             //calculate the years in service based on the year founded
             int totalYearsInService = DateTime.Now.Year - company.YearFounded.Year;

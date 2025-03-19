@@ -50,11 +50,11 @@ namespace TodoAPI.Controllers
 
         // GET api/<CompaniesController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int? id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var company = await _companyService.GetCompany(id);
+                var company = await _companyService.GetCompanyById(id);
 
                 return Ok(company);
             }
@@ -167,14 +167,44 @@ namespace TodoAPI.Controllers
             }
         }
 
+        //Get the first company from the database
+        // GET api/<CompaniesController>/5
+        [HttpGet("first")]
+        public async Task<IActionResult> GetFirstCompany()
+        {
+            try
+            {
+                var company = await _companyService.GetFirstCompany();
 
-        // GET api/<CompaniesController>/5/company-facts
-        [HttpGet("{id}/company-facts")]
+                return Ok(company);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    Message = _errorMessageService.UnexpectedErrorMessage(),
+                    Details = ex.Message
+                };
+
+                return StatusCode(500, response);
+
+            }
+
+        }
+
+
+        // GET api/<CompaniesController>/company-facts
+        [HttpGet("company-facts")]
         public async Task<IActionResult> GetCompanyFacts(int? id)
         {
             try
             {
-                var companyFacts = await _companyService.GetCompanyFacts(id);
+                var companyFacts = await _companyService.GetCompanyFacts();
 
                 return Ok(companyFacts);
             }
