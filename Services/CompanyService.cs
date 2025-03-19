@@ -70,7 +70,7 @@ namespace TodoAPI.Services
             //company name is unique
             //check if there isn't a company that already has the given name (aside from the one being updated)
             bool companyWithNewNameExists = await _context.Companies
-                 .AnyAsync(x => x.Name.Equals(company.Name) && !x.Id.Equals(company.Id));
+                 .AnyAsync(x => x.Name.Equals(companyDto.Name) && !x.Id.Equals(id));
 
             if(companyWithNewNameExists)
                 throw new InvalidOperationException($"Company with name {companyDto.Name} already exists.");

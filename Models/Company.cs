@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// Ignore Spelling: Facebook Instagram
+
+using Microsoft.EntityFrameworkCore;
 
 namespace TodoAPI.Models
 {
@@ -14,6 +16,14 @@ namespace TodoAPI.Models
         public string Phone { get; set; } = default!;
 
         public DateTime DateFounded { get; set; } = default!;
+         
+        public string LinkedInUrl { get; set; } = default!;
+
+        public string FacebookUrl { get; set; } = default!;
+
+        public string InstagramUrl { get; set; } = default!;
+
+        public string OpeningHours { get; set; } = default!;
 
     }
 }
