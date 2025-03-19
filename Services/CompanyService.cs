@@ -53,7 +53,7 @@ namespace TodoAPI.Services
                 Address = companyDto.Address,
                 Email=companyDto.Email,
                 Phone = companyDto.Phone,
-                YearFounded = companyDto.YearFounded
+                DateFounded = companyDto.DateFounded
 
             };
             _context.Companies.Add(company);
@@ -80,7 +80,7 @@ namespace TodoAPI.Services
             company.Address=companyDto.Address;
             company.Email = companyDto.Email;
             company.Phone = companyDto.Phone;
-            company.YearFounded = companyDto.YearFounded;
+            company.DateFounded = companyDto.DateFounded;
 
             await _context.SaveChangesAsync();
 
@@ -113,7 +113,7 @@ namespace TodoAPI.Services
             }
 
             //calculate the years in service based on the year founded
-            int totalYearsInService = DateTime.Now.Year - company.YearFounded;
+            int totalYearsInService = DateTime.Now.Year - company.DateFounded.Year;
 
             //total completed bookings made by the clients of the company
             int totalCompletedBookings = await _context.Bookings
