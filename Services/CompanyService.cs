@@ -16,7 +16,7 @@ namespace TodoAPI.Services
         }
 
         //Get company by ID
-        public async Task<Company?> GetCompanyBy(int? id)
+        public async Task<Company?> GetCompany(int? id)
         {
             var query = _context.Companies.AsQueryable();
 
@@ -30,7 +30,7 @@ namespace TodoAPI.Services
             }
 
             //if the ID is not, then fetch the first company record
-            //from the database
+            //from the database since currently the API is only for one company
             else
             {
                 var company = await query.FirstOrDefaultAsync();
@@ -73,7 +73,9 @@ namespace TodoAPI.Services
         public async Task UpdateCompany(int id, CompanyDto companyDto)
         {
             //check to see if company with given ID exists
-            Company company = await GetCompanyByID(id);
+            Company? company = await _context.Companies.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (company is null) throw new KeyNotFoundException($"Company with ID {id} does not exist");
 
             //company name is unique
             //check if there isn't a company that already has the given name (aside from the one being updated)
@@ -98,7 +100,9 @@ namespace TodoAPI.Services
         public async Task DeleteCompany(int id)
         {
             //check to see if company with given ID exists
-            Company company = await GetCompanyByID(id);
+            Company? company = await _context.Companies.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (company is null) throw new KeyNotFoundException($"Company with ID {id} does not exist");
 
             _context.Companies.Remove(company);
 
@@ -107,10 +111,16 @@ namespace TodoAPI.Services
         }
 
         //Get company facts
-        public async Task<CompanyFactsDto> GetCompanyFacts(int id)
+        public async Task<CompanyFactsDto> GetCompanyFacts(int? id)
         {
-            //first get the company
-            var company=await GetCompanyByID(id);
+            //get company with the given ID or 
+            //fetch the first company record in the database
+            Company? company = await GetCompany(id);
+
+            //if company is null,
+            //then no information about any company was saved to the database
+            //in other words, the companies table is empty
+            if (company is null) throw new KeyNotFoundException($"No company information exists in the database.");
 
             //calculate the years in service based on the year founded
             int totalYearsInService = DateTime.Now.Year - company.YearFounded.Year;
