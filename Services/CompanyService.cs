@@ -16,27 +16,19 @@ namespace TodoAPI.Services
         }
 
         //Get company by ID
-        public async Task<Company?> GetCompany(int? id)
+        public async Task<Company> GetCompanyById(int id)
         {
-            var query = _context.Companies.AsQueryable();
+            var company = await _context.Companies.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
-            //if the ID was provided,
-            //fetch the company with that ID
-            if(id is not null)
-            {
-                var company = await query.FirstOrDefaultAsync(x => x.Id.Equals(id));
+            if (company is null) throw new KeyNotFoundException($"Company with ID {id} doest not exist.");
 
-                return company;
-            }
+            return company;
+        }
 
-            //if the ID is not, then fetch the first company record
-            //from the database since currently the API is only for one company
-            else
-            {
-                var company = await query.FirstOrDefaultAsync();
-
-                return company;
-            }
+        //Get the first company record from the database
+        public async Task<Company?> GetFirstCompany()
+        {
+            return await _context.Companies.FirstOrDefaultAsync();
         }
        
        //Get all companies
@@ -110,12 +102,12 @@ namespace TodoAPI.Services
 
         }
 
-        //Get company facts
+        //Get company facts of the first company record 
+        //from the database since currently the API is only for one company
         public async Task<CompanyFactsDto> GetCompanyFacts(int? id)
         {
-            //get company with the given ID or 
-            //fetch the first company record in the database
-            Company? company = await GetCompany(id);
+           
+            Company? company = await GetFirstCompany();
 
             //if company is null,
             //then no information about any company was saved to the database
