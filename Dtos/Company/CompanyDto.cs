@@ -15,5 +15,14 @@ namespace TodoAPI.Dtos.Company
         public string Email { get; set; } = default!;
         [Required]
         public DateTime DateFounded { get; set; } = default!;
+
+        public string? LinkedInUrl { get; set; }
+
+        public string? FacebookUrl { get; set; }
+
+        public string? InstagramUrl { get; set; }
+
+        public string? OpeningHours { get; set; }
+
     }
 }

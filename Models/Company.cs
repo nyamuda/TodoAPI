@@ -17,13 +17,13 @@ namespace TodoAPI.Models
 
         public DateTime DateFounded { get; set; } = default!;
          
-        public string LinkedInUrl { get; set; } = default!;
+        public string? LinkedInUrl { get; set; }
 
-        public string FacebookUrl { get; set; } = default!;
+        public string? FacebookUrl { get; set; }
 
-        public string InstagramUrl { get; set; } = default!;
+        public string? InstagramUrl { get; set; } 
 
-        public string OpeningHours { get; set; } = default!;
+        public string? OpeningHours { get; set; } 
 
     }
 }

@@ -53,7 +53,11 @@ namespace TodoAPI.Services
                 Address = companyDto.Address,
                 Email=companyDto.Email,
                 Phone = companyDto.Phone,
-                DateFounded = companyDto.DateFounded
+                DateFounded = companyDto.DateFounded,
+                LinkedInUrl=companyDto.LinkedInUrl,
+                FacebookUrl=companyDto.FacebookUrl,
+                InstagramUrl=companyDto.InstagramUrl,
+                OpeningHours=companyDto.OpeningHours
 
             };
             _context.Companies.Add(company);
@@ -76,11 +80,20 @@ namespace TodoAPI.Services
                 throw new InvalidOperationException($"Company with name {companyDto.Name} already exists.");
 
             //update the company details
+
+            //required fields
             company.Name = companyDto.Name;
             company.Address=companyDto.Address;
             company.Email = companyDto.Email;
             company.Phone = companyDto.Phone;
             company.DateFounded = companyDto.DateFounded;
+
+            //fields that are optional
+            if (companyDto.FacebookUrl is not null) company.FacebookUrl = companyDto.FacebookUrl;
+            if (companyDto.LinkedInUrl is not null) company.LinkedInUrl = companyDto.LinkedInUrl;
+            if (companyDto.InstagramUrl is not null) company.InstagramUrl = companyDto.InstagramUrl;
+            if (companyDto.OpeningHours is not null) company.OpeningHours = companyDto.OpeningHours;
+
 
             await _context.SaveChangesAsync();
 
