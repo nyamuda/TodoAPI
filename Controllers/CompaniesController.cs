@@ -84,7 +84,7 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var company = _companyService.AddCompany(companyDto);
+                var company = await _companyService.AddCompany(companyDto);
 
                 return CreatedAtAction(nameof(Get), new { id = company.Id }, company);
 
