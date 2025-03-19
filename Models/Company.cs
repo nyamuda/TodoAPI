@@ -13,7 +13,7 @@ namespace TodoAPI.Models
         public string Email { get; set; } = default!;
         public string Phone { get; set; } = default!;
 
-        public DateOnly YearFounded { get; set; } = default!;
+        public int YearFounded { get; set; } = default!;
 
     }
 }

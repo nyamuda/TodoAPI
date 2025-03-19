@@ -65,9 +65,7 @@ namespace TodoAPI.Services
         public async Task UpdateCompany(int id, CompanyDto companyDto)
         {
             //check to see if company with given ID exists
-            Company? company = await _context.Companies.FirstOrDefaultAsync(x => x.Id.Equals(id));
-
-            if (company is null) throw new KeyNotFoundException($"Company with ID {id} does not exist");
+            Company company = await GetCompanyById(id);
 
             //company name is unique
             //check if there isn't a company that already has the given name (aside from the one being updated)
@@ -92,9 +90,7 @@ namespace TodoAPI.Services
         public async Task DeleteCompany(int id)
         {
             //check to see if company with given ID exists
-            Company? company = await _context.Companies.FirstOrDefaultAsync(x => x.Id.Equals(id));
-
-            if (company is null) throw new KeyNotFoundException($"Company with ID {id} does not exist");
+            Company company = await GetCompanyById(id);
 
             _context.Companies.Remove(company);
 
@@ -117,7 +113,7 @@ namespace TodoAPI.Services
             }
 
             //calculate the years in service based on the year founded
-            int totalYearsInService = DateTime.Now.Year - company.YearFounded.Year;
+            int totalYearsInService = DateTime.Now.Year - company.YearFounded;
 
             //total completed bookings made by the clients of the company
             int totalCompletedBookings = await _context.Bookings
