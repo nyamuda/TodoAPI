@@ -14,6 +14,6 @@ namespace TodoAPI.Dtos.Company
         [EmailAddress]
         public string Email { get; set; } = default!;
         [Required]
-        public DateOnly DateFounded { get; set; } = default!;
+        public DateTime DateFounded { get; set; } = default!;
     }
 }
