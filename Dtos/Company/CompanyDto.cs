@@ -22,7 +22,7 @@ namespace TodoAPI.Dtos.Company
 
         public string? InstagramUrl { get; set; }
 
-        public string? OpeningHours { get; set; } = "Monday - Friday: 08.00 PM - 05.00 PM";
+        public string? OpeningHours { get; set; }
 
     }
 }
