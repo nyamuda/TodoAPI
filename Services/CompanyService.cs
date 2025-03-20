@@ -28,7 +28,7 @@ namespace TodoAPI.Services
         //Get the first company record from the database
         public async Task<Company?> GetFirstCompany()
         {
-            return await _context.Companies.OrderByDescending()
+            return await _context.Companies.OrderByDescending(x=>x.CreatedAt).FirstOrDefaultAsync();
         }
        
        //Get all companies
