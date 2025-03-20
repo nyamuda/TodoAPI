@@ -155,7 +155,7 @@ namespace TodoAPI.Services
                 Company = company,
                 TotalYearsInService = totalYearsInService,
                 TotalCompletedBookings = totalCompletedBookings,
-                OverallRating = overallRating,
+                OverallRating = overallRating>0?overallRating:0, //avoid NaN serialization issue when the value is a NaN
                 TotalHappyCustomers = totalHappyUsers
             };
 
