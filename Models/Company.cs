@@ -25,5 +25,7 @@ namespace TodoAPI.Models
 
         public string? OpeningHours { get; set; } = "Monday - Friday: 09.00 AM - 05.00 PM";
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     }
 }
