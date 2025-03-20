@@ -200,7 +200,7 @@ namespace TodoAPI.Controllers
 
         // GET api/<CompaniesController>/company-facts
         [HttpGet("company-facts")]
-        public async Task<IActionResult> GetCompanyFacts(int? id)
+        public async Task<IActionResult> GetCompanyFacts()
         {
             try
             {
