@@ -302,13 +302,12 @@ namespace TodoAPI.Services
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
             {
-                //user who cancelled the booking
-                var cancelledByUser = new CancelledByUser() { Name = user.Name, Role = user.Role };
+              
                 //cancel details
                 var cancelDetails = new CancelDetails()
                 {
                     CancelReason = statusUpdateDto.CancelReason!,
-                    CancelledByUser = cancelledByUser
+                    CancelledByUserId = user.Id
 
                 };
                 booking.CancelDetails = cancelDetails;
