@@ -4,6 +4,7 @@ using TodoAPI.Models;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Dtos.Account;
+using TodoAPI.Dtos.User;
 namespace TodoAPI.Services
 {
     public class UserService
@@ -19,9 +20,18 @@ namespace TodoAPI.Services
 
 
         //get all users
-        public async Task<List<User>> GetUsers()
+        public async Task<List<UserDto>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Select(u => new UserDto
+                {
+                    Name = u.Name,
+                    Email = u.Email,
+                    Phone = u.Phone,
+                    IsVerified = u.IsVerified,
+                    Role = u.Role
+                })
+                .ToListAsync();
 
             return users;
         }
@@ -90,6 +100,6 @@ namespace TodoAPI.Services
 
         }
 
-        
+
     }
 }
