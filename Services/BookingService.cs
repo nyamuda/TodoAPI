@@ -401,7 +401,10 @@ namespace TodoAPI.Services
             {
                 if (booking.User is null)
                 {
-                    User user = await _userService.GetUser((int)booking.UserId);
+                    int userId = (int)booking.UserId;
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.Equals(userId));
+                    if (user is null)
+                        throw new KeyNotFoundException($"User with ID {id} was not found.");
 
                     name = user.Name;
                     email = user.Email;
