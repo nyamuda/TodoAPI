@@ -192,7 +192,7 @@ namespace TodoAPI.Services
 
         //Get all bookings for a user
         //return a list of bookings and a PageInfo object
-        public async Task<(List<Booking>, PageInfo)> GetBookings(int page, int pageSize, User user, string status)
+        public async Task<(List<BookingDto>, PageInfo)> GetBookings(int page, int pageSize, User user, string status)
         {
             var query = _context.Bookings.AsQueryable();
 
@@ -224,12 +224,10 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
-            var bookingDtos = bookings.Select(b => new BookingDto
-            {
+            //map the bookings to the booking Dtos
+            List<BookingDto> bookingDtos = bookings.Select(b => MapBookingToDto(b)).ToList();
 
-            })
-
-            return (bookings, pageInfo);
+            return (bookingDtos, pageInfo);
 
         }
 
