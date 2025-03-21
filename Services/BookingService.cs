@@ -292,8 +292,13 @@ namespace TodoAPI.Services
         }
 
         //Change the status of a booking
-        public async Task ChangeBookingStatus(Booking booking, User user, BookingStatusUpdateDto statusUpdateDto)
+        public async Task ChangeBookingStatus(BookingDto bookingDto, User user, BookingStatusUpdateDto statusUpdateDto)
         {
+            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(bookingDto.Id));
+
+            if (booking is null)
+                throw new KeyNotFoundException($"Booking with ID {bookingDto.Id} does not exist.");
+
             //get the status with the given ID
             Status status = await _statusService.GetStatusByName(statusUpdateDto.StatusName);
 

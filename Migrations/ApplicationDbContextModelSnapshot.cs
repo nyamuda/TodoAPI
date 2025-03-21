@@ -34,7 +34,7 @@ namespace TodoAPI.Migrations
 
                     b.HasIndex("ServiceTypesId");
 
-                    b.ToTable("FeatureServiceType");
+                    b.ToTable("FeatureServiceType", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Booking", b =>
@@ -79,7 +79,7 @@ namespace TodoAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.CancelDetails", b =>
@@ -105,7 +105,7 @@ namespace TodoAPI.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("CancelDetails");
+                    b.ToTable("CancelDetails", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Company", b =>
@@ -155,7 +155,7 @@ namespace TodoAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Feature", b =>
@@ -181,7 +181,7 @@ namespace TodoAPI.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Features");
+                    b.ToTable("Features", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Feedback", b =>
@@ -220,7 +220,7 @@ namespace TodoAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Image", b =>
@@ -254,7 +254,7 @@ namespace TodoAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.ServiceType", b =>
@@ -292,7 +292,7 @@ namespace TodoAPI.Migrations
                         .IsUnique()
                         .HasFilter("[ImageId] IS NOT NULL");
 
-                    b.ToTable("ServiceTypes");
+                    b.ToTable("ServiceTypes", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.Status", b =>
@@ -315,7 +315,7 @@ namespace TodoAPI.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
                 });
 
             modelBuilder.Entity("TodoAPI.Models.User", b =>
@@ -353,7 +353,7 @@ namespace TodoAPI.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FeatureServiceType", b =>
@@ -409,7 +409,7 @@ namespace TodoAPI.Migrations
 
                             b1.HasKey("BookingId");
 
-                            b1.ToTable("Bookings");
+                            b1.ToTable("Bookings", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("BookingId");
@@ -447,7 +447,7 @@ namespace TodoAPI.Migrations
 
                             b1.HasKey("CancelDetailsId");
 
-                            b1.ToTable("CancelDetails");
+                            b1.ToTable("CancelDetails", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CancelDetailsId");

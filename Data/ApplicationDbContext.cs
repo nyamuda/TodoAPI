@@ -101,7 +101,7 @@ namespace TodoAPI.Data
                 .HasOne(cd => cd.CancelledByUser)
                 .WithMany()
                 .HasForeignKey(cd => cd.CancelledByUserId)
-                .OnDelete(DeleteBehavior.SetNull); //User delete → CancelDetails CancelledByUserId equal to null 
+                .OnDelete(DeleteBehavior.NoAction); //User delete → CancelDetails CancelledByUserId equal to null 
 
             //there is a many-to-many relationship between Feature and ServiceType
             //A car wash ServiceType can have many features and a Feature can exist in many service types
