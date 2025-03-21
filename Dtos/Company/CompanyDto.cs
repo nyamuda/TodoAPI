@@ -22,7 +22,7 @@ namespace TodoAPI.Dtos.Company
 
         public string? InstagramUrl { get; set; }
 
-        public string? OpeningHours { get; set; }
+       
 
     }
 }

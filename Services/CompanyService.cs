@@ -57,7 +57,7 @@ namespace TodoAPI.Services
                 LinkedInUrl=companyDto.LinkedInUrl,
                 FacebookUrl=companyDto.FacebookUrl,
                 InstagramUrl=companyDto.InstagramUrl,
-                OpeningHours=companyDto.OpeningHours
+             
 
             };
             _context.Companies.Add(company);
@@ -92,7 +92,7 @@ namespace TodoAPI.Services
             if (companyDto.FacebookUrl is not null) company.FacebookUrl = companyDto.FacebookUrl;
             if (companyDto.LinkedInUrl is not null) company.LinkedInUrl = companyDto.LinkedInUrl;
             if (companyDto.InstagramUrl is not null) company.InstagramUrl = companyDto.InstagramUrl;
-            if (companyDto.OpeningHours is not null) company.OpeningHours = companyDto.OpeningHours;
+           
 
 
             await _context.SaveChangesAsync();
