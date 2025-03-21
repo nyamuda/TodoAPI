@@ -37,9 +37,19 @@ namespace TodoAPI.Services
         }
 
         //get user information
-        public async Task<User> GetUser(int id)
+        public async Task<UserDto> GetUser(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users
+                .Select(u => new UserDto
+                {
+
+                    Name = u.Name,
+                    Email = u.Email,
+                    Phone = u.Phone,
+                    IsVerified = u.IsVerified,
+                    Role = u.Role
+                })
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user is null)
                 throw new KeyNotFoundException($"User with ID {id} was not found.");
