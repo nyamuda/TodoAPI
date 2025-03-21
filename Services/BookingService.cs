@@ -224,6 +224,10 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
+            var bookingDtos = bookings.Select(b => new BookingDto
+            {
+
+            })
 
             return (bookings, pageInfo);
 
@@ -241,40 +245,7 @@ namespace TodoAPI.Services
                 .Include(b => b.Status)
                 .Include(b => b.CancelDetails)
                 .ThenInclude(cd => cd!.CancelledByUser)
-                .Select(b => new BookingDto
-                {
-                    Id=b.Id,
-                    VehicleType=b.VehicleType,
-                    ServiceTypeId=b.ServiceTypeId,
-                    ServiceType=b.ServiceType,
-                    Location=b.Location,
-                    StatusId=b.StatusId,
-                    Status=b.Status,
-                    ScheduledAt=b.ScheduledAt,
-                    AdditionalNotes=b.AdditionalNotes,
-                    CreatedAt=b.CreatedAt,
-                    UserId=b.UserId,
-                    User=b.User !=null ? new UserDto // Mapping user details if the user exists
-                    {
-                        Name=b.User.Name,
-                        Email=b.User.Email,
-                        Phone=b.User.Phone,
-                        Role=b.User.Role,
-                        IsVerified=b.User.IsVerified
-                    }:null,
-                    GuestUser=b.GuestUser,
-                    // Mapping cancellation details (if the booking was cancelled)
-                    CancelDetails = b.CancelDetails != null? new CancelDetailsDto
-                    {
-                        CancelledAt=b.CancelDetails.CancelledAt,
-                        CancelReason=b.CancelDetails.CancelReason,
-                        CancelledByUser=new CancellingUserDTO // Mapping details of the user who cancelled the booking
-                        {
-                            Name=b.CancelDetails.CancelledByUser.Name,
-                            Role=b.CancelDetails.CancelledByUser.Role
-                        }
-                    } :null
-                }) 
+                .Select(b => MapBookingToDto(b)) 
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
@@ -448,5 +419,45 @@ namespace TodoAPI.Services
             }
             return (name, email, phone);
         }
+
+        // Map Booking to BookingDto
+        private BookingDto MapBookingToDto(Booking booking)
+        {
+            return new BookingDto
+            {
+                Id = booking.Id,
+                VehicleType = booking.VehicleType,
+                ServiceTypeId = booking.ServiceTypeId,
+                ServiceType = booking.ServiceType,
+                Location = booking.Location,
+                StatusId = booking.StatusId,
+                Status = booking.Status,
+                ScheduledAt = booking.ScheduledAt,
+                AdditionalNotes = booking.AdditionalNotes,
+                CreatedAt = booking.CreatedAt,
+                UserId = booking.UserId,
+                User = booking.User != null ? new UserDto // Mapping user details if the user exists
+                {
+                    Name = booking.User.Name,
+                    Email = booking.User.Email,
+                    Phone = booking.User.Phone,
+                    Role = booking.User.Role,
+                    IsVerified = booking.User.IsVerified
+                } : null,
+                GuestUser = booking.GuestUser,
+                // Mapping cancellation details (if the booking was cancelled)
+                CancelDetails = booking.CancelDetails != null ? new CancelDetailsDto
+                {
+                    CancelledAt = booking.CancelDetails.CancelledAt,
+                    CancelReason = booking.CancelDetails.CancelReason,
+                    CancelledByUser = new CancellingUserDTO // Mapping details of the user who cancelled the booking
+                    {
+                        Name = booking.CancelDetails.CancelledByUser.Name,
+                        Role = booking.CancelDetails.CancelledByUser.Role
+                    }
+                } : null
+            };
+        }
+
     }
 }
