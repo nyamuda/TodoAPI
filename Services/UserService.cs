@@ -90,7 +90,7 @@ namespace TodoAPI.Services
 
         public async Task DeleteUser(int id)
         {
-            var user = await GetUser(id);
+            var user = await _context.Users.FirstOrDefaultAsync(x =>x.Id.Equals(id));
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} was not found.");
 
