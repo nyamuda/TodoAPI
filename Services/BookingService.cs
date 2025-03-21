@@ -1,8 +1,10 @@
 ﻿using TodoAPI.Data;
 using TodoAPI.Dtos;
+using TodoAPI.Dtos.User;
 using TodoAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Dtos.Booking;
+using TodoAPI.Dtos.CancelDetails;
 namespace TodoAPI.Services
 {
     public class BookingService
@@ -226,13 +228,54 @@ namespace TodoAPI.Services
             return (bookings, pageInfo);
 
         }
-        
+
 
 
         //Get an booking by id
-        public async Task<Booking> GetBooking(int id)
+        public async Task<BookingDto> GetBooking(int id)
         {
-            var booking = await _context.Bookings.Include(x => x.Feedback).Include(b => b.CancelDetails).Include(b => b.Status).Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
+           
+            var booking = await _context.Bookings.Include(x => x.Feedback)
+                .Include(b => b.ServiceType)
+                .Include(b => b.User)
+                .Include(b => b.Status)
+                .Include(b => b.CancelDetails)
+                .ThenInclude(cd => cd!.CancelledByUser)
+                .Select(b => new BookingDto
+                {
+                    Id=b.Id,
+                    VehicleType=b.VehicleType,
+                    ServiceTypeId=b.ServiceTypeId,
+                    ServiceType=b.ServiceType,
+                    Location=b.Location,
+                    StatusId=b.StatusId,
+                    Status=b.Status,
+                    ScheduledAt=b.ScheduledAt,
+                    AdditionalNotes=b.AdditionalNotes,
+                    CreatedAt=b.CreatedAt,
+                    UserId=b.UserId,
+                    User=b.User !=null ? new UserDto // Mapping user details if the user exists
+                    {
+                        Name=b.User.Name,
+                        Email=b.User.Email,
+                        Phone=b.User.Phone,
+                        Role=b.User.Role,
+                        IsVerified=b.User.IsVerified
+                    }:null,
+                    GuestUser=b.GuestUser,
+                    // Mapping cancellation details (if the booking was cancelled)
+                    CancelDetails = b.CancelDetails != null? new CancelDetailsDto
+                    {
+                        CancelledAt=b.CancelDetails.CancelledAt,
+                        CancelReason=b.CancelDetails.CancelReason,
+                        CancelledByUser=new CancellingUserDTO // Mapping details of the user who cancelled the booking
+                        {
+                            Name=b.CancelDetails.CancelledByUser.Name,
+                            Role=b.CancelDetails.CancelledByUser.Role
+                        }
+                    } :null
+                }) 
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
@@ -244,7 +287,11 @@ namespace TodoAPI.Services
         public async Task DeleteBooking(int id)
         {
 
-            var booking = await GetBooking(id);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (booking is null)
+                throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
+
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }
@@ -270,7 +317,7 @@ namespace TodoAPI.Services
                 TotalCompletedBookings = totalCompletedBookings,
                 TotalPendingBookings = totalPendingBookings,
                 TotalCancelledBookings = totalCancelledBookings,
-                TotalConfirmedBookings=totalConfirmedBookings
+                TotalConfirmedBookings = totalConfirmedBookings
             };
             return userStats;
         }
@@ -302,7 +349,7 @@ namespace TodoAPI.Services
             booking.Status = status;
             if (status.Name.Equals("cancelled"))
             {
-              
+
                 //cancel details
                 var cancelDetails = new CancelDetails()
                 {
@@ -358,7 +405,12 @@ namespace TodoAPI.Services
         //Get information about a user who made a specific booking
         public async Task<(string name, string email, string phone)> GetBookingUserInfo(int id)
         {
-            Booking booking = await GetBooking(id);
+
+            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id.Equals(id));
+
+            if (booking is null)
+                throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
+
 
             var name = string.Empty;
             var email = string.Empty;
