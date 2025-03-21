@@ -8,9 +8,8 @@ namespace TodoAPI.Dtos.CancelDetails
 
         public DateTime CancelledAt { get; set; } = default!;
 
-        public User CancelledByUser { get; set; } = default!;
+        public CancellingUserDTO CancelledByUser { get; set; } = default!;
 
-        
         
     }
 }
