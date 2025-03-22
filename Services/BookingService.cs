@@ -210,8 +210,8 @@ namespace TodoAPI.Services
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(b => MapBookingToDto(b))
                 .ToListAsync();
-
 
             //total bookings
             var totalBookings = await query.Where(x => x.UserId.Equals(user.Id)).CountAsync();
@@ -224,10 +224,8 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
-            //map the bookings to the booking Dtos
-            List<BookingDto> bookingDtos = bookings.Select(b => MapBookingToDto(b)).ToList();
-
-            return (bookingDtos, pageInfo);
+            
+            return (bookings, pageInfo);
 
         }
 
