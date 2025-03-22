@@ -118,7 +118,6 @@ namespace TodoAPI.Services
                 .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(b => _bookingService.MapBookingToDto(b)) //map booking to bookingDto
                 .ToListAsync();
 
             var totalBookings = await query.CountAsync();
@@ -131,7 +130,9 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
-            return (bookings, pageInfo);
+            var bookingDtos = bookings.Select(b => BookingDto.MapFrom(b)).ToList();
+
+            return (bookingDtos, pageInfo);
 
         }
 
