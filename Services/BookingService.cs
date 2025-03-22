@@ -87,7 +87,8 @@ namespace TodoAPI.Services
             var adminEmail = _emailSender.AdminEmail;
             await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
 
-            return MapBookingToDto(booking);
+            //map Booking to BoookingDto
+            return BookingDto.MapFrom(booking);
 
         }
         // Add guest booking when user is not logged in and wants to create a booking
