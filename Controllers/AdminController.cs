@@ -18,6 +18,7 @@ namespace TodoAPI.Controllers
         private readonly JwtService _jwtService;
         private readonly UserService _userService;
         private readonly ErrorMessageService _errorMessage;
+       
 
         public AdminController(AdminService adminService, JwtService jwtService, UserService userService, ErrorMessageService errorMessage)
         {
@@ -55,7 +56,7 @@ namespace TodoAPI.Controllers
 
         }
         // GET: api/<BookingsController>/statistics
-        [HttpGet("statistics")]
+        [HttpGet("stats")]
         public async Task<IActionResult> GetStatistics()
         {
             try

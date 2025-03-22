@@ -27,7 +27,7 @@ namespace TodoAPI.Services
         }
 
         // Add a new booking
-        public async Task<Booking> AddBooking(AddBookingDto bookingDto, string email)
+        public async Task<BookingDto> AddBooking(AddBookingDto bookingDto, string email)
         {
             //get the user with the given email
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
@@ -87,7 +87,7 @@ namespace TodoAPI.Services
             var adminEmail = _emailSender.AdminEmail;
             await _emailSender.SendEmail(name: "Admin", email: adminEmail, subject: emailSubject, message: emailBody);
 
-            return booking;
+            return MapBookingToDto(booking);
 
         }
         // Add guest booking when user is not logged in and wants to create a booking
@@ -456,7 +456,7 @@ namespace TodoAPI.Services
                     CancelReason = booking.CancelDetails.CancelReason,
                     CancelledByUser = new CancellingUserDTO // Mapping details of the user who cancelled the booking
                     {
-                        Name = booking.CancelDetails.CancelledByUser.Name,
+                        Name = booking.CancelDetails.CancelledByUser!.Name,
                         Role = booking.CancelDetails.CancelledByUser.Role
                     }
                 } : null

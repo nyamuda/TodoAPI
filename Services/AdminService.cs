@@ -79,6 +79,25 @@ namespace TodoAPI.Services
 
         }
 
+        //Get an booking by id
+        public async Task<BookingDto> GetBooking(int id)
+        {
+
+            var booking = await _context.Bookings.Include(x => x.Feedback)
+                .Include(b => b.ServiceType)
+                .Include(b => b.User)
+                .Include(b => b.Status)
+                .Include(b => b.CancelDetails)
+                .ThenInclude(cd => cd!.CancelledByUser)
+                .Select(b => _bookingService.MapBookingToDto(b))
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (booking is null)
+                throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
+
+            return booking;
+        }
+
         //Get all bookings
         //return a list of bookings and a PageInfo object
         public async Task<(List<BookingDto>, PageInfo)> GetBookings(int page, int pageSize, string? status)
@@ -100,7 +119,7 @@ namespace TodoAPI.Services
                 .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(b => _bookingService.MapBookingToDto(b)) //map booking to the bookingDto
+                .Select(b => _bookingService.MapBookingToDto(b)) //map booking to bookingDto
                 .ToListAsync();
 
             var totalBookings = await query.CountAsync();
@@ -118,22 +137,13 @@ namespace TodoAPI.Services
         }
 
 
-
-        //Get an booking by id
-        public async Task<Booking> GetBooking(int id)
-        {
-            var booking = await _context.Bookings.Include(b => b.ServiceType).Include(b => b.User).FirstOrDefaultAsync(x => x.Id == id);
-
-            if (booking is null)
-                throw new KeyNotFoundException("Booking with the given ID does not exist.");
-
-            return booking;
-        }
-
         //Delete an booking
         public async Task DeleteBooking(int id)
         {
-            var booking = await GetBooking(id);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(x =>x.Id.Equals(id));
+            if (booking is null)
+                throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
+
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
         }

@@ -198,7 +198,7 @@ namespace TodoAPI.Controllers
         // POST api/<BookingsController>
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Post(AddBookingDto bookingDto)
+        public async Task<IActionResult> Post(AddBookingDto addBookingDto)
         {
             try
             {
@@ -218,8 +218,9 @@ namespace TodoAPI.Controllers
                     throw new UnauthorizedAccessException("Access denied. The token lacks necessary claims for verification.");
                 }
 
-                var booking = await _bookingService.AddBooking(bookingDto, email);
+                var booking = await _bookingService.AddBooking(addBookingDto, email);
 
+               
 
                 return CreatedAtAction(nameof(Get), new { id = booking.Id }, booking);
 
