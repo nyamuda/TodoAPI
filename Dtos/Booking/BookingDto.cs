@@ -37,7 +37,7 @@ namespace TodoAPI.Dtos.Booking
 
 
 
-        public BookingDto MapFrom(Models.Booking booking)
+        public static BookingDto MapFrom(Models.Booking booking)
         {
             return new BookingDto
             {

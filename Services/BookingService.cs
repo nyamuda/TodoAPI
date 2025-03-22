@@ -241,13 +241,12 @@ namespace TodoAPI.Services
                 .Include(b => b.Status)
                 .Include(b => b.CancelDetails)
                 .ThenInclude(cd => cd!.CancelledByUser)
-                .Select(b => MapBookingToDto(b)) 
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (booking is null)
                 throw new KeyNotFoundException($"Booking with ID {id} does not exist.");
 
-            return booking;
+            return BookingDto.MapFrom(booking);
         }
 
         //Delete an booking
