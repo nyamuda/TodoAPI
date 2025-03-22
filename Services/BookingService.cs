@@ -425,7 +425,7 @@ namespace TodoAPI.Services
         }
 
         // Map Booking to BookingDto
-        private BookingDto MapBookingToDto(Booking booking)
+        public BookingDto MapBookingToDto(Booking booking)
         {
             return new BookingDto
             {

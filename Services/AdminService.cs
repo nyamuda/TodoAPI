@@ -81,7 +81,7 @@ namespace TodoAPI.Services
 
         //Get all bookings
         //return a list of bookings and a PageInfo object
-        public async Task<(List<Booking>, PageInfo)> GetBookings(int page, int pageSize, string? status)
+        public async Task<(List<BookingDto>, PageInfo)> GetBookings(int page, int pageSize, string? status)
         {
 
             var query = _context.Bookings.AsQueryable();
@@ -100,6 +100,7 @@ namespace TodoAPI.Services
                 .Include(x => x.User)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(b => _bookingService.MapBookingToDto(b)) //map booking to the bookingDto
                 .ToListAsync();
 
             var totalBookings = await query.CountAsync();
