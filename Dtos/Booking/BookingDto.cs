@@ -37,5 +37,46 @@ namespace TodoAPI.Dtos.Booking
 
 
 
+        public BookingDto MapFrom(Models.Booking booking)
+        {
+            return new BookingDto
+            {
+                Id = booking.Id,
+                VehicleType = booking.VehicleType,
+                ServiceTypeId = booking.ServiceTypeId,
+                ServiceType = booking.ServiceType,
+                Location = booking.Location,
+                StatusId = booking.StatusId,
+                Status = booking.Status,
+                ScheduledAt = booking.ScheduledAt,
+                AdditionalNotes = booking.AdditionalNotes,
+                CreatedAt = booking.CreatedAt,
+                UserId = booking.UserId,
+                User = booking.User != null ? new UserDto // Mapping user details if the user exists
+                {
+                    Id = (int)booking.UserId!,
+                    Name = booking.User.Name,
+                    Email = booking.User.Email,
+                    Phone = booking.User.Phone,
+                    Role = booking.User.Role,
+                    IsVerified = booking.User.IsVerified
+                } : null,
+                GuestUser = booking.GuestUser,
+                // Mapping cancellation details (if the booking was cancelled)
+                CancelDetails = booking.CancelDetails != null ? new CancelDetailsDto
+                {
+                    CancelledAt = booking.CancelDetails.CancelledAt,
+                    CancelReason = booking.CancelDetails.CancelReason,
+                    CancelledByUser = new CancellingUserDTO // Mapping details of the user who cancelled the booking
+                    {
+                        Name = booking.CancelDetails.CancelledByUser!.Name,
+                        Role = booking.CancelDetails.CancelledByUser.Role
+                    }
+                } : null
+            };
+        }
+
+
+
     }
 }
