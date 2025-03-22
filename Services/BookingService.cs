@@ -442,6 +442,7 @@ namespace TodoAPI.Services
                 UserId = booking.UserId,
                 User = booking.User != null ? new UserDto // Mapping user details if the user exists
                 {
+                    Id=(int)booking.UserId!,
                     Name = booking.User.Name,
                     Email = booking.User.Email,
                     Phone = booking.User.Phone,
