@@ -210,7 +210,6 @@ namespace TodoAPI.Services
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(b => MapBookingToDto(b))
                 .ToListAsync();
 
             //total bookings
@@ -224,8 +223,10 @@ namespace TodoAPI.Services
                 HasMore = hasMore
 
             };
+            //map Booking to BoookingDto
+            var bookingDtos = bookings.Select(b => BookingDto.MapFrom(b)).ToList();
             
-            return (bookings, pageInfo);
+            return (bookingDtos, pageInfo);
 
         }
 
